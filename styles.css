@@ -12,6 +12,8 @@
   --badge-navy: #002b49;
   --text-dark: #333333;
   --border-color: #e2e8f0;
+  --sidebar-width-collapsed: 65px;
+  --sidebar-width-expanded: 240px;
 }
 
 /* Base Reset */
@@ -31,27 +33,31 @@ body {
   overflow: hidden;
 }
 
-/* Sidebar Nav */
+/* Sidebar Nav - Collapsed by Default with Hover Expansion */
 aside {
-  width: 240px;
+  width: var(--sidebar-width-collapsed);
   background-color: var(--sidebar-bg);
   color: #ffffff;
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  transition: margin-left 0.3s ease;
-  z-index: 100;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  overflow-x: hidden;
+  position: relative;
+  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
 }
 
-aside.collapsed {
-  margin-left: -240px;
+aside:hover,
+aside.hover-expanded {
+  width: var(--sidebar-width-expanded);
 }
 
 .brand {
   height: 60px;
   display: flex;
   align-items: center;
-  padding: 0 16px;
+  padding: 0 20px;
   font-size: 1.1rem;
   font-weight: bold;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -60,13 +66,25 @@ aside.collapsed {
 
 .brand i {
   font-size: 1.4rem;
-  margin-right: 12px;
+  margin-right: 18px;
   color: #2bb14c;
+  min-width: 24px;
+}
+
+.brand span {
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+aside:hover .brand span,
+aside.hover-expanded .brand span {
+  opacity: 1;
 }
 
 .nav-menu {
   list-style: none;
   overflow-y: auto;
+  overflow-x: hidden;
   flex-grow: 1;
 }
 
@@ -75,7 +93,7 @@ aside.collapsed {
   display: flex;
   align-items: center;
   width: 100%;
-  padding: 12px 18px;
+  padding: 14px 20px;
   color: #e0e0e0;
   text-decoration: none;
   font-size: 0.88rem;
@@ -98,31 +116,42 @@ aside.collapsed {
   font-weight: 600;
 }
 
-.nav-menu li a i,
+.nav-menu li a i:not(.chevron),
 .nav-menu li .dropdown-btn i:not(.chevron) {
-  width: 22px;
-  margin-right: 10px;
+  font-size: 1.1rem;
+  min-width: 24px;
+  margin-right: 18px;
+}
+
+.nav-menu li span,
+.nav-menu li .chevron {
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+aside:hover .nav-menu li span,
+aside:hover .nav-menu li .chevron,
+aside.hover-expanded .nav-menu li span,
+aside.hover-expanded .nav-menu li .chevron {
+  opacity: 1;
 }
 
 .nav-menu li .chevron {
   margin-left: auto;
   font-size: 0.75rem;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.2s;
 }
 
-/* Collapsible Dropdown Nav Styling (Finance & Fees Setup Sections) */
+/* Collapsible Dropdown Nav Styling */
 .nav-dropdown {
   display: flex;
   flex-direction: column;
 }
 
 .nav-dropdown .dropdown-btn {
-  border: 1px solid rgba(255, 255, 255, 0.4);
   border-radius: 6px;
-  width: calc(100% - 20px);
-  margin: 4px 10px;
-  padding: 10px 12px;
-  background-color: rgba(255, 255, 255, 0.05);
+  width: 100%;
+  padding: 14px 20px;
 }
 
 .nav-dropdown .submenu {
@@ -130,10 +159,11 @@ aside.collapsed {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.35s cubic-bezier(0, 1, 0, 1);
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: rgba(0, 0, 0, 0.15);
 }
 
-.nav-dropdown.open .submenu {
+aside:hover .nav-dropdown.open .submenu,
+aside.hover-expanded .nav-dropdown.open .submenu {
   max-height: 300px;
   transition: max-height 0.35s ease-in-out;
 }
@@ -143,7 +173,7 @@ aside.collapsed {
 }
 
 .submenu li a {
-  padding: 10px 18px 10px 30px !important;
+  padding: 10px 20px 10px 42px !important;
   font-size: 0.84rem;
   color: #cfd8dc;
   display: flex;
@@ -155,19 +185,13 @@ aside.collapsed {
   color: #ffffff;
 }
 
-.submenu li a.sub-active {
-  color: #ffffff !important;
-  font-weight: 600;
-  background-color: var(--sidebar-active);
-}
-
 .submenu-icon {
   font-size: 0.75rem !important;
   margin-right: 12px !important;
-  width: auto !important;
+  min-width: auto !important;
 }
 
-/* Main Content Area */
+/* Main Content View Container */
 .main-wrapper {
   flex: 1;
   min-width: 0;
@@ -197,7 +221,12 @@ header {
 .header-left i {
   cursor: pointer;
   font-size: 1.2rem;
-  padding: 5px;
+  padding: 6px;
+  border-radius: 4px;
+}
+
+.header-left i:hover {
+  background-color: #f0f0f0;
 }
 
 .header-title {
@@ -256,6 +285,7 @@ header {
   color: #ffffff;
   border: none;
   cursor: pointer;
+  text-align: center;
 }
 
 .badge-yellow { background-color: var(--badge-yellow); color: #222; }
@@ -263,7 +293,7 @@ header {
 .badge-red { background-color: var(--badge-red); }
 .badge-navy { background-color: var(--badge-navy); }
 
-/* Dashboard Primary Grid */
+/* Primary Grid Layout */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 3fr 1fr;
@@ -271,7 +301,7 @@ header {
   min-width: 0;
 }
 
-/* Matrix Cards */
+/* Stats Matrix Cards */
 .stats-matrix {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -286,7 +316,6 @@ header {
   overflow: hidden;
   min-height: 85px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  transition: opacity 0.3s ease, transform 0.2s ease;
 }
 
 .stat-card.blue { background-color: var(--card-blue); }
@@ -294,13 +323,13 @@ header {
 .stat-card.red { background-color: var(--card-red); }
 
 .stat-card .val {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: bold;
-  white-space: nowrap;
+  word-break: break-all;
 }
 
 .stat-card .percentage {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: normal;
   opacity: 0.9;
 }
@@ -320,7 +349,7 @@ header {
   pointer-events: none;
 }
 
-/* Right Metric Side Panel */
+/* Metric Right Panel */
 .metric-panel {
   display: flex;
   flex-direction: column;
@@ -365,7 +394,7 @@ header {
   color: #222;
 }
 
-/* Section Cards & Chart Container */
+/* Section Cards & Chart */
 .section-card {
   background: #ffffff;
   border: 1px solid var(--border-color);
@@ -430,8 +459,8 @@ header {
   background: var(--card-green);
 }
 
-/* Responsive Media Queries */
-@media (max-width: 1280px) {
+/* Dynamic Responsive Queries */
+@media (max-width: 1200px) {
   .stats-matrix {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -443,11 +472,50 @@ header {
   }
 }
 
+@media (max-width: 768px) {
+  /* Off-canvas Mobile Drawer Behavior */
+  aside {
+    position: fixed;
+    top: 0;
+    left: -240px;
+    height: 100vh;
+    width: 240px !important;
+    transition: left 0.3s ease;
+  }
+
+  aside.mobile-open {
+    left: 0;
+  }
+
+  aside .brand span,
+  aside .nav-menu li span,
+  aside .nav-menu li .chevron {
+    opacity: 1 !important;
+  }
+
+  .container {
+    padding: 12px;
+  }
+
+  .header-title {
+    font-size: 0.95rem;
+  }
+}
+
 @media (max-width: 576px) {
   .stats-matrix {
     grid-template-columns: 1fr;
   }
-  .container {
-    padding: 12px;
+
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .badge-btn {
+    width: 100%;
+  }
+
+  .chart-wrapper {
+    height: 250px;
   }
 }

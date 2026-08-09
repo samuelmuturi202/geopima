@@ -1,16 +1,41 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Sidebar Collapse/Expand Toggle
-  const toggleBtn = document.getElementById('toggle-sidebar');
   const sidebar = document.getElementById('sidebar');
+  const toggleBtn = document.getElementById('toggle-sidebar');
 
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+  // --- 1. Hover Expand/Collapse Logic for Desktop ---
+  if (sidebar) {
+    sidebar.addEventListener('mouseenter', () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.add('hover-expanded');
+      }
+    });
+
+    sidebar.addEventListener('mouseleave', () => {
+      if (window.innerWidth > 768) {
+        sidebar.classList.remove('hover-expanded');
+      }
     });
   }
 
-  // 2. Generic Dropdown Toggle Handler (Finance & Fees Setup)
+  // --- 2. Mobile Drawer Toggle Logic ---
+  if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      sidebar.classList.toggle('mobile-open');
+    });
+
+    // Close mobile drawer when clicking outside
+    document.addEventListener('click', (e) => {
+      if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
+        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+          sidebar.classList.remove('mobile-open');
+        }
+      }
+    });
+  }
+
+  // --- 3. Submenu / Dropdown Handler ---
   const setupDropdownToggle = (toggleId) => {
     const toggleBtn = document.getElementById(toggleId);
     const dropdown = toggleBtn ? toggleBtn.closest('.nav-dropdown') : null;
@@ -23,41 +48,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Initialize Finance and Fees Setup Dropdowns
   setupDropdownToggle('finance-dropdown-toggle');
   setupDropdownToggle('fees-dropdown-toggle');
 
-  // Handle direct page navigation when any submenu item is clicked
+  // Navigate links inside submenus
   const submenuLinks = document.querySelectorAll('.submenu a');
   submenuLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
+    link.addEventListener('click', () => {
       const targetUrl = link.getAttribute('href');
-
-      // Navigate to the target URL if defined and not just '#'
       if (targetUrl && targetUrl !== '#') {
         window.location.href = targetUrl;
       }
     });
   });
 
-  // 3. Dedicated Navigation Links (Landlords & Properties)
-  const setupNavLink = (linkId) => {
-    const navLink = document.getElementById(linkId);
-    if (navLink) {
-      navLink.addEventListener('click', (e) => {
-        const targetUrl = navLink.getAttribute('href');
-        if (targetUrl && targetUrl !== '#') {
-          window.location.href = targetUrl;
-        }
-      });
-    }
-  };
+  // Dedicated Link Handler
+  const landlordsLink = document.getElementById('landlords-link');
+  if (landlordsLink) {
+    landlordsLink.addEventListener('click', () => {
+      const targetUrl = landlordsLink.getAttribute('href');
+      if (targetUrl && targetUrl !== '#') {
+        window.location.href = targetUrl;
+      }
+    });
+  }
 
-  setupNavLink('landlords-link');
-  setupNavLink('properties-link');
-
-  // 4. Population Distribution Chart (Chart.js - Only runs on Dashboard page)
+  // --- 4. Chart.js Population Distribution Chart ---
   const chartCanvas = document.getElementById('populationChart');
+  let populationChartInstance = null;
+
   if (chartCanvas) {
     const ctx = chartCanvas.getContext('2d');
     const propertyLabels = [
@@ -68,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
       'Grace', 'Grace Gaitho', 'Harrison Plot', 'HENRY NJOROGE', 'Isaac githiora'
     ];
 
-    new Chart(ctx, {
+    populationChartInstance = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: propertyLabels,
@@ -105,7 +124,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Render Payment Summary Progress Bars (Only runs on Dashboard page)
+  // Resize chart dynamically on screen change
+  window.addEventListener('resize', () => {
+    if (populationChartInstance) {
+      populationChartInstance.resize();
+    }
+  });
+
+  // --- 5. Render Payment Summary Progress Bars ---
   const summaryContainer = document.getElementById('payment-summary-container');
   if (summaryContainer) {
     const paymentData = [
