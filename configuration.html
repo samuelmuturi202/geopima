@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Configuration</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Dashboard Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Page Specific Stylesheet -->
+  <link rel="stylesheet" href="configuration.css">
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      
+      <!-- Finance Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+          <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+          <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+          <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+        </ul>
+      </li>
+
+      <!-- Fees Setup Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="fees-dropdown-toggle">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Fees Setup</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="fees-submenu">
+          <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
+          <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
+        </ul>
+      </li>
+
+      <li><a href="landlords.html"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="tenants.html"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="communication.html"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li class="active"><a href="configuration.html"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      
+      <!-- Top Title Bar with Breadcrumb -->
+      <div class="page-header-row">
+        <h2 class="admin-title">Admin Dashboard</h2>
+        <div class="breadcrumb">
+          <a href="index.html">Home</a> / <span>Configuration</span>
+        </div>
+      </div>
+
+      <!-- Configuration Action Cards Grid -->
+      <div class="config-grid">
+        
+        <!-- Users Card -->
+        <a href="configuration/users.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <span class="card-label">Users</span>
+        </a>
+
+        <!-- User Roles Card -->
+        <a href="user-roles.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-link"></i>
+          </div>
+          <span class="card-label">User Roles</span>
+        </a>
+
+        <!-- Agency Profile Card -->
+        <a href="configuration/agency-profile.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-landmark"></i>
+          </div>
+          <span class="card-label">Agency Profile</span>
+        </a>
+
+        <!-- Collection Banks Card -->
+        <a href="configuration/collection-banks.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-house"></i>
+          </div>
+          <span class="card-label">Collection Banks</span>
+        </a>
+
+        <!-- SMS Templates Card -->
+        <a href="configuration/sms-templates.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-paper-plane"></i>
+          </div>
+          <span class="card-label">SMS Templates</span>
+        </a>
+
+        <!-- Agreement Templates Card -->
+        <a href="configuration/agreement-templates.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-file-signature"></i>
+          </div>
+          <span class="card-label">Agreement Templates</span>
+        </a>
+
+        <!-- Promote Month Card -->
+        <a href="promote-month.html" class="config-card">
+          <div class="card-icon">
+            <i class="fa-solid fa-forward-step"></i>
+          </div>
+          <span class="card-label">Promote Month</span>
+        </a>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Scripts -->
+  <script src="script.js"></script>
+  <script src="configuration.js"></script>
+</body>
+</html>

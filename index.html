@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Dashboard</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Chart.js Library -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li class="active"><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      
+      <!-- Collapsible & Interactive Finance Dropdown -->
+      <li class="nav-dropdown open">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+          <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+          <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+          <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+        </ul>
+      </li>
+
+      <!-- Collapsible & Interactive Fees Setup Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="fees-dropdown-toggle">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Fees Setup</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="fees-submenu">
+          <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
+          <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
+        </ul>
+      </li>
+
+      <!-- Landlords Navigation Link -->
+      <li>
+        <a href="landlords.html" id="landlords-link">
+          <i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Properties Navigation Link (Updated) -->
+      <li>
+        <a href="properties.html" id="properties-link">
+          <i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main View -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="dashboard-title-row">
+        <h2>Geopima Agency Dashboard</h2>
+        <div class="breadcrumb">Home / AUGUST-2026</div>
+      </div>
+
+      <!-- Top Status Indicators -->
+      <div class="banner-row">
+        <button class="badge-btn badge-yellow">Expiring Property Agreements : 0</button>
+        <button class="badge-btn badge-yellow">Expiring Tenant Agreements : 37</button>
+        <button class="badge-btn badge-green">Prepayment: KES -81,310</button>
+        <button class="badge-btn badge-red">41 tenants with invalid contacts</button>
+        <button class="badge-btn badge-navy">SMS Balance: 9345 units</button>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- Main Stats Grid -->
+        <div class="stats-matrix">
+          <div class="stat-card blue">
+            <div class="val">7,333,840 <span class="percentage">( 90.3% )</span></div>
+            <div class="label">Expected Rent</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">140,990 <span class="percentage">( 1.7% )</span></div>
+            <div class="label">Expected Utilities</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">649,100 <span class="percentage">( 8% )</span></div>
+            <div class="label">JULY Arrears</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">8,123,930 <span class="percentage">( 100% )</span></div>
+            <div class="label">Total Expected</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+
+          <div class="stat-card green">
+            <div class="val">1,053,027 <span class="percentage">( 14.4% )</span></div>
+            <div class="label">Collected Rent</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card green">
+            <div class="val">17,620 <span class="percentage">( 12.5% )</span></div>
+            <div class="label">Collected Utilities</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card green">
+            <div class="val">85,100 <span class="percentage">( 13.1% )</span></div>
+            <div class="label">Collected Arrears</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card green">
+            <div class="val">1,155,747 <span class="percentage">( 14.2% )</span></div>
+            <div class="label">Collection + PrePay</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+
+          <div class="stat-card red">
+            <div class="val">6,280,813 <span class="percentage">( 85.6% )</span></div>
+            <div class="label">Rent Due</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card red">
+            <div class="val">123,370 <span class="percentage">( 87.5% )</span></div>
+            <div class="label">Utilities Due</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card red">
+            <div class="val">564,000 <span class="percentage">( 86.9% )</span></div>
+            <div class="label">Arrears Due</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card red">
+            <div class="val">6,968,183 <span class="percentage">( 85.8% )</span></div>
+            <div class="label">Total Due</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+
+          <div class="stat-card blue">
+            <div class="val">725,660 <span class="percentage">( 100% )</span></div>
+            <div class="label">Mpesa Collection</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">702,410 <span class="percentage">( 96.8% )</span></div>
+            <div class="label">Allocated Mpesa</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">23,250 <span class="percentage">( 3.2% )</span></div>
+            <div class="label">Unallocated Mpesa</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card green">
+            <div class="val">802,310</div>
+            <div class="label">AUGUST-2026 Collection</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+
+          <div class="stat-card blue">
+            <div class="val">0</div>
+            <div class="label">Bank Slip Collection</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">99,900</div>
+            <div class="label">Cash Collection</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+          <div class="stat-card blue">
+            <div class="val">0</div>
+            <div class="label">Cheque Collection</div>
+            <i class="fa-solid fa-coins watermark"></i>
+          </div>
+        </div>
+
+        <!-- Right Side Metric Panel -->
+        <div class="metric-panel">
+          <div class="metric-card">
+            <div class="metric-icon bg-green"><i class="fa-solid fa-user-group"></i></div>
+            <div class="metric-details">
+              <div class="m-label">Landlords</div>
+              <div class="m-val">79</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon bg-yellow"><i class="fa-solid fa-sitemap"></i></div>
+            <div class="metric-details">
+              <div class="m-label">Properties</div>
+              <div class="m-val">81</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon bg-navy"><i class="fa-solid fa-house"></i></div>
+            <div class="metric-details">
+              <div class="m-label">Units</div>
+              <div class="m-val">1,763</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon bg-grey"><i class="fa-solid fa-house-user"></i></div>
+            <div class="metric-details">
+              <div class="m-label">Units Occupied</div>
+              <div class="m-val">1,537 (87%)</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon bg-green"><i class="fa-solid fa-users"></i></div>
+            <div class="metric-details">
+              <div class="m-label">Tenants</div>
+              <div class="m-val">1,540</div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-icon bg-yellow"><i class="fa-solid fa-user-slash"></i></div>
+            <div class="metric-details">
+              <div class="m-label">Suspend</div>
+              <div class="m-val">90</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Population Chart Section -->
+      <div class="section-card">
+        <h3><i class="fa-solid fa-chart-column"></i> Population Distribution (1763 Units)</h3>
+        <div class="chart-wrapper">
+          <canvas id="populationChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Payment Summary Progress Component Section -->
+      <div class="section-card">
+        <h3>Payment summary by properties</h3>
+        <div class="progress-grid" id="payment-summary-container"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Custom JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>

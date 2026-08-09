@@ -1,0 +1,259 @@
+/* Properties Specific Layout Styling */
+.properties-container {
+  padding: 20px;
+  flex: 1;
+  background-color: var(--body-bg, #f3f5f8);
+}
+
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.page-header-row h2 {
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 500;
+}
+
+.title-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.status-links {
+  font-size: 0.88rem;
+}
+
+.status-link {
+  text-decoration: none;
+  color: #e53935;
+  font-weight: 500;
+}
+
+.status-link.active {
+  color: #d32f2f;
+  border-bottom: 1px dotted #d32f2f;
+}
+
+.top-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+/* Card Panel Styling */
+.card-panel {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-header {
+  padding: 12px 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.card-header h2 {
+  font-size: 0.88rem;
+  text-transform: uppercase;
+  color: #4a5568;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Shared Button System */
+.btn {
+  padding: 6px 14px;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-navy-solid {
+  background-color: #0b2238;
+  color: #ffffff;
+}
+
+.btn-cyan {
+  background-color: #008ba3;
+  color: #ffffff;
+}
+
+/* Dropdown Elements */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: #ffffff;
+  min-width: 120px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  border-radius: 4px;
+  z-index: 10;
+  margin-top: 4px;
+}
+
+.dropdown-container.open .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 8px 14px;
+  color: #333333;
+  text-decoration: none;
+  font-size: 0.82rem;
+}
+
+.dropdown-item:hover {
+  background-color: #f7fafc;
+}
+
+/* Table Controls Toolbar */
+.card-body {
+  padding: 18px;
+}
+
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 0.85rem;
+  color: #4a5568;
+}
+
+.entries-control select {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  margin: 0 4px;
+}
+
+.search-control input {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e0;
+  border-radius: 4px;
+  margin-left: 6px;
+  outline: none;
+}
+
+/* Data Table Component */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.83rem;
+}
+
+.data-table th, 
+.data-table td {
+  padding: 12px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.data-table th {
+  background-color: #ffffff;
+  color: #2d3748;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.data-table th i {
+  color: #a0aec0;
+  margin-left: 4px;
+}
+
+.link-dashed {
+  color: #2b6cb0;
+  text-decoration: none;
+  border-bottom: 1px dashed #2b6cb0;
+}
+
+.occ-count {
+  color: #38a169;
+  font-weight: bold;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.badge-success {
+  background-color: #2e7d32;
+  color: #ffffff;
+}
+
+/* Table Footer & Pagination */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: #718096;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  gap: 2px;
+}
+
+.page-btn {
+  padding: 5px 12px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #2b6cb0;
+  cursor: pointer;
+  border-radius: 2px;
+  font-size: 0.82rem;
+}
+
+.page-btn.active {
+  background-color: #3182ce;
+  color: #ffffff;
+  border-color: #3182ce;
+}

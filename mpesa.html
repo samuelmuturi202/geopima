@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPESA PAYBILL PAYMENTS LIST - Wiserenter</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="mpesa.css">
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Wiserenter</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      
+      <!-- Finance Dropdown Section -->
+      <li class="nav-dropdown open">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html" data-section="Collected Rent"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+          <li><a href="mpesa.html" class="sub-active" data-section="Mpesa Collection"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+          <li><a href="#" data-section="Coop Collection"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+          <li><a href="#" data-section="Fees Discounted"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+        </ul>
+      </li>
+
+      <li><a href="#"><i class="fa-solid fa-wrench"></i> Fees Setup <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+      </div>
+      <div class="header-right">
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      <!-- Title & Confirm Action Button Header -->
+      <div class="page-title-bar">
+        <h1>MPESA PAYBILL PAYMENTS LIST</h1>
+        <div class="top-right-bar">
+          <div class="breadcrumb">Home / Fee Collection</div>
+          <button class="btn btn-navy" id="confirm-multiple-btn">
+            <i class="fa-solid fa-magnifying-glass"></i> Confirm Multiple Transactions
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Header Bar / Controls -->
+      <div class="table-card">
+        <div class="table-top-bar">
+          <div class="summary-label">
+            <i class="fa-solid fa-database"></i> 
+            AUGUST-2026 MPESA PAYMENTS [ <span class="amount-highlight">KES. 2,318,000.00</span> ]
+          </div>
+          <div class="action-filters">
+            <button class="btn btn-filter-navy" id="filter-status-btn"><i class="fa-solid fa-filter"></i> Status <i class="fa-solid fa-caret-down"></i></button>
+            <button class="btn btn-filter-green" id="filter-period-btn"><i class="fa-solid fa-filter"></i> Period <i class="fa-solid fa-caret-down"></i></button>
+            
+            <!-- Export Dropdown -->
+            <div class="export-dropdown" id="export-dropdown">
+              <button class="btn btn-filter-teal" id="export-toggle-btn"><i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i></button>
+              <div class="export-menu" id="export-menu">
+                <button class="export-option" id="export-excel-btn">
+                  <i class="fa-solid fa-file-excel excel-icon"></i> Export as Excel (.xlsx)
+                </button>
+                <button class="export-option" id="export-pdf-btn">
+                  <i class="fa-solid fa-file-pdf pdf-icon"></i> Export as PDF (.pdf)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mpesa Transactions Data Table -->
+        <div class="table-wrapper">
+          <table id="mpesa-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>DATE/TIME</th>
+                <th>TRANS ID</th>
+                <th>ACCOUNT#</th>
+                <th>TENANT NAME</th>
+                <th>PROPERTY</th>
+                <th>UNIT</th>
+                <th>PAYER</th>
+                <th>AMOUNT</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody id="mpesa-table-body">
+              <!-- Rendered via mpesa.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Custom JS -->
+  <script src="mpesa.js"></script>
+</body>
+</html>

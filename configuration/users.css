@@ -1,0 +1,280 @@
+/* Base Layout & Page Styling */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body.bg-light {
+  background-color: #f1f5f9;
+  color: #334155;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Styling */
+.top-header {
+  height: 52px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menu-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.wiserenter-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.geopima-icon {
+  font-size: 1.3rem;
+  color: #052c54;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #052c54;
+  letter-spacing: -0.3px;
+}
+
+.brand-sub {
+  font-size: 0.62rem;
+  color: #17a2b8;
+  letter-spacing: 0.2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-dropdown {
+  font-size: 0.88rem;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Page Container */
+.page-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1200px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Top Action Header */
+.action-header {
+  margin-bottom: 24px;
+}
+
+.btn-add-user {
+  background-color: #ffffff;
+  color: #0369a1;
+  border: 1px solid #0284c7;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+}
+
+.btn-add-user:hover {
+  background-color: #f0f9ff;
+  color: #0284c7;
+}
+
+/* Grid Layout for Cards */
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+/* User Card Styling */
+.user-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* User Avatar */
+.avatar-circle {
+  width: 90px;
+  height: 90px;
+  background-color: #e2e8f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.avatar-circle i {
+  font-size: 3.5rem;
+  color: #94a3b8;
+  margin-top: 10px;
+}
+
+/* User Info Typography */
+.user-name-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.user-meta {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.meta-val {
+  color: #64748b;
+}
+
+.email-meta {
+  color: #64748b;
+  word-break: break-all;
+}
+
+.role-meta {
+  margin-top: 2px;
+  margin-bottom: 18px;
+}
+
+/* Role Badges */
+.role-badge {
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+
+.role-badge.super-admin {
+  color: #e11d48;
+}
+
+.role-badge.field-agent {
+  color: #ec4899;
+}
+
+/* Bottom Action Buttons inside Card */
+.card-actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+/* Active Status Button */
+.status-badge {
+  width: 100%;
+  height: 32px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #ffffff;
+}
+
+.status-badge.active-status {
+  border: 1px solid #16a34a;
+  color: #16a34a;
+}
+
+.status-badge.inactive-status {
+  border: 1px solid #dc2626;
+  color: #dc2626;
+}
+
+/* View Details Action Button */
+.btn-view-details {
+  width: 100%;
+  height: 32px;
+  background-color: #ffffff;
+  border: 1px solid #1e3a8a;
+  color: #1e3a8a;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-view-details:hover {
+  background-color: #eff6ff;
+}
+
+/* Responsive Grid Breakpoints */
+@media (max-width: 1024px) {
+  .users-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .users-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 520px) {
+  .users-grid {
+    grid-template-columns: 1fr;
+  }
+}

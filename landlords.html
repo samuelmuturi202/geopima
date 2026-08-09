@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Active Landlords List - Geopima Agencies</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Shared Application Styles -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Landlords Specific Table Styles -->
+  <link rel="stylesheet" href="landlords.css">
+</head>
+<body>
+
+  <!-- Full Height App Layout Structure -->
+  <div style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
+
+    <!-- Integrated Sidebar Navigation -->
+    <aside id="sidebar">
+      <div class="brand">
+        <i class="fa-solid fa-building-user"></i>
+        <span>Geopima Agencies</span>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        
+        <!-- Collapsible Finance Dropdown -->
+        <li class="nav-dropdown">
+          <button class="dropdown-btn" id="finance-dropdown-toggle">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Finance</span> 
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <ul class="submenu" id="finance-submenu">
+            <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+            <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+            <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+            <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+          </ul>
+        </li>
+
+        <!-- Collapsible Fees Setup Dropdown -->
+        <li class="nav-dropdown">
+          <button class="dropdown-btn" id="fees-dropdown-toggle">
+            <i class="fa-solid fa-wrench"></i>
+            <span>Fees Setup</span> 
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <ul class="submenu" id="fees-submenu">
+            <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
+            <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
+          </ul>
+        </li>
+
+        <!-- Active Landlords Menu Item -->
+        <li class="active">
+          <a href="landlords.html" id="landlords-link">
+            <i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i>
+          </a>
+        </li>
+
+        <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header Navigation -->
+      <header>
+        <div class="header-left">
+          <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+          <span class="header-title">Geopima Property Management</span>
+        </div>
+        <div class="header-right">
+          <i class="fa-regular fa-user-circle user-icon"></i>
+          <span>Peter Mwaniki</span>
+          <i class="fa-solid fa-caret-down"></i>
+        </div>
+      </header>
+
+      <!-- Main Container Area -->
+      <main style="padding: 20px; flex: 1;">
+
+        <!-- Active Landlords Panel Card -->
+        <section class="card-panel">
+          <div class="card-header border-light">
+            <div class="header-title">
+              <h2><i class="fa-solid fa-users"></i> ACTIVE LANDLORDS LIST</h2>
+            </div>
+            
+            <!-- Action Buttons Toolbar -->
+            <div class="header-actions">
+              <button class="btn btn-navy" id="new-landlord-btn">
+                <i class="fa-solid fa-user-plus"></i> New Landlord
+              </button>
+              
+              <div class="dropdown-container">
+                <button class="btn btn-cyan dropdown-toggle" id="status-dropdown-btn">
+                  <i class="fa-solid fa-filter"></i> Status <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <div class="dropdown-menu" id="status-dropdown-menu">
+                  <a href="#" class="dropdown-item active">Active</a>
+                  <a href="#" class="dropdown-item">Inactive</a>
+                  <a href="#" class="dropdown-item">All</a>
+                </div>
+              </div>
+
+              <div class="dropdown-container">
+                <button class="btn btn-green dropdown-toggle" id="export-dropdown-btn">
+                  <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <div class="dropdown-menu" id="export-dropdown-menu">
+                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-excel"></i> Excel</a>
+                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+                  <a href="#" class="dropdown-item"><i class="fa-solid fa-print"></i> Print</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Table Toolbar: Show entries & Search -->
+            <div class="table-toolbar">
+              <div class="entries-control">
+                Show 
+                <select id="entries-select">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100" selected>100</option>
+                </select> 
+                entries
+              </div>
+              <div class="search-control">
+                <label for="table-search">Search:</label>
+                <input type="text" id="table-search">
+              </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-responsive">
+              <table class="data-table" id="landlords-table">
+                <thead>
+                  <tr>
+                    <th class="col-sortable"># <i class="fa-solid fa-arrow-up-long"></i><i class="fa-solid fa-arrow-down-long"></i></th>
+                    <th class="col-sortable">LANDLORD ID <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">LANDLORD NAME <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">GENDER <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">ADDRESS <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">REG. DATE <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">PLOTS <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">STATUS <i class="fa-solid fa-sort"></i></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td><a href="#" class="link-dashed">PL083</a></td>
+                    <td>JAMES WAINANA</td>
+                    <td>MALE</td>
+                    <td></td>
+                    <td>01-Aug-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td><a href="#" class="link-dashed">PL082</a></td>
+                    <td>WAIRIMU</td>
+                    <td>FEMALE</td>
+                    <td></td>
+                    <td>14-Jul-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td><a href="#" class="link-dashed">PL081</a></td>
+                    <td>SAMUEL GITAU NJOROGE</td>
+                    <td>MALE</td>
+                    <td></td>
+                    <td>18-Jun-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td><a href="#" class="link-dashed">PL080</a></td>
+                    <td>SAMUEL GITAU NJOROGE</td>
+                    <td>MALE</td>
+                    <td></td>
+                    <td>18-Jun-2026</td>
+                    <td>0 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td><a href="#" class="link-dashed">PL079</a></td>
+                    <td>FRANCIS KOMU</td>
+                    <td>MALE</td>
+                    <td>SETTIE</td>
+                    <td>05-Jun-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td><a href="#" class="link-dashed">PL078</a></td>
+                    <td>DANIEL MWANGI</td>
+                    <td>MALE</td>
+                    <td>KABIRIA</td>
+                    <td>29-May-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td><a href="#" class="link-dashed">PL077</a></td>
+                    <td>GITHIMA WOMEN GUILD PLOT</td>
+                    <td>FEMALE</td>
+                    <td></td>
+                    <td>22-May-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td><a href="#" class="link-dashed">PL076</a></td>
+                    <td>MARGARET NJERU</td>
+                    <td>FEMALE</td>
+                    <td></td>
+                    <td>05-May-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td><a href="#" class="link-dashed">PL075</a></td>
+                    <td>SUSAN</td>
+                    <td>FEMALE</td>
+                    <td>KABIRIA</td>
+                    <td>22-Apr-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td><a href="#" class="link-dashed">PL074</a></td>
+                    <td>GEORGE KIMANI NDUNGU</td>
+                    <td>MALE</td>
+                    <td></td>
+                    <td>02-Apr-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td><a href="#" class="link-dashed">PL073</a></td>
+                    <td>JOSPHINE KARIOBANGI</td>
+                    <td>FEMALE</td>
+                    <td>KARIOBANGI</td>
+                    <td>31-Mar-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>12</td>
+                    <td><a href="#" class="link-dashed">PL072</a></td>
+                    <td>ISAAC MUTHIORA</td>
+                    <td>MALE</td>
+                    <td></td>
+                    <td>30-Mar-2026</td>
+                    <td>1 PLOT(S)</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Footer Pagination -->
+            <div class="table-footer">
+              <div class="table-info" id="table-info">Showing 1 to 12 of 12 entries</div>
+              <ul class="pagination">
+                <li><button class="page-btn disabled">Previous</button></li>
+                <li><button class="page-btn active">1</button></li>
+                <li><button class="page-btn disabled">Next</button></li>
+              </ul>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- Shared Application JavaScript -->
+  <script src="script.js"></script>
+  <!-- Landlords Table Interactivity JavaScript -->
+  <script src="landlords.js"></script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deposits - WiseRenter</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Page Styling -->
+  <link rel="stylesheet" href="deposits.css">
+</head>
+<body>
+
+  <!-- Full Height App Layout -->
+  <div class="app-layout">
+
+    <!-- Full Height Sidebar Navigation -->
+    <aside id="sidebar">
+      <div class="brand">
+        <i class="fa-solid fa-building-user"></i>
+        <span>WiseRenter</span>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        
+        <!-- Collapsible Finance Dropdown -->
+        <li class="nav-dropdown">
+          <button class="dropdown-btn" id="finance-dropdown-toggle">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Finance</span> 
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <ul class="submenu" id="finance-submenu">
+            <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+            <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+            <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+            <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+          </ul>
+        </li>
+
+        <!-- Collapsible Fees Setup Dropdown (Active & Expanded) -->
+        <li class="nav-dropdown open">
+          <button class="dropdown-btn" id="fees-dropdown-toggle">
+            <i class="fa-solid fa-wrench"></i>
+            <span>Fees Setup</span> 
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <ul class="submenu" id="fees-submenu">
+            <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
+            <li><a href="deposits.html" class="sub-active"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
+          </ul>
+        </li>
+
+        <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content & Header Wrapper -->
+    <div class="main-wrapper">
+      
+      <!-- Sticky Top Navigation Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="menu-toggle" id="toggle-sidebar" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="brand-logo">
+            <span class="logo-icon"><i class="fa-solid fa-v"></i></span>
+            <span class="logo-text">WiseRenter</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="user-profile">
+            <span>Peter Mwaniki</span>
+            <i class="fa-solid fa-caret-down"></i>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Container Area -->
+      <main class="main-container">
+        
+        <!-- Title & Breadcrumb -->
+        <div class="page-title-row">
+          <h1 class="page-title">Deposits</h1>
+          <nav class="breadcrumb">
+            <a href="index.html">Home</a> / <span>Fee Setup</span>
+          </nav>
+        </div>
+
+        <!-- House Deposits Panel -->
+        <section class="card-panel">
+          <div class="card-header border-navy">
+            <h2><i class="fa-solid fa-robot"></i> House Deposits</h2>
+            <button class="btn btn-outline-navy" id="add-deposit-btn">
+              <i class="fa-solid fa-plus"></i> Add Deposit
+            </button>
+          </div>
+
+          <div class="card-body">
+            <!-- Table Controls Toolbar -->
+            <div class="table-toolbar">
+              <div class="entries-control">
+                Show 
+                <select id="entries-select">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                  <option value="100" selected>100</option>
+                </select> 
+                entries
+              </div>
+              <div class="search-control">
+                <label for="table-search">Search:</label>
+                <input type="text" id="table-search">
+              </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-responsive">
+              <table class="data-table" id="deposits-table">
+                <thead>
+                  <tr>
+                    <th class="col-sortable"># <i class="fa-solid fa-arrow-up-long"></i><i class="fa-solid fa-arrow-down-long"></i></th>
+                    <th class="col-sortable">PROPERTY <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">TNT <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">TENANT <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">UNIT <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">AMOUNT <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">STATUS <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">REFUNDED <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">DETAILS <i class="fa-solid fa-sort"></i></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3271</a></td>
+                    <td>JANUARIS MUTUKU</td>
+                    <td>C4</td>
+                    <td>5,000.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3277</a></td>
+                    <td>ODHIAMBO IAN OCHIENGO</td>
+                    <td>A8</td>
+                    <td>5,000.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3281</a></td>
+                    <td>FRIDA CHELANGAT</td>
+                    <td>B8</td>
+                    <td>7,200.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3283</a></td>
+                    <td>ESTHER MWIKALI</td>
+                    <td>B19</td>
+                    <td>7,200.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3284</a></td>
+                    <td>EVANS ODERO</td>
+                    <td>B17</td>
+                    <td>7,200.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3286</a></td>
+                    <td>VICTOR</td>
+                    <td>E2</td>
+                    <td>5,000.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3287</a></td>
+                    <td>ASIEMA ALVIN ANINGURA</td>
+                    <td>E9</td>
+                    <td>5,000.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>ONDUKO PLOT</td>
+                    <td><a href="#" class="link-dashed">W3321</a></td>
+                    <td>WILBERFORCE</td>
+                    <td>H22</td>
+                    <td>1,000.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>9</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3322</a></td>
+                    <td>ARCADIUS NYABUTO</td>
+                    <td>B12</td>
+                    <td>3,600.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>10</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3318</a></td>
+                    <td>JOY AKOTH</td>
+                    <td>C9</td>
+                    <td>2,500.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                  <tr>
+                    <td>11</td>
+                    <td>KANANA PLOT</td>
+                    <td><a href="#" class="link-dashed">W3323</a></td>
+                    <td>RICHARD MOKO</td>
+                    <td>B20</td>
+                    <td>3,600.00</td>
+                    <td><span class="status-pending">pending</span></td>
+                    <td>0.00</td>
+                    <td><button class="btn-outline-blue">installments</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="table-footer">
+              <div class="table-info" id="table-info">Showing 1 to 11 of 11 entries</div>
+              <ul class="pagination">
+                <li><button class="page-btn disabled">Previous</button></li>
+                <li><button class="page-btn active">1</button></li>
+                <li><button class="page-btn disabled">Next</button></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  </div>
+
+  <script src="deposits.js"></script>
+</body>
+</html>

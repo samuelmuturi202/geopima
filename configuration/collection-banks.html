@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima - Payment Banks</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Dashboard Stylesheet -->
+  <link rel="stylesheet" href="../styles.css">
+  <!-- Page Specific Stylesheet -->
+  <link rel="stylesheet" href="collection-banks.css">
+</head>
+<body class="bg-light">
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle-btn" id="toggle-sidebar" aria-label="Toggle Sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="wiserenter-logo">
+        <span class="logo-w"><i class="fa-solid fa-building-user geopima-icon"></i></span>
+        <div class="logo-text">
+          <span class="brand-name">geopima</span>
+          <span class="brand-sub">property management system</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="user-dropdown">
+        <span class="user-name">Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="page-container">
+    <div class="content-wrapper">
+      
+      <!-- Page Header with Title, Breadcrumb & Top New Bank Button -->
+      <div class="banks-header-row">
+        <h1 class="banks-title">Payment Banks</h1>
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a> / <span>Configurations</span>
+        </div>
+      </div>
+
+      <div class="top-action-container">
+        <button class="btn-new-bank">
+          <i class="fa-solid fa-circle-plus"></i> New Bank
+        </button>
+      </div>
+
+      <!-- Main Payment Banks Card Container -->
+      <div class="banks-card">
+
+        <!-- Table Filtering Controls -->
+        <div class="table-controls">
+          <div class="entries-control">
+            Show 
+            <select id="entriesSelect" class="entries-dropdown">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+             entries
+          </div>
+          <div class="search-control">
+            <label for="banksSearch">Search:</label>
+            <input type="text" id="banksSearch" class="search-input">
+          </div>
+        </div>
+
+        <!-- Payment Banks Table -->
+        <div class="table-responsive">
+          <table class="banks-table">
+            <thead>
+              <tr>
+                <th class="col-short">SHORT NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-long">LONG NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-branch">BRANCH <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-acc-name">ACC NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-biz-no">BUSINESS NO <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-acc-num">ACC NUMBER <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-center">STATUS <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-center">ON INVOICE <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th class="col-center">ACTION <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Equity</td>
+                <td>Equity Bank Kenya</td>
+                <td>Kawangware</td>
+                <td>Pemwa Agency</td>
+                <td></td>
+                <td>0630279926996</td>
+                <td class="col-center"><span class="badge-status active">active</span></td>
+                <td class="col-center"><i class="fa-solid fa-circle-xmark icon-on-invoice-no"></i></td>
+                <td class="col-center">
+                  <a href="#" class="action-link link-edit">edit</a> | 
+                  <a href="#" class="action-link link-delete">delete</a>
+                </td>
+              </tr>
+              <tr>
+                <td>Lipa Na M-Pesa</td>
+                <td>Paybill Number</td>
+                <td>Kawangware</td>
+                <td>Pemwa Agency</td>
+                <td>4107433</td>
+                <td>primary_contact</td>
+                <td class="col-center"><span class="badge-status active">active</span></td>
+                <td class="col-center"><i class="fa-solid fa-circle-xmark icon-on-invoice-no"></i></td>
+                <td class="col-center">
+                  <a href="#" class="action-link link-edit">edit</a> | 
+                  <a href="#" class="action-link link-delete">delete</a>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Footer / Pagination -->
+        <div class="table-footer">
+          <div class="entries-info">
+            Showing 1 to 2 of 2 entries
+          </div>
+          <div class="pagination-controls">
+            <button class="page-btn disabled" disabled>Previous</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn disabled" disabled>Next</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- JavaScript Scripts -->
+  <script src="../script.js"></script>
+  <script src="collection-banks.js"></script>
+</body>
+</html>

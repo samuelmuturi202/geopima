@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima - Users Management</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Dashboard Stylesheet -->
+  <link rel="stylesheet" href="../styles.css">
+  <!-- Users Page Specific Stylesheet -->
+  <link rel="stylesheet" href="users.css">
+</head>
+<body class="bg-light">
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle-btn" id="toggle-sidebar" aria-label="Toggle Sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="wiserenter-logo">
+        <span class="logo-w"><i class="fa-solid fa-building-user geopima-icon"></i></span>
+        <div class="logo-text">
+          <span class="brand-name">geopima</span>
+          <span class="brand-sub">property management system</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="user-dropdown">
+        <span class="user-name">Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="page-container">
+    <div class="content-wrapper">
+      
+      <!-- Top Actions Bar -->
+      <div class="action-header">
+        <button class="btn-add-user" id="openAddUserModal">
+          <i class="fa-solid fa-user-plus"></i> Add New User
+        </button>
+      </div>
+
+      <!-- Users Grid -->
+      <div class="users-grid">
+
+        <!-- User Card 1 -->
+        <div class="user-card">
+          <div class="avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 class="user-name-title">Miriam Njoki</h3>
+          <p class="user-meta">Username: <span class="meta-val">miriamnjoki</span></p>
+          <p class="user-meta email-meta">mariamsngash@gmail.com</p>
+          <p class="user-meta">Phone: <span class="meta-val">0708628104</span></p>
+          <p class="user-meta role-meta">Role(s): <span class="role-badge super-admin">super admin</span></p>
+          
+          <div class="card-actions">
+            <div class="status-badge active-status">User is active</div>
+            <button class="btn-view-details">View details</button>
+          </div>
+        </div>
+
+        <!-- User Card 2 -->
+        <div class="user-card">
+          <div class="avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 class="user-name-title">Peter Maina</h3>
+          <p class="user-meta">Username: <span class="meta-val">petermaina</span></p>
+          <p class="user-meta email-meta">maaishpinchez@gmail.com</p>
+          <p class="user-meta">Phone: <span class="meta-val">0768174824</span></p>
+          <p class="user-meta role-meta">Role(s): <span class="role-badge super-admin">super admin</span></p>
+          
+          <div class="card-actions">
+            <div class="status-badge inactive-status">User is inactive</div>
+            <button class="btn-view-details">View details</button>
+          </div>
+        </div>
+
+        <!-- User Card 3 -->
+        <div class="user-card">
+          <div class="avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 class="user-name-title">Benson Mambo</h3>
+          <p class="user-meta">Username: <span class="meta-val">bensonmambo</span></p>
+          <p class="user-meta email-meta">benson@gmail.com</p>
+          <p class="user-meta">Phone: <span class="meta-val">0708126492</span></p>
+          <p class="user-meta role-meta">Role(s): <span class="role-badge field-agent">field agent</span></p>
+          
+          <div class="card-actions">
+            <div class="status-badge active-status">User is active</div>
+            <button class="btn-view-details">View details</button>
+          </div>
+        </div>
+
+        <!-- User Card 4 -->
+        <div class="user-card">
+          <div class="avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 class="user-name-title">Peter Mwaniki</h3>
+          <p class="user-meta">Username: <span class="meta-val">mwaniki</span></p>
+          <p class="user-meta email-meta">pemwaagency@gmail.com</p>
+          <p class="user-meta">Phone: <span class="meta-val">N/A</span></p>
+          <p class="user-meta role-meta">Role(s): <span class="role-badge super-admin">super admin</span></p>
+          
+          <div class="card-actions">
+            <div class="status-badge active-status">User is active</div>
+            <button class="btn-view-details">View details</button>
+          </div>
+        </div>
+
+        <!-- User Card 5 -->
+        <div class="user-card">
+          <div class="avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 class="user-name-title">Felister</h3>
+          <p class="user-meta">Username: <span class="meta-val">felister</span></p>
+          <p class="user-meta email-meta">felisterngugi9@gmail.com</p>
+          <p class="user-meta">Phone: <span class="meta-val">N/A</span></p>
+          <p class="user-meta role-meta">Role(s): <span class="role-badge super-admin">super admin</span></p>
+          
+          <div class="card-actions">
+            <div class="status-badge active-status">User is active</div>
+            <button class="btn-view-details">View details</button>
+          </div>
+        </div>
+
+        <!-- User Card 6 -->
+        <div class="user-card">
+          <div class="avatar-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
+          <h3 class="user-name-title">Alexander Mwangi</h3>
+          <p class="user-meta">Username: <span class="meta-val">alexander</span></p>
+          <p class="user-meta email-meta">developerkamande@gmail.com</p>
+          <p class="user-meta">Phone: <span class="meta-val">0700021601</span></p>
+          <p class="user-meta role-meta">Role(s): <span class="role-badge super-admin">super admin</span></p>
+          
+          <div class="card-actions">
+            <div class="status-badge active-status">User is active</div>
+            <button class="btn-view-details">View details</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- JavaScript Scripts -->
+  <script src="../script.js"></script>
+  <script src="users.js"></script>
+</body>
+</html>

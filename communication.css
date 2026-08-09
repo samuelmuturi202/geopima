@@ -1,0 +1,253 @@
+/* Page Header & Breadcrumb */
+.page-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.dashboard-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #333333;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.breadcrumb {
+  font-size: 0.85rem;
+  color: #777777;
+}
+
+.breadcrumb a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* 2-Column Dashboard Grid */
+.dashboard-layout {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.left-analytics-panel {
+  flex: 1;
+  min-width: 0; /* Prevents overflow in flex items */
+}
+
+.right-actions-panel {
+  width: 330px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Metric Cards Grid */
+.status-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  padding: 14px 12px;
+  border-radius: 4px;
+  color: #ffffff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.card-dark-blue {
+  background-color: #052c54;
+  grid-column: span 1;
+}
+
+.card-teal {
+  background-color: #17a2b8;
+}
+
+.card-green {
+  background-color: #28a745;
+}
+
+.stat-card.card-long-text {
+  grid-column: span 2;
+}
+
+.stat-title {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.2;
+  padding-right: 6px;
+}
+
+.stat-count {
+  font-size: 0.95rem;
+  font-weight: 800;
+  vertical-align: super;
+}
+
+/* Chart Container Card */
+.chart-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 16px 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.chart-header {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #444444;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.chart-summary {
+  margin-bottom: 15px;
+}
+
+.total-big-number {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #222222;
+  line-height: 1;
+}
+
+.total-label {
+  font-size: 0.8rem;
+  color: #666666;
+  margin-top: 4px;
+}
+
+.canvas-wrapper {
+  position: relative;
+  width: 100%;
+  height: 320px;
+}
+
+/* Balance Banner */
+.balance-banner {
+  background-color: #052c54;
+  color: #ffffff;
+  padding: 12px 16px;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 0.95rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Right Panel Action Cards */
+.action-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 18px 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.card-section-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555555;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.action-buttons-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* SMS Button Custom Palette */
+.sms-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+  transition: opacity 0.2s, transform 0.1s;
+}
+
+.sms-btn:hover {
+  opacity: 0.88;
+}
+
+.sms-btn:active {
+  transform: scale(0.99);
+}
+
+/* Button Colors matching reference image */
+.btn-light-blue {
+  background-color: #bee3f8;
+  color: #1a365d;
+}
+
+.btn-slate-gray {
+  background-color: #e2e8f0;
+  color: #2d3748;
+}
+
+.btn-soft-yellow {
+  background-color: #fefcbf;
+  color: #744210;
+}
+
+.btn-soft-green {
+  background-color: #c6f6d5;
+  color: #22543d;
+}
+
+.btn-sage-green {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.btn-light-cyan {
+  background-color: #c4f1f9;
+  color: #086070;
+}
+
+.btn-sky-blue {
+  background-color: #cbe5ff;
+  color: #004085;
+}
+
+/* Responsive Rules */
+@media (max-width: 992px) {
+  .dashboard-layout {
+    flex-direction: column;
+  }
+
+  .right-actions-panel {
+    width: 100%;
+  }
+
+  .stat-card.card-long-text {
+    grid-column: span 1;
+  }
+}

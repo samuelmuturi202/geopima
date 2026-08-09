@@ -1,0 +1,376 @@
+/* Base Reset & Global Variables */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --body-bg: #f4f6f9;
+  --text-dark: #333333;
+  --border-color: #e2e8f0;
+  --navy-dark: #0b2545;
+  --cyan-brand: #17a2b8;
+  --green-badge: #28a745;
+  --blue-link: #1d72b8;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--body-bg);
+  color: var(--text-dark);
+  font-size: 13px;
+  line-height: 1.5;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* App Layout Container */
+.app-layout {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Main Content Area Wrapper */
+.main-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* Sticky Top Navigation Header */
+.top-header {
+  background-color: #ffffff;
+  height: 50px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 90;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  font-size: 16px;
+  color: #555555;
+  cursor: pointer;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logo-icon {
+  background-color: #2bb14c;
+  color: #ffffff;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+.logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: #2bb14c;
+}
+
+.user-profile {
+  font-size: 13px;
+  color: #444444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Page Main Container */
+.main-container {
+  flex: 1;
+  padding: 30px 40px;
+}
+
+/* Card Panel Container */
+.card-panel {
+  background: #ffffff;
+  border: 1px solid #dce3ec;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+.card-header {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fcfcfc;
+  border-bottom: 1px solid #eef2f5;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.card-header.border-light {
+  border-top: 1px solid #e2e8f0;
+}
+
+.header-title h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #333333;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.3px;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Toolbar Buttons */
+.btn {
+  border: none;
+  border-radius: 3px;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+  height: 32px;
+}
+
+.btn-navy {
+  background-color: var(--navy-dark);
+  color: #ffffff;
+}
+
+.btn-navy:hover {
+  background-color: #06182e;
+}
+
+.btn-cyan {
+  background-color: var(--cyan-brand);
+  color: #ffffff;
+}
+
+.btn-cyan:hover {
+  background-color: #138496;
+}
+
+.btn-green {
+  background-color: var(--green-badge);
+  color: #ffffff;
+}
+
+.btn-green:hover {
+  background-color: #218838;
+}
+
+/* Dropdown Container */
+.dropdown-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  min-width: 120px;
+  display: none;
+  z-index: 100;
+}
+
+.dropdown-container.open .dropdown-menu {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  padding: 8px 12px;
+  color: #333333;
+  text-decoration: none;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background-color: #f1f5f9;
+}
+
+.dropdown-item.active {
+  font-weight: bold;
+  background-color: #e9ecef;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+/* Toolbar Controls */
+.table-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 12px;
+  color: #555555;
+}
+
+.entries-control select {
+  padding: 4px 8px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  font-size: 12px;
+  outline: none;
+}
+
+.search-control input {
+  padding: 4px 8px;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  font-size: 12px;
+  outline: none;
+  width: 180px;
+}
+
+.search-control input:focus {
+  border-color: #007bff;
+}
+
+/* Data Table */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  font-size: 12px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.data-table th {
+  background-color: #ffffff;
+  font-weight: 700;
+  color: #222222;
+  white-space: nowrap;
+}
+
+.col-sortable {
+  cursor: pointer;
+}
+
+.col-sortable i {
+  font-size: 10px;
+  color: #aaaaaa;
+  margin-left: 4px;
+}
+
+.data-table tbody tr:nth-child(even) {
+  background-color: #fbfbfb;
+}
+
+.data-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.link-dashed {
+  color: var(--blue-link);
+  text-decoration: underline dotted;
+  font-weight: 500;
+}
+
+/* Active Status Badge Button */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 2px;
+  text-transform: lowercase;
+  text-align: center;
+}
+
+.badge-success {
+  background-color: var(--green-badge);
+  color: #ffffff;
+}
+
+/* Pagination Footer */
+.table-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  font-size: 12px;
+  color: #666666;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  border: 1px solid #cccccc;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.page-btn {
+  background: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  color: #007bff;
+  font-size: 12px;
+  cursor: pointer;
+  border-right: 1px solid #cccccc;
+}
+
+.pagination li:last-child .page-btn {
+  border-right: none;
+}
+
+.page-btn.active {
+  background-color: var(--navy-dark);
+  color: #ffffff;
+}
+
+.page-btn.disabled {
+  color: #aaaaaa;
+  cursor: default;
+}

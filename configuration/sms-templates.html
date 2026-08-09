@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima - SMS Templates</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- External CSS -->
+  <link rel="stylesheet" href="sms-templates.css">
+</head>
+<body>
+
+  <!-- Top Header Navigation -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle-btn" aria-label="Toggle Navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="brand-logo">
+        <i class="fa-solid fa-house-chimney-window"></i>
+        <div class="brand-text-wrapper">
+          <span class="brand-name">geopima</span>
+          <span class="brand-sub">property management system</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <span>Peter Mwaniki</span>
+      <i class="fa-solid fa-caret-down"></i>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="page-container">
+    <div class="content-wrapper">
+      
+      <!-- Page Header & Breadcrumb -->
+      <div class="page-header-row">
+        <h1 class="page-title">SMS Templates</h1>
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a> / <a href="configuration.html">Configuration</a>
+        </div>
+      </div>
+
+      <!-- =========================================================================
+           TEMPLATE 1: Fee Reminder SMS Template (IMAGE 1)
+           ========================================================================= -->
+      <div class="template-card border-red">
+        <h3 class="template-heading heading-red">Fee Reminder SMS Template:</h3>
+        
+        <div class="instructions-section">
+          <h4 class="instructions-title">INSTRUCTIONS:</h4>
+          <div class="placeholders-grid">
+            <div class="placeholder-item"><span class="p-label">tenant:</span><span class="p-code">{tenant}</span></div>
+            <div class="placeholder-item"><span class="p-label">balance:</span><span class="p-code">{balance}</span></div>
+            <div class="placeholder-item"><span class="p-label">tenant no:</span><span class="p-code">{tnt}</span></div>
+            <div class="placeholder-item"><span class="p-label">paybill no:</span><span class="p-code">{paybill}</span></div>
+            <div class="placeholder-item"><span class="p-label">agency:</span><span class="p-code">{agency}</span></div>
+            <div class="placeholder-item"><span class="p-label">month:</span><span class="p-code">{month}</span></div>
+          </div>
+        </div>
+
+        <div class="sample-message-section">
+          <h4 class="sample-title title-red">SAMPLE MESSAGE:</h4>
+          <p class="sample-text">
+            Dear <span class="p-code">{tenant}</span>, Kindly clear your rent balance of Kes. <span class="p-code">{balance}</span> for <span class="p-code">{month}</span>. You can pay via Paybill No: <span class="p-code">{paybill}</span> Account No: <span class="p-code">{tnt}</span>
+          </p>
+        </div>
+
+        <form class="template-form">
+          <div class="form-group">
+            <textarea class="template-input" rows="3">Dear {tenant}, Kindly clear your rent balance of Kes. {balance} for {month}. You can pay via Paybill No: {paybill} Account No: {tnt}</textarea>
+          </div>
+          <div class="form-group">
+            <textarea class="template-preview" rows="3" readonly>Dear John Smith, Kindly clear your rent balance of Kes. 10,500.00 for AUGUST-2026. You can pay via Paybill No: 123456 Account No: W1234</textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- =========================================================================
+           TEMPLATE 2: Payment Notification SMS Template (IMAGE 2)
+           ========================================================================= -->
+      <div class="template-card border-green">
+        <h3 class="template-heading heading-green">Payment Notification SMS Template:</h3>
+        
+        <div class="instructions-section">
+          <h4 class="instructions-title">INSTRUCTIONS:</h4>
+          <div class="placeholders-grid">
+            <div class="placeholder-item"><span class="p-label">tenant:</span><span class="p-code">{tenant}</span></div>
+            <div class="placeholder-item"><span class="p-label">balance:</span><span class="p-code">{balance}</span></div>
+            <div class="placeholder-item"><span class="p-label">paid:</span><span class="p-code">{paid}</span></div>
+            <div class="placeholder-item"><span class="p-label">tenant no:</span><span class="p-code">{tnt}</span></div>
+            <div class="placeholder-item"><span class="p-label">unit name:</span><span class="p-code">{unit}</span></div>
+            <div class="placeholder-item"><span class="p-label">receipt no:</span><span class="p-code">{receiptno}</span></div>
+            <div class="placeholder-item"><span class="p-label">reference no:</span><span class="p-code">{reference}</span></div>
+            <div class="placeholder-item"><span class="p-label">month:</span><span class="p-code">{month}</span></div>
+            <div class="placeholder-item"><span class="p-label">date:</span><span class="p-code">{date}</span></div>
+          </div>
+        </div>
+
+        <div class="sample-message-section">
+          <h4 class="sample-title title-red">SAMPLE MESSAGE:</h4>
+          <p class="sample-text">
+            Dear <span class="p-code">{tenant}</span>, Your payment of Kes. <span class="p-code">{paid}</span> RefNo: <span class="p-code">{reference}</span> Rec. No. <span class="p-code">{receiptno}</span> for <span class="p-code">{unit}</span> has been received. New balance is Kes. <span class="p-code">{balance}</span>. Thank you
+          </p>
+        </div>
+
+        <form class="template-form">
+          <div class="form-group">
+            <textarea class="template-input" rows="3">Dear {tenant}, Your payment of Kes. {paid} Receipt No. {receiptno} for {unit} has been received. New balance is Kes. {balance}. Thank you</textarea>
+          </div>
+          <div class="form-group">
+            <textarea class="template-preview" rows="3" readonly>Dear John Smith, Your payment of Kes. 3,500.00 Receipt No. RC1987782 for B7 has been received. New balance is Kes. 10,500.00. Thank you</textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- =========================================================================
+           TEMPLATE 3: Discount SMS Template (IMAGE 3)
+           ========================================================================= -->
+      <div class="template-card border-amber">
+        <h3 class="template-heading heading-amber">Discount SMS Template:</h3>
+        
+        <div class="instructions-section">
+          <h4 class="instructions-title">INSTRUCTIONS:</h4>
+          <div class="placeholders-grid">
+            <div class="placeholder-item"><span class="p-label">tenant:</span><span class="p-code">{tenant}</span></div>
+            <div class="placeholder-item"><span class="p-label">balance:</span><span class="p-code">{balance}</span></div>
+            <div class="placeholder-item"><span class="p-label">discount:</span><span class="p-code">{discount}</span></div>
+            <div class="placeholder-item"><span class="p-label">month:</span><span class="p-code">{month}</span></div>
+          </div>
+        </div>
+
+        <div class="sample-message-section">
+          <h4 class="sample-title title-amber">SAMPLE MESSAGE:</h4>
+          <p class="sample-text">
+            Dear <span class="p-code">{tenant}</span>, you have been awarded a Kes. <span class="p-code">{discount}</span> waiver for <span class="p-code">{month}</span>. Your new balance is Kes. <span class="p-code">{balance}</span>. <span class="p-code">{agency}</span>
+          </p>
+        </div>
+
+        <form class="template-form">
+          <div class="form-group">
+            <textarea class="template-input" rows="3">Dear {tenant}, you have been awarded a Kes. {discount} waiver for {month}. Your new balance is Kes. {balance}. {agency}</textarea>
+          </div>
+          <div class="form-group">
+            <textarea class="template-preview" rows="3" readonly>Dear John Smith, you have been awarded a Kes. 3,000 waiver for AUGUST-2026. Your new balance is Kes. 10,500.00. Pemwa Agency</textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- =========================================================================
+           TEMPLATE 4: New Tenant Welcome SMS Template (IMAGE 4)
+           ========================================================================= -->
+      <div class="template-card border-green">
+        <h3 class="template-heading heading-green">New Tenant Welcome SMS Template:</h3>
+        
+        <div class="instructions-section">
+          <h4 class="instructions-title">INSTRUCTIONS:</h4>
+          <div class="placeholders-grid">
+            <div class="placeholder-item"><span class="p-label">tenant:</span><span class="p-code">{tenant}</span></div>
+            <div class="placeholder-item"><span class="p-label">tenant no:</span><span class="p-code">{tnt}</span></div>
+            <div class="placeholder-item"><span class="p-label">agency:</span><span class="p-code">{agency}</span></div>
+          </div>
+        </div>
+
+        <div class="sample-message-section">
+          <h4 class="sample-title title-green">SAMPLE MESSAGE:</h4>
+          <p class="sample-text">
+            Dear Parent, Welcome to <span class="p-code">{agency}</span>.
+          </p>
+        </div>
+
+        <form class="template-form">
+          <div class="form-group">
+            <textarea class="template-input" rows="3">Dear {tenant}, welcome to {agency}. You tenant number is {tnt}.</textarea>
+          </div>
+          <div class="form-group">
+            <textarea class="template-preview" rows="3" readonly>Dear John Smith, welcome to Pemwa Agency. You tenant number is W1234.</textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- External JavaScript -->
+  <script src="sms-templates.js"></script>
+</body>
+</html>

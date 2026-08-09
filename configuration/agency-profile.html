@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Agency Profile</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Agency Profile Page Stylesheet -->
+  <link rel="stylesheet" href="agency-profile.css">
+</head>
+<body class="bg-light">
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle-btn" id="toggle-sidebar" aria-label="Toggle Sidebar">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="wiserenter-logo">
+        <span class="logo-w"><span class="w-yellow">G</span></span>
+        <div class="logo-text">
+          <span class="brand-name">Geopima</span>
+          <span class="brand-sub">property management system</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="user-dropdown">
+        <span class="user-name">Samuel Muturi</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Page Container -->
+  <main class="page-container">
+    <div class="content-wrapper">
+      
+      <!-- Sub Navigation Links Top Right -->
+      <nav class="sub-nav-tabs">
+        <a href="agency-profile.html" class="sub-nav-link active">agency_profile</a>
+        <a href="messenger-configs.html" class="sub-nav-link">messenger_configs</a>
+        <a href="mailer-configs.html" class="sub-nav-link">mailer_configs</a>
+        <a href="mpesa-configs.html" class="sub-nav-link">mpesa_configs</a>
+      </nav>
+
+      <!-- Agency Profile White Card Container -->
+      <div class="profile-card">
+        <form id="agencyProfileForm" class="profile-form">
+          
+          <!-- Left Column: Agency Branding / Logo -->
+          <div class="logo-col">
+            <div class="logo-preview-box">
+              <!-- Illustrative Agency Logo matching screenshot -->
+              <div class="roof-illustration">
+                <i class="fa-solid fa-house-chimney"></i>
+                <i class="fa-solid fa-house-chimney active-roof"></i>
+                <i class="fa-solid fa-house-chimney"></i>
+              </div>
+              <h1 class="agency-title">PEMWA AGENCY</h1>
+              <p class="agency-motto">Your Comfort Our Concern</p>
+            </div>
+          </div>
+
+          <!-- Right Column: Form Inputs Grid -->
+          <div class="form-col">
+            
+            <!-- Row 1: Company Name | Short Name | Motto/Slogan -->
+            <div class="form-row row-3-cols">
+              <div class="field-container">
+                <input type="text" id="companyName" class="custom-input" value="Pemwa Agency">
+                <label for="companyName" class="sub-label">Company Name</label>
+              </div>
+
+              <div class="field-container">
+                <input type="text" id="shortName" class="custom-input" value="">
+                <label for="shortName" class="sub-label">Short Name</label>
+              </div>
+
+              <div class="field-container flex-grow">
+                <input type="text" id="mottoSlogan" class="custom-input" value='"Your Comfort Our Concern"'>
+                <label for="mottoSlogan" class="sub-label">Motto/Slogan</label>
+              </div>
+            </div>
+
+            <!-- Row 2: Contact | Contact 2 | Email -->
+            <div class="form-row row-3-cols">
+              <div class="field-container">
+                <input type="text" id="contact" class="custom-input" value="0725768616">
+                <label for="contact" class="sub-label">Contact</label>
+              </div>
+
+              <div class="field-container">
+                <input type="text" id="contact2" class="custom-input" value="0101768816">
+                <label for="contact2" class="sub-label">Contact 2</label>
+              </div>
+
+              <div class="field-container flex-grow">
+                <input type="email" id="email" class="custom-input" value="pemwaagency@yahoo.com">
+                <label for="email" class="sub-label">Email</label>
+              </div>
+            </div>
+
+            <!-- Row 3: Physical Address | Postal Address -->
+            <div class="form-row row-2-cols">
+              <div class="field-container flex-2">
+                <input type="text" id="physicalAddress" class="custom-input" value="Jagam Stalls, Naivasha Rd, Opposite Faulu Bank">
+                <label for="physicalAddress" class="sub-label">Physical Address</label>
+              </div>
+
+              <div class="field-container flex-1">
+                <input type="text" id="postalAddress" class="custom-input" value="1254-00200, GPO Nairobi">
+                <label for="postalAddress" class="sub-label">Postal Address</label>
+              </div>
+            </div>
+
+            <!-- Row 4: Website | End Month Transition Type -->
+            <div class="form-row row-2-cols">
+              <div class="field-container flex-1">
+                <input type="text" id="website" class="custom-input" value="www.pemwaagency.co.ke">
+                <label for="website" class="sub-label">Website</label>
+              </div>
+
+              <div class="field-container flex-1">
+                <select id="endMonthTransition" class="custom-input select-input">
+                  <option value="auto" selected>Automatically transition to new month</option>
+                  <option value="manual">Manual transition</option>
+                </select>
+                <label for="endMonthTransition" class="sub-label">End Month Transition Type</label>
+              </div>
+            </div>
+
+            <!-- Row 5: Company Logo Upload -->
+            <div class="form-row full-width">
+              <div class="field-container full-width-field">
+                <div class="file-input-wrapper">
+                  <input type="file" id="companyLogo" class="file-input">
+                </div>
+                <label for="companyLogo" class="sub-label">Company Logo</label>
+              </div>
+            </div>
+
+            <!-- Row 6: Save Changes Button -->
+            <div class="form-actions-row">
+              <button type="submit" class="btn-save-changes">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+              </button>
+            </div>
+
+          </div>
+
+        </form>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- JavaScript Scripts -->
+  <script src="script.js"></script>
+  <script src="agency-profile.js"></script>
+</body>
+</html>

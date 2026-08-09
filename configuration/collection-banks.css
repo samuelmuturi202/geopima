@@ -1,0 +1,317 @@
+/* Base Page Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+body.bg-light {
+  background-color: #f1f5f9;
+  color: #334155;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header Navbar */
+.top-header {
+  height: 52px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.menu-toggle-btn {
+  background: none;
+  border: none;
+  font-size: 1.1rem;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.wiserenter-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.geopima-icon {
+  font-size: 1.3rem;
+  color: #052c54;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.brand-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #052c54;
+  letter-spacing: -0.3px;
+}
+
+.brand-sub {
+  font-size: 0.62rem;
+  color: #17a2b8;
+  letter-spacing: 0.2px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.user-dropdown {
+  font-size: 0.88rem;
+  color: #475569;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Main Layout Wrapper */
+.page-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 30px 20px;
+}
+
+.content-wrapper {
+  width: 100%;
+  max-width: 1100px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Page Header Row */
+.banks-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.banks-title {
+  font-size: 1.35rem;
+  font-weight: 500;
+  color: #334155;
+  letter-spacing: 0.3px;
+}
+
+.breadcrumb {
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.breadcrumb a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+/* Top Action Bar (New Bank Button) */
+.top-action-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.btn-new-bank {
+  background-color: #ffffff;
+  color: #0f4c81;
+  border: 1px solid #0f4c81;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-new-bank:hover {
+  background-color: #0f4c81;
+  color: #ffffff;
+}
+
+/* Main Card Styling */
+.banks-card {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Controls (Show entries & Search) */
+.table-controls {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #475569;
+}
+
+.entries-dropdown {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+}
+
+.search-input {
+  padding: 4px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  outline: none;
+  margin-left: 6px;
+}
+
+/* Table Styling */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.banks-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.83rem;
+}
+
+.banks-table th, 
+.banks-table td {
+  padding: 12px 14px;
+  border-top: 1px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.banks-table th {
+  background-color: #ffffff;
+  color: #1e293b;
+  font-weight: 700;
+  text-align: left;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.sort-icon {
+  font-size: 0.7rem;
+  color: #94a3b8;
+  margin-left: 3px;
+}
+
+.col-center {
+  text-align: center;
+}
+
+/* Status Badges & Action Styling */
+.badge-status.active {
+  border: 1px solid #22c55e;
+  color: #22c55e;
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 0.78rem;
+  background-color: transparent;
+}
+
+.icon-on-invoice-no {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.action-link {
+  text-decoration: none;
+  font-size: 0.8rem;
+}
+
+.link-edit {
+  color: #16a34a;
+}
+
+.link-delete {
+  color: #dc2626;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}
+
+/* Footer & Pagination */
+.table-footer {
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #f1f5f9;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.pagination-controls {
+  display: flex;
+}
+
+.page-btn {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  color: #334155;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  background-color: #032b53;
+  color: #ffffff;
+  border-color: #032b53;
+}
+
+.page-btn.disabled {
+  color: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.page-btn:first-child {
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
+}
+
+.page-btn:last-child {
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
+}
+
+/* Responsive Layout */
+@media (max-width: 640px) {
+  .banks-header-row, 
+  .table-controls, 
+  .table-footer {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+
+  .top-action-container {
+    justify-content: flex-start;
+  }
+
+  .pagination-controls {
+    align-self: center;
+  }
+}

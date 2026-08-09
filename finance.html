@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Collected Rent</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="finance.css">
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      
+      <!-- Finance Dropdown Section -->
+      <li class="nav-dropdown open">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html" class="sub-active" data-section="Collected Rent"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+          <li><a href="#" data-section="Mpesa Collection"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+          <li><a href="#" data-section="Coop Collection"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+          <li><a href="#" data-section="Fees Discounted"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+        </ul>
+      </li>
+
+      <li><a href="#"><i class="fa-solid fa-wrench"></i> Fees Setup <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="dashboard-title-row">
+        <h2>Finance - Collected Rent</h2>
+        <div class="breadcrumb">Home / Finance / COLLECTED RENT</div>
+      </div>
+
+      <!-- Collected Rent Metric Cards -->
+      <div class="stats-matrix">
+        <div class="stat-card green">
+          <div class="val">KES 1,053,027</div>
+          <div class="label">Total Rent Collected (August)</div>
+          <i class="fa-solid fa-hand-holding-dollar watermark"></i>
+        </div>
+        <div class="stat-card blue">
+          <div class="val">KES 725,660</div>
+          <div class="label">M-Pesa Collection</div>
+          <i class="fa-solid fa-mobile-retro watermark"></i>
+        </div>
+        <div class="stat-card blue">
+          <div class="val">KES 99,900</div>
+          <div class="label">Cash / Counter Collection</div>
+          <i class="fa-solid fa-money-bill-wave watermark"></i>
+        </div>
+        <div class="stat-card green">
+          <div class="val">KES 227,467</div>
+          <div class="label">Bank Direct Deposit (Co-op)</div>
+          <i class="fa-solid fa-building-columns watermark"></i>
+        </div>
+      </div>
+
+      <!-- Filter Controls & Action Bar -->
+      <div class="filter-card">
+        <div class="filter-group">
+          <div class="input-field">
+            <label for="search-input"><i class="fa-solid fa-magnifying-glass"></i> Search</label>
+            <input type="text" id="search-input" placeholder="Search Tenant, Receipt, Ref #...">
+          </div>
+          <div class="input-field">
+            <label for="property-filter"><i class="fa-solid fa-house"></i> Property</label>
+            <select id="property-filter">
+              <option value="ALL">All Properties</option>
+              <option value="Agnes njambi">Agnes njambi</option>
+              <option value="Alice Njuguna">Alice Njuguna</option>
+              <option value="Benard Njunge A">Benard Njunge A</option>
+              <option value="Daniel mwangi">Daniel mwangi</option>
+              <option value="Grace">Grace</option>
+            </select>
+          </div>
+          <div class="input-field">
+            <label for="payment-method-filter"><i class="fa-solid fa-wallet"></i> Payment Method</label>
+            <select id="payment-method-filter">
+              <option value="ALL">All Methods</option>
+              <option value="Mpesa">M-Pesa</option>
+              <option value="Bank">Bank Deposit</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </div>
+          <div class="input-field">
+            <label for="month-filter"><i class="fa-regular fa-calendar"></i> Month</label>
+            <input type="month" id="month-filter" value="2026-08">
+          </div>
+        </div>
+
+        <div class="export-actions">
+          <!-- General Export Dropdown -->
+          <div class="export-dropdown" id="export-dropdown">
+            <button class="btn btn-outline export-toggle-btn" id="export-toggle-btn">
+              <i class="fa-solid fa-file-export"></i> Export <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
+            </button>
+            <div class="export-menu" id="export-menu">
+              <button class="export-option" id="export-excel-btn">
+                <i class="fa-solid fa-file-excel excel-icon"></i> Export as Excel (.xlsx)
+              </button>
+              <button class="export-option" id="export-pdf-btn">
+                <i class="fa-solid fa-file-pdf pdf-icon"></i> Export as PDF (.pdf)
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" id="print-btn"><i class="fa-solid fa-print"></i> Print Statement</button>
+        </div>
+      </div>
+
+      <!-- Collected Rent Table -->
+      <div class="table-card">
+        <div class="table-header">
+          <h3><i class="fa-solid fa-receipt"></i> Rent Collection Transactions</h3>
+          <span class="record-count" id="record-count">Showing 6 transactions</span>
+        </div>
+        <div class="table-wrapper">
+          <table id="rent-table">
+            <thead>
+              <tr>
+                <th>Receipt #</th>
+                <th>Date & Time</th>
+                <th>Tenant Name</th>
+                <th>Property & Unit</th>
+                <th>Method</th>
+                <th>Ref / Txn Code</th>
+                <th>Amount (KES)</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="rent-table-body">
+              <!-- Rendered dynamically by finance.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Table Pagination -->
+        <div class="pagination-row">
+          <span class="page-info">Page 1 of 1</span>
+          <div class="page-btn-group">
+            <button class="page-btn disabled" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
+            <button class="page-btn active">1</button>
+            <button class="page-btn disabled" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Custom JS -->
+  <script src="finance.js"></script>
+</body>
+</html>

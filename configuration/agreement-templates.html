@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wiserenter - Agreement Templates</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- External CSS -->
+  <link rel="stylesheet" href="agreement-templates.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="top-header">
+    <div class="header-left">
+      <button class="menu-toggle-btn" aria-label="Toggle Navigation">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <div class="brand-logo">
+        <!-- Wiserenter custom icon / logo block -->
+        <div class="logo-icon-box">
+          <i class="fa-solid fa-house-user"></i>
+        </div>
+        <div class="brand-text-wrapper">
+          <span class="brand-name">wiserenter</span>
+          <span class="brand-sub">property management system</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="header-right">
+      <div class="user-profile-dropdown">
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="page-container">
+    <div class="content-wrapper">
+      
+      <!-- Top Section: Title & Breadcrumb -->
+      <div class="page-header-row">
+        <h1 class="page-title">Agreement Templates</h1>
+        <div class="breadcrumb">
+          <a href="../index.html">Home</a> / <a href="configuration.html">Configuration</a>
+        </div>
+      </div>
+
+      <!-- Action Row: New Template Button -->
+      <div class="action-row">
+        <button type="button" class="btn-new-template" id="btn-new-template">
+          <i class="fa-solid fa-circle-plus"></i> New Agreement Template
+        </button>
+      </div>
+
+      <!-- Agreement Templates Table Container -->
+      <div class="table-card">
+        <table class="templates-table">
+          <thead>
+            <tr>
+              <th>NAME</th>
+              <th>TYPE</th>
+              <th>DEFAULT</th>
+              <th>ACTIVE</th>
+              <th>ACTIONS</th>
+            </tr>
+          </thead>
+          <tbody id="templates-tbody">
+            <!-- Empty state displayed by default matching screenshot -->
+            <tr class="empty-row">
+              <td colspan="5" class="empty-message">
+                No agreement templates yet. Create one to get started.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal Component for Adding New Agreement Template -->
+  <div class="modal-overlay" id="template-modal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">New Agreement Template</h3>
+        <button class="modal-close-btn" id="modal-close">&times;</button>
+      </div>
+      <form id="template-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="template-name">Template Name <span class="required">*</span></label>
+            <input type="text" id="template-name" class="form-control" placeholder="e.g. Standard Lease Agreement" required>
+          </div>
+          <div class="form-group">
+            <label for="template-type">Agreement Type <span class="required">*</span></label>
+            <select id="template-type" class="form-control" required>
+              <option value="" disabled selected>Select Type</option>
+              <option value="Residential Lease">Residential Lease</option>
+              <option value="Commercial Lease">Commercial Lease</option>
+              <option value="Tenancy Agreement">Tenancy Agreement</option>
+              <option value="Sublease Agreement">Sublease Agreement</option>
+            </select>
+          </div>
+          <div class="form-checkbox-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="template-default">
+              Set as Default Template
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="template-active" checked>
+              Active
+            </label>
+          </div>
+          <div class="form-group">
+            <label for="template-content">Template Content</label>
+            <textarea id="template-content" class="form-control" rows="5" placeholder="Enter agreement terms and variables..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btn-cancel">Cancel</button>
+          <button type="submit" class="btn-primary">Save Template</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- External JavaScript -->
+  <script src="agreement-templates.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Collect Rent</title>
+  
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Styles -->
+  <link rel="stylesheet" href="collect-rent.css">
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li class="active"><a href="#"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-column"></i> Finance <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-wrench"></i> Fees Setup <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content View -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      <div class="page-title-row">
+        <h2>COLLECT TENANT'S RENT</h2>
+        <div class="breadcrumb">Home / Fee Collection</div>
+      </div>
+
+      <!-- Main Form Row -->
+      <div class="form-grid">
+        
+        <!-- Left Panel: Cascading Hierarchy Selection -->
+        <div class="card-panel">
+          <form id="cascade-form">
+            <div class="form-row-3col">
+              
+              <div class="form-group">
+                <label>Select Landlord <span class="required">required</span></label>
+                <select id="select-landlord" name="landlord">
+                  <option value="">--Select Landlord--</option>
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Select Property <span class="required">required</span></label>
+                <select id="select-property" name="property" disabled>
+                  <option value="">--Select Landlord First--</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Select Unit/Tenant <span class="required">required</span></label>
+                <select id="select-unit" name="unit" disabled>
+                  <option value="">--Select Property First--</option>
+                </select>
+              </div>
+
+            </div>
+
+            <div class="form-action-right">
+              <button type="submit" class="btn-primary" id="btn-cascade-continue">
+                Continue <i class="fa-solid fa-circle-arrow-right"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Panel: Direct Tenant Search -->
+        <div class="card-panel">
+          <form id="direct-tenant-form">
+            <div class="form-group">
+              <label>Select Tenant <span class="required">required</span></label>
+              <select id="select-tenant-direct" name="tenant_direct">
+                <option value="">--Select Tenant--</option>
+                <!-- Populated dynamically -->
+              </select>
+            </div>
+
+            <div class="form-action-right">
+              <button type="submit" class="btn-primary" id="btn-direct-continue">
+                Continue <i class="fa-solid fa-circle-arrow-right"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="collect-rent.js"></script>
+</body>
+</html>

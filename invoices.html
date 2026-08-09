@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Invoices</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="invoices.css">
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li class="active"><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-column"></i> Finance <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-wrench"></i> Fees Setup <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      
+      <!-- Top Action Row -->
+      <div class="top-action-bar">
+        <h2>INVOICES</h2>
+        <button class="btn-navy-action">tenants without invoices</button>
+      </div>
+
+      <!-- Main Data Table Panel -->
+      <div class="card-panel">
+        
+        <!-- Header Controls Row -->
+        <div class="table-header-controls">
+          <h3 class="panel-title">AUGUST-2026 INVOICES LIST</h3>
+          
+          <div class="filter-actions">
+            <button class="btn-filter btn-green"><i class="fa-solid fa-filter"></i> Period <i class="fa-solid fa-caret-down"></i></button>
+            <button class="btn-filter btn-grey"><i class="fa-solid fa-filter"></i> Property <i class="fa-solid fa-caret-down"></i></button>
+            <button class="btn-filter btn-green"><i class="fa-solid fa-filter"></i> Cluster <i class="fa-solid fa-caret-down"></i></button>
+            <button class="btn-filter btn-navy"><i class="fa-solid fa-filter"></i> Status <i class="fa-solid fa-caret-down"></i></button>
+            <button class="btn-filter btn-cyan"><i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i></button>
+          </div>
+        </div>
+
+        <!-- Pagination & Search Toolbar -->
+        <div class="table-toolbar">
+          <div class="show-entries">
+            <label for="entries-select">Show </label>
+            <select id="entries-select">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100" selected>100</option>
+            </select>
+            <span> entries</span>
+          </div>
+
+          <div class="search-box">
+            <label for="table-search">Search: </label>
+            <input type="text" id="table-search" placeholder="">
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-responsive">
+          <table class="invoice-table">
+            <thead>
+              <tr>
+                <th># <i class="fa-solid fa-sort"></i></th>
+                <th>INVOICE NO <i class="fa-solid fa-sort"></i></th>
+                <th>TNT <i class="fa-solid fa-sort"></i></th>
+                <th>TENANT <i class="fa-solid fa-sort"></i></th>
+                <th>PROPERTY <i class="fa-solid fa-sort"></i></th>
+                <th>UNIT <i class="fa-solid fa-sort"></i></th>
+                <th>DUE <i class="fa-solid fa-sort"></i></th>
+                <th>EXPECTED <i class="fa-solid fa-sort"></i></th>
+                <th>PREPAID <i class="fa-solid fa-sort"></i></th>
+                <th>DISCOUNT <i class="fa-solid fa-sort"></i></th>
+                <th>ARREARS <i class="fa-solid fa-sort"></i></th>
+                <th>CURRENT <i class="fa-solid fa-sort"></i></th>
+                <th>PAID <i class="fa-solid fa-sort"></i></th>
+                <th>BALANCE <i class="fa-solid fa-sort"></i></th>
+                <th>STATUS <i class="fa-solid fa-sort"></i></th>
+              </tr>
+            </thead>
+            <tbody id="invoice-tbody">
+              <!-- Populated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script src="invoices.js"></script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Properties List - Geopima Agencies</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Shared CSS -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Page-Specific CSS -->
+  <link rel="stylesheet" href="properties.css">
+</head>
+<body>
+
+  <div class="app-layout" style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
+
+    <!-- Sidebar Navigation Menu -->
+    <aside id="sidebar">
+      <div class="brand">
+        <i class="fa-solid fa-building-user"></i>
+        <span>Geopima Agencies</span>
+      </div>
+      <ul class="nav-menu">
+        <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        
+        <li class="nav-dropdown">
+          <button class="dropdown-btn" id="finance-dropdown-toggle">
+            <i class="fa-solid fa-chart-column"></i>
+            <span>Finance</span> 
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <ul class="submenu" id="finance-submenu">
+            <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+            <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+            <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+            <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+          </ul>
+        </li>
+
+        <li class="nav-dropdown">
+          <button class="dropdown-btn" id="fees-dropdown-toggle">
+            <i class="fa-solid fa-wrench"></i>
+            <span>Fees Setup</span> 
+            <i class="fa-solid fa-chevron-down chevron"></i>
+          </button>
+          <ul class="submenu" id="fees-submenu">
+            <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
+            <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <a href="landlords.html" id="landlords-link">
+            <i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i>
+          </a>
+        </li>
+
+        <!-- Active Page -->
+        <li class="active"><a href="properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      </ul>
+    </aside>
+
+    <!-- Main View Panel -->
+    <div class="main-wrapper">
+      
+      <!-- Top Header Navigation -->
+      <header>
+        <div class="header-left">
+          <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+          <span class="header-title">Geopima Property Management</span>
+        </div>
+        <div class="header-right">
+          <i class="fa-regular fa-user-circle user-icon"></i>
+          <span>Peter Mwaniki</span>
+          <i class="fa-solid fa-caret-down"></i>
+        </div>
+      </header>
+
+      <!-- Main Container Content -->
+      <main class="properties-container">
+        
+        <!-- Page Title Bar with Top Actions -->
+        <div class="page-header-row">
+          <div class="title-left">
+            <h2>Properties</h2>
+          </div>
+          <div class="title-right">
+            <div class="status-links">
+              <a href="#" class="status-link active">active</a> / 
+              <a href="#" class="status-link">suspended</a>
+            </div>
+            <div class="top-action-buttons">
+              <button class="btn btn-navy-solid"><i class="fa-solid fa-plus"></i> Unit Type</button>
+              <button class="btn btn-navy-solid"><i class="fa-solid fa-plus"></i> Unit Category</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Card Section -->
+        <section class="card-panel">
+          <div class="card-header border-light">
+            <div class="header-title">
+              <h2><i class="fa-solid fa-sitemap"></i> PROPERTIES LIST</h2>
+            </div>
+            
+            <div class="header-actions">
+              <button class="btn btn-navy-solid" id="add-property-btn">
+                <i class="fa-solid fa-plus"></i> Add Property
+              </button>
+              <button class="btn btn-navy-solid">Agreements List</button>
+              
+              <div class="dropdown-container">
+                <button class="btn btn-cyan dropdown-toggle" id="export-btn">
+                  <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i>
+                </button>
+                <div class="dropdown-menu" id="export-dropdown-menu">
+                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-excel"></i> Excel</a>
+                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+                  <a href="#" class="dropdown-item"><i class="fa-solid fa-print"></i> Print</a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Filter Bar -->
+            <div class="table-toolbar">
+              <div class="entries-control">
+                Show 
+                <select id="entries-select">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50" selected>50</option>
+                  <option value="100">100</option>
+                </select> 
+                entries
+              </div>
+              <div class="search-control">
+                <label for="table-search">Search:</label>
+                <input type="text" id="table-search">
+              </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-responsive">
+              <table class="data-table" id="properties-table">
+                <thead>
+                  <tr>
+                    <th class="col-sortable"># <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">PRO ID <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">PROPERTY NAME <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">LANDLORD NAME <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">DESCRIPTION <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">LOCATION <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">CLUSTER <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">OCC/UNITS <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">COMM. <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">STATUS <i class="fa-solid fa-sort"></i></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>51</td>
+                    <td><a href="#" class="link-dashed">WP001</a></td>
+                    <td>Mary Mwihaki Plot</td>
+                    <td><a href="#" class="link-dashed">Mary Mwihaki</a></td>
+                    <td>Mary Mwihaki Plot</td>
+                    <td>Mary Mwihaki Plot</td>
+                    <td>Cluster A</td>
+                    <td>15 <sup class="occ-count">(15)</sup></td>
+                    <td>10%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>52</td>
+                    <td><a href="#" class="link-dashed">WP011</a></td>
+                    <td>Mary Wairimu Plot</td>
+                    <td><a href="#" class="link-dashed">Mary Wairimu</a></td>
+                    <td>Mary Wairimu Plot</td>
+                    <td>Mary Wairimu Plot</td>
+                    <td>Cluster A</td>
+                    <td>8 <sup class="occ-count">(8)</sup></td>
+                    <td>10%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>53</td>
+                    <td><a href="#" class="link-dashed">WP020</a></td>
+                    <td>Matasia</td>
+                    <td><a href="#" class="link-dashed">Matasia</a></td>
+                    <td>Matasia</td>
+                    <td>Matasia</td>
+                    <td>Cluster A</td>
+                    <td>43 <sup class="occ-count">(34)</sup></td>
+                    <td>10%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>54</td>
+                    <td><a href="#" class="link-dashed">WP046</a></td>
+                    <td>Monicah Kahara B</td>
+                    <td><a href="#" class="link-dashed">Monicah Kahara</a></td>
+                    <td>KAHARA B</td>
+                    <td>JUBILEE</td>
+                    <td>Cluster A</td>
+                    <td>10 <sup class="occ-count">(9)</sup></td>
+                    <td>5%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>55</td>
+                    <td><a href="#" class="link-dashed">WP028</a></td>
+                    <td>Monicah Plot</td>
+                    <td><a href="#" class="link-dashed">Monicah Kahara</a></td>
+                    <td>rent</td>
+                    <td>KAWANGWARE EQUITY</td>
+                    <td>Cluster A</td>
+                    <td>51 <sup class="occ-count">(40)</sup></td>
+                    <td>5%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>56</td>
+                    <td><a href="#" class="link-dashed">WP013</a></td>
+                    <td>Monicah Wahu</td>
+                    <td><a href="#" class="link-dashed">Monicah</a></td>
+                    <td>Monicah wahu</td>
+                    <td>Monicah Plot</td>
+                    <td>Cluster A</td>
+                    <td>6 <sup class="occ-count">(6)</sup></td>
+                    <td>10%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>57</td>
+                    <td><a href="#" class="link-dashed">WP039</a></td>
+                    <td>Muga</td>
+                    <td><a href="#" class="link-dashed">Joel Muga</a></td>
+                    <td>muga</td>
+                    <td>Mtego kabiria</td>
+                    <td>Cluster A</td>
+                    <td>6 <sup class="occ-count">(5)</sup></td>
+                    <td>10%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>58</td>
+                    <td><a href="#" class="link-dashed">WP014</a></td>
+                    <td>Nancy Kabirisa Plot</td>
+                    <td><a href="#" class="link-dashed">Nancy Kabirisa</a></td>
+                    <td>Nancy Kabirisa Plot</td>
+                    <td>Nancy Kabirisa Plot</td>
+                    <td>Cluster A</td>
+                    <td>77 <sup class="occ-count">(71)</sup></td>
+                    <td>8%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>59</td>
+                    <td><a href="#" class="link-dashed">WP015</a></td>
+                    <td>Nancy Muslim</td>
+                    <td><a href="#" class="link-dashed">Nancy</a></td>
+                    <td>Nancy muslim</td>
+                    <td>muslim</td>
+                    <td>Cluster A</td>
+                    <td>92 <sup class="occ-count">(88)</sup></td>
+                    <td>8%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                  <tr>
+                    <td>60</td>
+                    <td><a href="#" class="link-dashed">WP030</a></td>
+                    <td>Nelly Plot</td>
+                    <td><a href="#" class="link-dashed">Nelly Wamoro</a></td>
+                    <td>rent</td>
+                    <td>MOTEGO</td>
+                    <td>Cluster A</td>
+                    <td>9 <sup class="occ-count">(7)</sup></td>
+                    <td>10%</td>
+                    <td><span class="badge badge-success">active</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Table Footer -->
+            <div class="table-footer">
+              <div class="table-info" id="table-info">Showing 51 to 60 of 81 entries</div>
+              <ul class="pagination">
+                <li><button class="page-btn">Previous</button></li>
+                <li><button class="page-btn">1</button></li>
+                <li><button class="page-btn active">2</button></li>
+                <li><button class="page-btn">Next</button></li>
+              </ul>
+            </div>
+
+          </div>
+        </section>
+
+      </main>
+    </div>
+
+  </div>
+
+  <!-- Shared JS -->
+  <script src="script.js"></script>
+  <!-- Page Specific JS -->
+  <script src="properties.js"></script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Communication Dashboard</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Chart.js for SMS Analytics Graph -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <!-- Core Dashboard Stylesheet -->
+  <link rel="stylesheet" href="styles.css">
+  <!-- Page Specific Stylesheet -->
+  <link rel="stylesheet" href="communication.css">
+</head>
+<body>
+
+  <!-- Sidebar Nav -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      
+      <!-- Finance Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
+          <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
+          <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
+          <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
+        </ul>
+      </li>
+
+      <!-- Fees Setup Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="fees-dropdown-toggle">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Fees Setup</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="fees-submenu">
+          <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
+          <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
+        </ul>
+      </li>
+
+      <li><a href="landlords.html"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="tenants.html"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li class="active"><a href="communication.html"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
+      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Peter Mwaniki</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <div class="container">
+      
+      <!-- Top Header Title & Breadcrumb -->
+      <div class="page-header-row">
+        <h2 class="dashboard-title">BULK SMS DASHBOARD FOR YEAR 2026</h2>
+        <div class="breadcrumb">
+          <a href="#">Home</a> / <span>Communication</span>
+        </div>
+      </div>
+
+      <!-- Dashboard Grid Layout -->
+      <div class="dashboard-layout">
+        
+        <!-- Left Main Panel -->
+        <div class="left-analytics-panel">
+          
+          <!-- SMS Delivery Status Cards Grid -->
+          <div class="status-cards-grid">
+            <div class="stat-card card-dark-blue">
+              <span class="stat-title">Total Messages</span>
+              <span class="stat-count">55983</span>
+            </div>
+            
+            <div class="stat-card card-teal">
+              <span class="stat-title">rendered</span>
+              <span class="stat-count">3</span>
+            </div>
+
+            <div class="stat-card card-teal card-long-text">
+              <span class="stat-title">Failed: Trying to access array offset on value of type null</span>
+              <span class="stat-count">3</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">SAVED</span>
+              <span class="stat-count">467</span>
+            </div>
+
+            <div class="stat-card card-green">
+              <span class="stat-title">DeliveredToTerminal</span>
+              <span class="stat-count">30764</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">DeliveryImpossible</span>
+              <span class="stat-count">98</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">Failed</span>
+              <span class="stat-count">9</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">Queued At MNO</span>
+              <span class="stat-count">26</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">AbsentSubscriber</span>
+              <span class="stat-count">2150</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">Sent To Network</span>
+              <span class="stat-count">885</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">unknown</span>
+              <span class="stat-count">352</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">success</span>
+              <span class="stat-count">21202</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">Network Failure</span>
+              <span class="stat-count">1</span>
+            </div>
+
+            <div class="stat-card card-teal">
+              <span class="stat-title">InvalidNetwork</span>
+              <span class="stat-count">23</span>
+            </div>
+          </div>
+
+          <!-- Chart Box Container -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <i class="fa-solid fa-chart-column"></i>
+              <span>Messages Sent/Received</span>
+            </div>
+            
+            <div class="chart-summary">
+              <div class="total-big-number">55983</div>
+              <div class="total-label">Messages</div>
+            </div>
+
+            <div class="canvas-wrapper">
+              <canvas id="smsAnalyticsChart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right Action Sidebar -->
+        <div class="right-actions-panel">
+          
+          <!-- Balance Banner -->
+          <div class="balance-banner">
+            <span>SMS Balance: <strong>7696</strong> units</span>
+          </div>
+
+          <!-- Panel 1: Rent Balances -->
+          <div class="action-card">
+            <h4 class="card-section-title">Messages With Rent Balances</h4>
+            <div class="action-buttons-group">
+              <button class="sms-btn btn-light-blue">Send All With Rent Figures</button>
+              <button class="sms-btn btn-slate-gray">Send To Selected Landlords</button>
+              <button class="sms-btn btn-soft-yellow">Send To Selected Properties</button>
+              <button class="sms-btn btn-soft-green">Send To Selected Tenants</button>
+              <button class="sms-btn btn-sage-green">Send To Tenants With Last Month Arrears</button>
+            </div>
+          </div>
+
+          <!-- Panel 2: General Messages -->
+          <div class="action-card">
+            <h4 class="card-section-title">General Messages Without Balances</h4>
+            <div class="action-buttons-group">
+              <button class="sms-btn btn-soft-yellow">Send To All Tenants</button>
+              <button class="sms-btn btn-light-cyan">Send To Selected Landlords</button>
+              <button class="sms-btn btn-slate-gray">Send To Selected Properties</button>
+              <button class="sms-btn btn-soft-green">Send To Selected Tenants</button>
+              <button class="sms-btn btn-sky-blue">Send To Landlords</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Scripts -->
+  <script src="script.js"></script>
+  <script src="communication.js"></script>
+</body>
+</html>
