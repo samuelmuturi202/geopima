@@ -16,8 +16,8 @@
 </head>
 <body>
 
-  <!-- Sidebar Nav -->
-  <aside id="sidebar">
+  <!-- Collapsible Sidebar Nav -->
+  <aside id="sidebar" class="collapsed">
     <div class="brand">
       <i class="fa-solid fa-building-user"></i>
       <span>Geopima Agencies</span>
@@ -45,8 +45,8 @@
         </a>
       </li>
       
-      <!-- Collapsible & Interactive Finance Dropdown -->
-      <li class="nav-dropdown open">
+      <!-- Finance Dropdown -->
+      <li class="nav-dropdown">
         <button class="dropdown-btn" id="finance-dropdown-toggle">
           <i class="fa-solid fa-chart-column"></i>
           <span>Finance</span> 
@@ -60,7 +60,7 @@
         </ul>
       </li>
 
-      <!-- Collapsible & Interactive Fees Setup Dropdown -->
+      <!-- Fees Setup Dropdown -->
       <li class="nav-dropdown">
         <button class="dropdown-btn" id="fees-dropdown-toggle">
           <i class="fa-solid fa-wrench"></i>
@@ -73,7 +73,7 @@
         </ul>
       </li>
 
-      <!-- Landlords Navigation Link -->
+      <!-- Landlords Link -->
       <li>
         <a href="landlords.html" id="landlords-link">
           <i class="fa-solid fa-user-group"></i> 
@@ -82,7 +82,7 @@
         </a>
       </li>
 
-      <!-- Properties Navigation Link -->
+      <!-- Properties Link -->
       <li>
         <a href="properties.html" id="properties-link">
           <i class="fa-solid fa-house"></i> 
@@ -91,7 +91,7 @@
         </a>
       </li>
 
-      <!-- Units Navigation Link -->
+      <!-- Units Link -->
       <li>
         <a href="unit.html">
           <i class="fa-solid fa-sitemap"></i> 
@@ -100,7 +100,7 @@
         </a>
       </li>
 
-      <!-- Tenants Navigation Link -->
+      <!-- Tenants Link -->
       <li>
         <a href="tenants.html">
           <i class="fa-solid fa-users"></i> 
@@ -109,7 +109,7 @@
         </a>
       </li>
 
-      <!-- Communication Navigation Link -->
+      <!-- Communication Link -->
       <li>
         <a href="communication.html">
           <i class="fa-solid fa-bullhorn"></i> 
@@ -126,7 +126,7 @@
         </a>
       </li>
 
-      <!-- Configurations Navigation Link -->
+      <!-- Configurations Link -->
       <li>
         <a href="configuration.html" id="configuration-link">
           <i class="fa-solid fa-gear"></i> 
@@ -156,12 +156,18 @@
   <div class="main-wrapper">
     <header>
       <div class="header-left">
-        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <!-- Sidebar Toggle Icon -->
+        <i class="fa-solid fa-bars" id="toggle-sidebar" title="Toggle Sidebar"></i>
         <span class="header-title">Geopima Property Management</span>
       </div>
       <div class="header-right">
+        <!-- Theme Mode Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+
         <i class="fa-regular fa-user-circle user-icon"></i>
-        <span>Peter Mwaniki</span>
+        <span>Samuel Muturi</span>
         <i class="fa-solid fa-caret-down"></i>
       </div>
     </header>
@@ -172,7 +178,7 @@
         <div class="breadcrumb">Home / AUGUST-2026</div>
       </div>
 
-      <!-- Top Status Indicators -->
+      <!-- Status Badges Banner -->
       <div class="banner-row">
         <button class="badge-btn badge-yellow">Expiring Property Agreements : 0</button>
         <button class="badge-btn badge-yellow">Expiring Tenant Agreements : 37</button>
@@ -285,7 +291,7 @@
           </div>
         </div>
 
-        <!-- Right Side Metric Panel -->
+        <!-- Metric Side Panel -->
         <div class="metric-panel">
           <div class="metric-card">
             <div class="metric-icon bg-green"><i class="fa-solid fa-user-group"></i></div>
@@ -340,7 +346,7 @@
         </div>
       </div>
 
-      <!-- Payment Summary Progress Component Section -->
+      <!-- Payment Summary Section -->
       <div class="section-card">
         <h3>Payment summary by properties</h3>
         <div class="progress-grid" id="payment-summary-container"></div>
@@ -349,7 +355,6 @@
     </div>
   </div>
 
-  <!-- Custom JavaScript -->
   <script src="script.js"></script>
 </body>
 </html>

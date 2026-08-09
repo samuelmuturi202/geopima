@@ -2,46 +2,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggle-sidebar');
+  const themeToggleBtn = document.getElementById('theme-toggle');
+  const themeIcon = document.getElementById('theme-icon');
 
-  // --- 1. Hover Expand/Collapse Logic for Desktop ---
-  if (sidebar) {
-    sidebar.addEventListener('mouseenter', () => {
-      if (window.innerWidth > 768) {
-        sidebar.classList.add('hover-expanded');
-      }
-    });
+  // --- 1. Persistent Sidebar Collapse/Expand Logic ---
+  const applySidebarState = (isCollapsed) => {
+    if (isCollapsed) {
+      sidebar.classList.add('collapsed');
+    } else {
+      sidebar.classList.remove('collapsed');
+    }
+  };
 
-    sidebar.addEventListener('mouseleave', () => {
-      if (window.innerWidth > 768) {
-        sidebar.classList.remove('hover-expanded');
+  // Restore sidebar state from localStorage across page navigation
+  const savedSidebarState = localStorage.getItem('sidebarState');
+  if (savedSidebarState !== null) {
+    applySidebarState(savedSidebarState === 'collapsed');
+  } else {
+    // Default state: collapsed
+    applySidebarState(true);
+  }
+
+  // Toggle button handler
+  if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+
+      if (window.innerWidth <= 768) {
+        // Mobile Drawer Toggle
+        sidebar.classList.toggle('mobile-open');
+      } else {
+        // Desktop Collapse/Expand Toggle
+        const isCurrentlyCollapsed = sidebar.classList.contains('collapsed');
+        const nextState = !isCurrentlyCollapsed;
+        applySidebarState(nextState);
+        localStorage.setItem('sidebarState', nextState ? 'collapsed' : 'expanded');
       }
     });
   }
 
-  // --- 2. Mobile Drawer Toggle Logic ---
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      sidebar.classList.toggle('mobile-open');
-    });
-
-    // Close mobile drawer when clicking outside
-    document.addEventListener('click', (e) => {
-      if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
-        if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
-          sidebar.classList.remove('mobile-open');
-        }
+  // Close mobile drawer when clicking outside
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
+      if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+        sidebar.classList.remove('mobile-open');
       }
+    }
+  });
+
+  // --- 2. Light/Dark Mode Switch Handler ---
+  const applyTheme = (isDark) => {
+    if (isDark) {
+      document.body.classList.add('dark-mode');
+      if (themeIcon) themeIcon.className = 'fa-solid fa-sun';
+    } else {
+      document.body.classList.remove('dark-mode');
+      if (themeIcon) themeIcon.className = 'fa-solid fa-moon';
+    }
+  };
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    applyTheme(true);
+  }
+
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      const isDark = document.body.classList.toggle('dark-mode');
+      applyTheme(isDark);
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
   }
 
   // --- 3. Submenu / Dropdown Handler ---
   const setupDropdownToggle = (toggleId) => {
-    const toggleBtn = document.getElementById(toggleId);
-    const dropdown = toggleBtn ? toggleBtn.closest('.nav-dropdown') : null;
+    const toggleButton = document.getElementById(toggleId);
+    const dropdown = toggleButton ? toggleButton.closest('.nav-dropdown') : null;
 
-    if (toggleBtn && dropdown) {
-      toggleBtn.addEventListener('click', (e) => {
+    if (toggleButton && dropdown) {
+      toggleButton.addEventListener('click', (e) => {
         e.preventDefault();
         dropdown.classList.toggle('open');
       });
@@ -51,10 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupDropdownToggle('finance-dropdown-toggle');
   setupDropdownToggle('fees-dropdown-toggle');
 
-  // Navigate links inside submenus
-  const submenuLinks = document.querySelectorAll('.submenu a');
-  submenuLinks.forEach(link => {
-    link.addEventListener('click', () => {
+  // --- 4. Navigation Link Handlers ---
+  const navLinks = document.querySelectorAll('.nav-menu a');
+  navLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
       const targetUrl = link.getAttribute('href');
       if (targetUrl && targetUrl !== '#') {
         window.location.href = targetUrl;
@@ -62,18 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Dedicated Link Handler
-  const landlordsLink = document.getElementById('landlords-link');
-  if (landlordsLink) {
-    landlordsLink.addEventListener('click', () => {
-      const targetUrl = landlordsLink.getAttribute('href');
-      if (targetUrl && targetUrl !== '#') {
-        window.location.href = targetUrl;
-      }
-    });
-  }
-
-  // --- 4. Chart.js Population Distribution Chart ---
+  // --- 5. Chart.js Population Distribution Chart ---
   const chartCanvas = document.getElementById('populationChart');
   let populationChartInstance = null;
 
@@ -124,14 +152,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Resize chart dynamically on screen change
   window.addEventListener('resize', () => {
     if (populationChartInstance) {
       populationChartInstance.resize();
     }
   });
 
-  // --- 5. Render Payment Summary Progress Bars ---
+  // --- 6. Render Payment Summary Progress Bars ---
   const summaryContainer = document.getElementById('payment-summary-container');
   if (summaryContainer) {
     const paymentData = [

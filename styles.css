@@ -1,9 +1,11 @@
 :root {
-  --sidebar-bg: #034b46;
-  --sidebar-hover: #06605a;
-  --sidebar-active: #157a72;
+  /* Light Theme Variables */
+  --sidebar-bg: #0a192f;        /* Navy Blue Theme */
+  --sidebar-hover: #172a45;
+  --sidebar-active: #1e3a8a;
   --topbar-bg: #ffffff;
   --body-bg: #f3f5f8;
+  --card-bg: #ffffff;
   --card-blue: #0099b8;
   --card-green: #2bb14c;
   --card-red: #d93847;
@@ -11,12 +13,23 @@
   --badge-red: #dc3545;
   --badge-navy: #002b49;
   --text-dark: #333333;
+  --text-muted: #666666;
   --border-color: #e2e8f0;
   --sidebar-width-collapsed: 65px;
   --sidebar-width-expanded: 240px;
 }
 
-/* Base Reset */
+/* Dark Theme Variables */
+body.dark-mode {
+  --topbar-bg: #1e293b;
+  --body-bg: #0f172a;
+  --card-bg: #1e293b;
+  --text-dark: #f8fafc;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+}
+
+/* Reset */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -31,11 +44,12 @@ body {
   color: var(--text-dark);
   font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
   overflow: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Sidebar Nav - Collapsed by Default with Hover Expansion */
+/* Sidebar Styling - Navy Blue */
 aside {
-  width: var(--sidebar-width-collapsed);
+  width: var(--sidebar-width-expanded);
   background-color: var(--sidebar-bg);
   color: #ffffff;
   display: flex;
@@ -45,11 +59,14 @@ aside {
   z-index: 1000;
   overflow-x: hidden;
   position: relative;
-  box-shadow: 2px 0 8px rgba(0,0,0,0.15);
+  box-shadow: 2px 0 8px rgba(0,0,0,0.25);
 }
 
-aside:hover,
-aside.hover-expanded {
+aside.collapsed {
+  width: var(--sidebar-width-collapsed);
+}
+
+aside.collapsed:hover {
   width: var(--sidebar-width-expanded);
 }
 
@@ -67,18 +84,17 @@ aside.hover-expanded {
 .brand i {
   font-size: 1.4rem;
   margin-right: 18px;
-  color: #2bb14c;
+  color: #38bdf8;
   min-width: 24px;
 }
 
 .brand span {
-  opacity: 0;
-  transition: opacity 0.25s ease-in-out;
+  opacity: 1;
+  transition: opacity 0.2s ease-in-out;
 }
 
-aside:hover .brand span,
-aside.hover-expanded .brand span {
-  opacity: 1;
+aside.collapsed:not(:hover) .brand span {
+  opacity: 0;
 }
 
 .nav-menu {
@@ -94,7 +110,7 @@ aside.hover-expanded .brand span {
   align-items: center;
   width: 100%;
   padding: 14px 20px;
-  color: #e0e0e0;
+  color: #e2e8f0;
   text-decoration: none;
   font-size: 0.88rem;
   background: transparent;
@@ -125,15 +141,13 @@ aside.hover-expanded .brand span {
 
 .nav-menu li span,
 .nav-menu li .chevron {
-  opacity: 0;
+  opacity: 1;
   transition: opacity 0.2s ease-in-out;
 }
 
-aside:hover .nav-menu li span,
-aside:hover .nav-menu li .chevron,
-aside.hover-expanded .nav-menu li span,
-aside.hover-expanded .nav-menu li .chevron {
-  opacity: 1;
+aside.collapsed:not(:hover) .nav-menu li span,
+aside.collapsed:not(:hover) .nav-menu li .chevron {
+  opacity: 0;
 }
 
 .nav-menu li .chevron {
@@ -142,7 +156,7 @@ aside.hover-expanded .nav-menu li .chevron {
   transition: transform 0.3s ease, opacity 0.2s;
 }
 
-/* Collapsible Dropdown Nav Styling */
+/* Submenu */
 .nav-dropdown {
   display: flex;
   flex-direction: column;
@@ -159,11 +173,10 @@ aside.hover-expanded .nav-menu li .chevron {
   max-height: 0;
   overflow: hidden;
   transition: max-height 0.35s cubic-bezier(0, 1, 0, 1);
-  background-color: rgba(0, 0, 0, 0.15);
+  background-color: rgba(0, 0, 0, 0.25);
 }
 
-aside:hover .nav-dropdown.open .submenu,
-aside.hover-expanded .nav-dropdown.open .submenu {
+.nav-dropdown.open .submenu {
   max-height: 300px;
   transition: max-height 0.35s ease-in-out;
 }
@@ -175,7 +188,7 @@ aside.hover-expanded .nav-dropdown.open .submenu {
 .submenu li a {
   padding: 10px 20px 10px 42px !important;
   font-size: 0.84rem;
-  color: #cfd8dc;
+  color: #cbd5e1;
   display: flex;
   align-items: center;
 }
@@ -191,7 +204,7 @@ aside.hover-expanded .nav-dropdown.open .submenu {
   min-width: auto !important;
 }
 
-/* Main Content View Container */
+/* Main Layout */
 .main-wrapper {
   flex: 1;
   min-width: 0;
@@ -210,6 +223,7 @@ header {
   padding: 0 20px;
   border-bottom: 1px solid var(--border-color);
   flex-shrink: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .header-left {
@@ -226,19 +240,43 @@ header {
 }
 
 .header-left i:hover {
-  background-color: #f0f0f0;
+  background-color: rgba(0,0,0,0.05);
 }
 
 .header-title {
   font-weight: 600;
-  color: #444;
+  color: var(--text-dark);
 }
 
 .header-right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 0.9rem;
+  color: var(--text-dark);
+}
+
+/* Dark/Light Mode Button */
+.theme-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-dark);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+body.dark-mode .theme-toggle-btn:hover {
+  background-color: rgba(255,255,255,0.1);
 }
 
 .user-icon {
@@ -261,15 +299,15 @@ header {
 
 .dashboard-title-row h2 {
   font-size: 1.35rem;
-  color: #222;
+  color: var(--text-dark);
 }
 
 .breadcrumb {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--text-muted);
 }
 
-/* Top Action Banner Badges */
+/* Status Badges */
 .banner-row {
   display: flex;
   gap: 8px;
@@ -285,7 +323,6 @@ header {
   color: #ffffff;
   border: none;
   cursor: pointer;
-  text-align: center;
 }
 
 .badge-yellow { background-color: var(--badge-yellow); color: #222; }
@@ -293,7 +330,7 @@ header {
 .badge-red { background-color: var(--badge-red); }
 .badge-navy { background-color: var(--badge-navy); }
 
-/* Primary Grid Layout */
+/* Dashboard Grids */
 .dashboard-grid {
   display: grid;
   grid-template-columns: 3fr 1fr;
@@ -301,7 +338,6 @@ header {
   min-width: 0;
 }
 
-/* Stats Matrix Cards */
 .stats-matrix {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -349,7 +385,7 @@ header {
   pointer-events: none;
 }
 
-/* Metric Right Panel */
+/* Side Metrics */
 .metric-panel {
   display: flex;
   flex-direction: column;
@@ -357,13 +393,14 @@ header {
 }
 
 .metric-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 10px 14px;
   display: flex;
   align-items: center;
   gap: 12px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .metric-icon {
@@ -385,29 +422,30 @@ header {
 
 .metric-details .m-label {
   font-size: 0.75rem;
-  color: #777;
+  color: var(--text-muted);
 }
 
 .metric-details .m-val {
   font-size: 0.95rem;
   font-weight: bold;
-  color: #222;
+  color: var(--text-dark);
 }
 
-/* Section Cards & Chart */
+/* Section Cards */
 .section-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   padding: 16px;
   margin-top: 18px;
   min-width: 0;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .section-card h3 {
   font-size: 0.95rem;
   margin-bottom: 14px;
-  color: #333;
+  color: var(--text-dark);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -420,7 +458,7 @@ header {
   min-width: 0;
 }
 
-/* Payment Progress Items */
+/* Progress Grid */
 .progress-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -428,8 +466,8 @@ header {
 }
 
 .progress-item {
-  background: #f9fbfd;
-  border: 1px solid #e9ecef;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   padding: 8px 12px;
   border-radius: 4px;
 }
@@ -440,11 +478,12 @@ header {
   font-size: 0.75rem;
   margin-bottom: 4px;
   font-weight: 600;
+  color: var(--text-dark);
 }
 
 .progress-bar-bg {
   height: 8px;
-  background: #e9ecef;
+  background: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -459,21 +498,16 @@ header {
   background: var(--card-green);
 }
 
-/* Dynamic Responsive Queries */
+/* Responsive Rules */
 @media (max-width: 1200px) {
-  .stats-matrix {
-    grid-template-columns: repeat(2, 1fr);
-  }
+  .stats-matrix { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 992px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+  .dashboard-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  /* Off-canvas Mobile Drawer Behavior */
   aside {
     position: fixed;
     top: 0;
@@ -483,39 +517,18 @@ header {
     transition: left 0.3s ease;
   }
 
-  aside.mobile-open {
-    left: 0;
-  }
+  aside.mobile-open { left: 0; }
 
   aside .brand span,
   aside .nav-menu li span,
-  aside .nav-menu li .chevron {
-    opacity: 1 !important;
-  }
+  aside .nav-menu li .chevron { opacity: 1 !important; }
 
-  .container {
-    padding: 12px;
-  }
-
-  .header-title {
-    font-size: 0.95rem;
-  }
+  .container { padding: 12px; }
 }
 
 @media (max-width: 576px) {
-  .stats-matrix {
-    grid-template-columns: 1fr;
-  }
-
-  .progress-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .badge-btn {
-    width: 100%;
-  }
-
-  .chart-wrapper {
-    height: 250px;
-  }
+  .stats-matrix,
+  .progress-grid { grid-template-columns: 1fr; }
+  .badge-btn { width: 100%; }
+  .chart-wrapper { height: 250px; }
 }
