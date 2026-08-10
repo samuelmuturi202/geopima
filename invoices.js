@@ -1,16 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // Sidebar Toggle logic
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const sidebar = document.getElementById('sidebar');
-
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
-
-  // Exact Data Array matching the attached screenshot
+  // Data Array
   const invoiceData = [
     { num: 1,  invoiceNo: "INV038908", tnt: "W4576", tenant: "Alfred",               property: "JOSPHINE",          unit: "B3",   due: 5, expected: "4,500.00",  prepaid: "0.00", discount: "0.00", arrears: "0.00", current: "0.00",      paid: "4,500.00", balance: "0.00",      status: "cleared" },
     { num: 2,  invoiceNo: "INV038907", tnt: "W4575", tenant: "Noah",                 property: "JOSPHINE",          unit: "C6",   due: 5, expected: "3,500.00",  prepaid: "0.00", discount: "0.00", arrears: "0.00", current: "0.00",      paid: "7,000.00", balance: "-3,500.00", status: "cleared" },
@@ -28,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const tbody = document.getElementById('invoice-tbody');
 
   function renderRows(data) {
+    if (!tbody) return;
     tbody.innerHTML = '';
     data.forEach(item => {
       const tr = document.createElement('tr');
@@ -57,17 +48,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Real-time Search Filter
   const searchInput = document.getElementById('table-search');
-  searchInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase();
-    const filtered = invoiceData.filter(item => 
-      item.invoiceNo.toLowerCase().includes(query) ||
-      item.tnt.toLowerCase().includes(query) ||
-      item.tenant.toLowerCase().includes(query) ||
-      item.property.toLowerCase().includes(query) ||
-      item.unit.toLowerCase().includes(query)
-    );
-    renderRows(filtered);
-  });
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      const filtered = invoiceData.filter(item => 
+        item.invoiceNo.toLowerCase().includes(query) ||
+        item.tnt.toLowerCase().includes(query) ||
+        item.tenant.toLowerCase().includes(query) ||
+        item.property.toLowerCase().includes(query) ||
+        item.unit.toLowerCase().includes(query)
+      );
+      renderRows(filtered);
+    });
+  }
 
   renderRows(invoiceData);
 });

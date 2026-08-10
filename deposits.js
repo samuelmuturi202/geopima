@@ -1,63 +1,91 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // --- 1. Sidebar Toggle Handler ---
-  const sidebarToggle = document.getElementById('toggle-sidebar');
-  const sidebar = document.getElementById('sidebar');
+  // 1. Export Button Dropdown Logic
+  const exportDropdown = document.getElementById('export-dropdown');
+  const exportToggleBtn = document.getElementById('export-toggle-btn');
+  const exportExcelBtn = document.getElementById('export-excel-btn');
+  const exportPdfBtn = document.getElementById('export-pdf-btn');
 
-  if (sidebarToggle && sidebar) {
-    sidebarToggle.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
+  if (exportToggleBtn && exportDropdown) {
+    exportToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportDropdown.classList.toggle('active');
     });
-  }
 
-  // --- 2. Collapsible Dropdown Handler ---
-  const setupDropdownToggle = (toggleId) => {
-    const toggleBtn = document.getElementById(toggleId);
-    const dropdown = toggleBtn ? toggleBtn.closest('.nav-dropdown') : null;
-
-    if (toggleBtn && dropdown) {
-      toggleBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        dropdown.classList.toggle('open');
-      });
-    }
-  };
-
-  setupDropdownToggle('finance-dropdown-toggle');
-  setupDropdownToggle('fees-dropdown-toggle');
-
-  // --- 3. Live Table Search Filter ---
-  const searchInput = document.getElementById('table-search');
-  const tableRows = document.querySelectorAll('#deposits-table tbody tr');
-  const tableInfo = document.getElementById('table-info');
-
-  if (searchInput) {
-    searchInput.addEventListener('input', () => {
-      const query = searchInput.value.toLowerCase().trim();
-      let visibleRows = 0;
-
-      tableRows.forEach(row => {
-        const rowText = row.textContent.toLowerCase();
-        if (rowText.includes(query)) {
-          row.style.display = '';
-          visibleRows++;
-        } else {
-          row.style.display = 'none';
-        }
-      });
-
-      if (tableInfo) {
-        tableInfo.textContent = `Showing 1 to ${visibleRows} of ${tableRows.length} entries`;
+    document.addEventListener('click', (e) => {
+      if (!exportDropdown.contains(e.target)) {
+        exportDropdown.classList.remove('active');
       }
     });
   }
 
-  // --- 4. Add Deposit Trigger ---
-  const addDepositBtn = document.getElementById('add-deposit-btn');
-  if (addDepositBtn) {
-    addDepositBtn.addEventListener('click', () => {
-      alert('Add Deposit modal dialog will open.');
+  if (exportExcelBtn) {
+    exportExcelBtn.addEventListener('click', () => {
+      if (exportDropdown) exportDropdown.classList.remove('active');
+      alert('Downloading Discounts report as Excel (.xlsx)...');
     });
   }
+
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', () => {
+      if (exportDropdown) exportDropdown.classList.remove('active');
+      alert('Downloading Discounts report as PDF (.pdf)...');
+    });
+  }
+
+  // 2. Table Data & Search Filtering Logic
+  const discountData = []; // Default empty set
+
+  const tableBody = document.getElementById('discounts-table-body');
+  const searchInput = document.getElementById('search-input');
+  const paginationInfo = document.getElementById('pagination-info');
+
+  function renderTable(data) {
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+
+    if (data.length === 0) {
+      tableBody.innerHTML = `<tr><td colspan="11" class="empty-msg">No data available in table</td></tr>`;
+      if (paginationInfo) paginationInfo.textContent = 'Showing 0 to 0 of 0 entries';
+      return;
+    }
+
+    data.forEach((item, index) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${item.invoice}</td>
+        <td>${item.landlordName}</td>
+        <td>${item.propertyName}</td>
+        <td>${item.unitName}</td>
+        <td>${item.tenantId}</td>
+        <td>${item.tenantName}</td>
+        <td>${item.discountName}</td>
+        <td>${item.description}</td>
+        <td><strong>KES ${item.discount.toLocaleString()}</strong></td>
+        <td>${item.details}</td>
+      `;
+      tableBody.appendChild(row);
+    });
+
+    if (paginationInfo) {
+      paginationInfo.textContent = `Showing 1 to ${data.length} of ${data.length} entries`;
+    }
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const filtered = discountData.filter(item => 
+        item.tenantName.toLowerCase().includes(query) ||
+        item.propertyName.toLowerCase().includes(query) ||
+        item.discountName.toLowerCase().includes(query)
+      );
+      renderTable(filtered);
+    });
+  }
+
+  // Render initial table state
+  renderTable(discountData);
 
 });

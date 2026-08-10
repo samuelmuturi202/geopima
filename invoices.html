@@ -8,32 +8,147 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Custom CSS -->
+  <!-- Shared Main Layout Styles -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Invoices Page Specific Styles -->
   <link rel="stylesheet" href="invoices.css">
 </head>
 <body>
 
-  <!-- Sidebar Nav -->
-  <aside id="sidebar">
+  <!-- Collapsible Sidebar Nav (Main shared sidebar layout) -->
+  <aside id="sidebar" class="collapsed">
     <div class="brand">
       <i class="fa-solid fa-building-user"></i>
       <span>Geopima Agencies</span>
     </div>
     <ul class="nav-menu">
-      <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li class="active"><a href="#"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-chart-column"></i> Finance <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-wrench"></i> Fees Setup <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-      <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li>
+        <a href="index.html">
+          <i class="fa-solid fa-gauge-high"></i> 
+          <span>Dashboard</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      <li>
+        <a href="collect-rent.html">
+          <i class="fa-regular fa-credit-card"></i> 
+          <span>Collect Rent</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      <li class="active">
+        <a href="invoices.html">
+          <i class="fa-solid fa-file-invoice-dollar"></i> 
+          <span>Invoices</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      
+      <!-- Finance Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Collected Rent</span></a></li>
+          <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Mpesa Collection</span></a></li>
+          <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Coop Collection</span></a></li>
+          <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Fees Discounted</span></a></li>
+        </ul>
+      </li>
+
+      <!-- Fees Setup Dropdown -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="fees-dropdown-toggle">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Fees Setup</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="fees-submenu">
+          <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Vote Heads</span></a></li>
+          <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Deposits</span></a></li>
+        </ul>
+      </li>
+
+      <!-- Landlords Link -->
+      <li>
+        <a href="landlords.html">
+          <i class="fa-solid fa-user-group"></i> 
+          <span>Landlords</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Properties Link -->
+      <li>
+        <a href="properties.html">
+          <i class="fa-solid fa-house"></i> 
+          <span>Properties</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Units Link -->
+      <li>
+        <a href="unit.html">
+          <i class="fa-solid fa-sitemap"></i> 
+          <span>Units</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Tenants Link -->
+      <li>
+        <a href="tenants.html">
+          <i class="fa-solid fa-users"></i> 
+          <span>Tenants</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Communication Link -->
+      <li>
+        <a href="communication.html">
+          <i class="fa-solid fa-bullhorn"></i> 
+          <span>Communication</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          <i class="fa-solid fa-coins"></i> 
+          <span>Expenditure</span> 
+          <i class="fa-solid fa-chevron-left chevron"></i>
+        </a>
+      </li>
+
+      <!-- Configurations Link -->
+      <li>
+        <a href="configuration.html">
+          <i class="fa-solid fa-gear"></i> 
+          <span>Configurations</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          <i class="fa-solid fa-chart-bar"></i> 
+          <span>Closed Reports</span> 
+          <i class="fa-solid fa-chevron-left chevron"></i>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <i class="fa-solid fa-chart-pie"></i> 
+          <span>Report Center</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
     </ul>
   </aside>
 
@@ -41,10 +156,15 @@
   <div class="main-wrapper">
     <header>
       <div class="header-left">
-        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <i class="fa-solid fa-bars" id="toggle-sidebar" title="Toggle Sidebar"></i>
         <span class="header-title">Geopima Property Management</span>
       </div>
       <div class="header-right">
+        <!-- Theme Mode Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+
         <i class="fa-regular fa-user-circle user-icon"></i>
         <span>Samuel Muturi</span>
         <i class="fa-solid fa-caret-down"></i>
@@ -127,6 +247,9 @@
     </div>
   </div>
 
+  <!-- Shared Main Script (Sidebar toggle & dark mode) -->
+  <script src="script.js"></script>
+  <!-- Page Specific Logic -->
   <script src="invoices.js"></script>
 </body>
 </html>

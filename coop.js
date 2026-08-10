@@ -1,26 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Sidebar Toggle & Dropdown Controls
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const sidebar = document.getElementById('sidebar');
-  const financeBtn = document.getElementById('finance-dropdown-toggle');
-
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
-
-  if (financeBtn) {
-    financeBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const dropdown = financeBtn.closest('.nav-dropdown');
-      if (dropdown) dropdown.classList.toggle('open');
-    });
-  }
-
-  // 2. Upload Statement Action
+  // 1. Upload Statement Action
   const uploadBtn = document.getElementById('upload-statement-btn');
   if (uploadBtn) {
     uploadBtn.addEventListener('click', () => {
@@ -38,8 +18,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Table State & Search Management
-  const coopData = []; // Currently empty matching screenshot
+  // 2. Table State & Search Management
+  const coopData = []; // Currently empty
 
   const tableBody = document.getElementById('coop-table-body');
   const searchInput = document.getElementById('search-input');
@@ -67,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${item.paidBy}</td>
         <td>${item.paymentRef}</td>
         <td>${item.narration}</td>
-        <td>KES ${item.amount.toLocaleString()}</td>
+        <td><strong>KES ${item.amount.toLocaleString()}</strong></td>
       `;
       tableBody.appendChild(row);
     });

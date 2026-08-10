@@ -1,181 +1,9 @@
 :root {
-  --sidebar-bg: #034b46;
-  --sidebar-hover: #06605a;
-  --sidebar-active: #157a72;
-  --topbar-bg: #ffffff;
-  --body-bg: #f4f6f9;
-  --text-dark: #2c3e50;
-  --border-color: #e0e0e0;
   --navy-btn: #093b5e;
   --green-btn: #28a745;
 }
 
-*, *::before, *::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-body {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  background-color: var(--body-bg);
-  color: var(--text-dark);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  overflow: hidden;
-}
-
-/* Sidebar Layout */
-aside {
-  width: 240px;
-  background-color: var(--sidebar-bg);
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  transition: margin-left 0.3s ease;
-  z-index: 100;
-}
-
-aside.collapsed {
-  margin-left: -240px;
-}
-
-.brand {
-  height: 55px;
-  display: flex;
-  align-items: center;
-  padding: 0 16px;
-  font-size: 1.15rem;
-  font-weight: bold;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.brand i {
-  font-size: 1.3rem;
-  margin-right: 10px;
-  color: #2bb14c;
-}
-
-.nav-menu {
-  list-style: none;
-  overflow-y: auto;
-  flex-grow: 1;
-}
-
-.nav-menu li a,
-.nav-menu li .dropdown-btn {
-  display: flex;
-  align-items: center;
-  width: 100%;
-  padding: 11px 16px;
-  color: #e0e0e0;
-  text-decoration: none;
-  font-size: 0.86rem;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  text-align: left;
-}
-
-.nav-menu li a:hover,
-.nav-menu li .dropdown-btn:hover {
-  background-color: var(--sidebar-hover);
-}
-
-.nav-dropdown {
-  display: flex;
-  flex-direction: column;
-}
-
-.nav-dropdown .dropdown-btn {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 4px;
-  width: calc(100% - 20px);
-  margin: 4px 10px;
-  padding: 8px 12px;
-  background-color: rgba(255, 255, 255, 0.05);
-  color: #ffffff;
-}
-
-.nav-dropdown .submenu {
-  display: none;
-  list-style: none;
-  background-color: rgba(0, 0, 0, 0.18);
-  padding: 4px 0;
-}
-
-.nav-dropdown.open .submenu {
-  display: block;
-}
-
-.nav-dropdown .chevron {
-  margin-left: auto;
-  transition: transform 0.25s ease;
-}
-
-.nav-dropdown.open .chevron {
-  transform: rotate(180deg);
-}
-
-.submenu li a {
-  padding: 8px 18px 8px 28px !important;
-  font-size: 0.82rem;
-  color: #cfd8dc;
-}
-
-.submenu li a.sub-active {
-  color: #ffffff !important;
-  font-weight: 600;
-  background-color: var(--sidebar-active);
-}
-
-.submenu-icon {
-  font-size: 0.7rem !important;
-  margin-right: 8px !important;
-}
-
-/* Main Wrapper */
-.main-wrapper {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  overflow-y: auto;
-}
-
-header {
-  height: 55px;
-  background-color: var(--topbar-bg);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.header-left i {
-  cursor: pointer;
-  font-size: 1.1rem;
-  color: #555;
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.88rem;
-  color: #444;
-}
-
-.container {
-  padding: 20px 24px;
-}
-
-/* Title & Actions Bar */
+/* Page Title & Header Actions */
 .page-title-bar {
   display: flex;
   justify-content: space-between;
@@ -186,7 +14,7 @@ header {
 .page-title-bar h1 {
   font-size: 1.35rem;
   font-weight: 700;
-  color: #2c3e50;
+  color: var(--text-dark);
 }
 
 .btn {
@@ -203,13 +31,13 @@ header {
 }
 
 .btn-outline-navy {
-  background-color: #ffffff;
+  background-color: var(--card-bg);
   color: var(--navy-btn);
   border: 1px solid var(--navy-btn);
 }
 
 .btn-outline-navy:hover {
-  background-color: #f0f4f8;
+  background-color: rgba(9, 59, 94, 0.08);
 }
 
 .btn-filter-green {
@@ -223,12 +51,13 @@ header {
   background-color: #218838;
 }
 
-/* Card & Table Header */
+/* Table Card Container */
 .table-card {
-  background: #ffffff;
+  background: var(--card-bg);
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: 6px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .table-top-bar {
@@ -237,20 +66,20 @@ header {
   align-items: center;
   padding: 14px 18px;
   border-bottom: 1px solid var(--border-color);
-  background-color: #ffffff;
+  background-color: var(--card-bg);
 }
 
 .summary-label {
   font-size: 0.88rem;
   font-weight: 700;
-  color: #333333;
+  color: var(--text-dark);
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .amount-highlight {
-  color: #e83e8c; /* Matches exact pinkish red amount highlight */
+  color: #e83e8c;
   font-weight: 700;
 }
 
@@ -261,7 +90,7 @@ header {
   align-items: center;
   padding: 14px 18px;
   font-size: 0.84rem;
-  color: #333333;
+  color: var(--text-dark);
 }
 
 .entries-control select {
@@ -270,6 +99,8 @@ header {
   border-radius: 4px;
   margin: 0 4px;
   outline: none;
+  background-color: var(--card-bg);
+  color: var(--text-dark);
 }
 
 .search-control {
@@ -284,6 +115,8 @@ header {
   border-radius: 4px;
   outline: none;
   font-size: 0.84rem;
+  background-color: var(--card-bg);
+  color: var(--text-dark);
 }
 
 /* Table Styling */
@@ -298,8 +131,8 @@ table {
 }
 
 th {
-  background-color: #ffffff;
-  color: #222222;
+  background-color: var(--card-bg);
+  color: var(--text-dark);
   font-weight: 700;
   text-align: left;
   padding: 10px 12px;
@@ -318,15 +151,16 @@ th .sort-icon {
 
 td {
   padding: 12px;
-  border-bottom: 1px solid #eeeeee;
-  color: #444444;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-dark);
   white-space: nowrap;
 }
 
 .empty-msg {
   text-align: center;
   padding: 24px;
-  color: #666666;
+  color: var(--text-dark);
+  opacity: 0.7;
   font-size: 0.85rem;
 }
 
@@ -337,7 +171,7 @@ td {
   align-items: center;
   padding: 14px 18px;
   font-size: 0.82rem;
-  color: #555555;
+  color: var(--text-dark);
   border-top: 1px solid var(--border-color);
 }
 
@@ -349,7 +183,7 @@ td {
 .btn-page {
   padding: 6px 12px;
   border: 1px solid var(--border-color);
-  background: #ffffff;
+  background: var(--card-bg);
   color: #007bff;
   font-size: 0.82rem;
   cursor: pointer;
@@ -359,7 +193,7 @@ td {
 .btn-page.disabled {
   color: #aaa;
   cursor: not-allowed;
-  background-color: #fafafa;
+  opacity: 0.6;
 }
 
 @media (max-width: 768px) {

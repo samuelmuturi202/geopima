@@ -1,16 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Sidebar Toggle Logic
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const sidebar = document.getElementById('sidebar');
-
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
-
-  // 2. Mock Data Store
+  // Mock Data Store
   const mockData = {
     landlords: [
       { id: '1', name: 'John Kamau' },
@@ -53,91 +43,103 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Populate Initial Dropdowns
   function init() {
-    // Populate Landlords
-    mockData.landlords.forEach(landlord => {
-      const opt = document.createElement('option');
-      opt.value = landlord.id;
-      opt.textContent = landlord.name;
-      landlordSelect.appendChild(opt);
-    });
+    if (landlordSelect) {
+      mockData.landlords.forEach(landlord => {
+        const opt = document.createElement('option');
+        opt.value = landlord.id;
+        opt.textContent = landlord.name;
+        landlordSelect.appendChild(opt);
+      });
+    }
 
-    // Populate Direct Tenants
-    mockData.allTenants.forEach(tenant => {
-      const opt = document.createElement('option');
-      opt.value = tenant.id;
-      opt.textContent = tenant.name;
-      directTenantSelect.appendChild(opt);
-    });
+    if (directTenantSelect) {
+      mockData.allTenants.forEach(tenant => {
+        const opt = document.createElement('option');
+        opt.value = tenant.id;
+        opt.textContent = tenant.name;
+        directTenantSelect.appendChild(opt);
+      });
+    }
   }
 
   // Handle Landlord Selection -> Load Properties
-  landlordSelect.addEventListener('change', (e) => {
-    const landlordId = e.target.value;
+  if (landlordSelect) {
+    landlordSelect.addEventListener('change', (e) => {
+      const landlordId = e.target.value;
 
-    propertySelect.innerHTML = '';
-    unitSelect.innerHTML = '';
-    unitSelect.disabled = true;
-    unitSelect.innerHTML = '<option value="">--Select Property First--</option>';
-
-    if (landlordId && mockData.properties[landlordId]) {
-      propertySelect.disabled = false;
-      propertySelect.innerHTML = '<option value="">--Select Property--</option>';
-
-      mockData.properties[landlordId].forEach(prop => {
-        const opt = document.createElement('option');
-        opt.value = prop.id;
-        opt.textContent = prop.name;
-        propertySelect.appendChild(opt);
-      });
-    } else {
-      propertySelect.disabled = true;
-      propertySelect.innerHTML = '<option value="">--Select Landlord First--</option>';
-    }
-  });
-
-  // Handle Property Selection -> Load Units/Tenants
-  propertySelect.addEventListener('change', (e) => {
-    const propertyId = e.target.value;
-
-    unitSelect.innerHTML = '';
-
-    if (propertyId && mockData.units[propertyId]) {
-      unitSelect.disabled = false;
-      unitSelect.innerHTML = '<option value="">--Select Unit/Tenant--</option>';
-
-      mockData.units[propertyId].forEach(unit => {
-        const opt = document.createElement('option');
-        opt.value = unit.id;
-        opt.textContent = unit.name;
-        unitSelect.appendChild(opt);
-      });
-    } else {
+      propertySelect.innerHTML = '';
+      unitSelect.innerHTML = '';
       unitSelect.disabled = true;
       unitSelect.innerHTML = '<option value="">--Select Property First--</option>';
-    }
-  });
+
+      if (landlordId && mockData.properties[landlordId]) {
+        propertySelect.disabled = false;
+        propertySelect.innerHTML = '<option value="">--Select Property--</option>';
+
+        mockData.properties[landlordId].forEach(prop => {
+          const opt = document.createElement('option');
+          opt.value = prop.id;
+          opt.textContent = prop.name;
+          propertySelect.appendChild(opt);
+        });
+      } else {
+        propertySelect.disabled = true;
+        propertySelect.innerHTML = '<option value="">--Select Landlord First--</option>';
+      }
+    });
+  }
+
+  // Handle Property Selection -> Load Units/Tenants
+  if (propertySelect) {
+    propertySelect.addEventListener('change', (e) => {
+      const propertyId = e.target.value;
+
+      unitSelect.innerHTML = '';
+
+      if (propertyId && mockData.units[propertyId]) {
+        unitSelect.disabled = false;
+        unitSelect.innerHTML = '<option value="">--Select Unit/Tenant--</option>';
+
+        mockData.units[propertyId].forEach(unit => {
+          const opt = document.createElement('option');
+          opt.value = unit.id;
+          opt.textContent = unit.name;
+          unitSelect.appendChild(opt);
+        });
+      } else {
+        unitSelect.disabled = true;
+        unitSelect.innerHTML = '<option value="">--Select Property First--</option>';
+      }
+    });
+  }
 
   // Handle Cascade Form Submit
-  document.getElementById('cascade-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const selectedUnit = unitSelect.value;
-    if (!selectedUnit) {
-      alert('Please select Landlord, Property, and Unit/Tenant before continuing.');
-      return;
-    }
-    alert(`Proceeding to collect rent for Unit ID: ${selectedUnit}`);
-  });
+  const cascadeForm = document.getElementById('cascade-form');
+  if (cascadeForm) {
+    cascadeForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const selectedUnit = unitSelect.value;
+      if (!selectedUnit) {
+        alert('Please select Landlord, Property, and Unit/Tenant before continuing.');
+        return;
+      }
+      alert(`Proceeding to collect rent for Unit ID: ${selectedUnit}`);
+    });
+  }
 
   // Handle Direct Form Submit
-  document.getElementById('direct-tenant-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const selectedTenant = directTenantSelect.value;
-    if (!selectedTenant) {
-      alert('Please select a tenant before continuing.');
-      return;
-    }
-    alert(`Proceeding to collect rent for Tenant ID: ${selectedTenant}`);
-  });
+  const directTenantForm = document.getElementById('direct-tenant-form');
+  if (directTenantForm) {
+    directTenantForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const selectedTenant = directTenantSelect.value;
+      if (!selectedTenant) {
+        alert('Please select a tenant before continuing.');
+        return;
+      }
+      alert(`Proceeding to collect rent for Tenant ID: ${selectedTenant}`);
+    });
+  }
 
   init();
 });

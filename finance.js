@@ -1,26 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Sidebar Toggle & Collapsible Dropdown Controls
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const sidebar = document.getElementById('sidebar');
-  const financeBtn = document.getElementById('finance-dropdown-toggle');
-
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
-
-  if (financeBtn) {
-    financeBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const dropdown = financeBtn.closest('.nav-dropdown');
-      if (dropdown) dropdown.classList.toggle('open');
-    });
-  }
-
-  // 2. Export Button Dropdown Logic
+  // 1. Export Button Dropdown Logic
   const exportDropdown = document.getElementById('export-dropdown');
   const exportToggleBtn = document.getElementById('export-toggle-btn');
   const exportExcelBtn = document.getElementById('export-excel-btn');
@@ -53,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Print Statement Action
+  // 2. Print Statement Action
   const printBtn = document.getElementById('print-btn');
   if (printBtn) {
     printBtn.addEventListener('click', () => {
@@ -61,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Rent Collections Mock Data
+  // 3. Rent Collections Mock Data
   const rentCollections = [
     {
       receiptNo: "REC-2026-0801",
@@ -137,13 +117,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const propertyFilter = document.getElementById('property-filter');
   const methodFilter = document.getElementById('payment-method-filter');
 
-  // 5. Render Table Function
+  // 4. Render Table Function
   function renderTable(data) {
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
     if (data.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px; color: #888;">No matching rent collection records found.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px; color: var(--text-dark);">No matching rent collection records found.</td></tr>`;
       if (recordCountEl) recordCountEl.textContent = 'Showing 0 transactions';
       return;
     }
@@ -174,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // 6. Interactive Filter Handler
+  // 5. Interactive Filter Handler
   function applyFilters() {
     const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
     const selectedProp = propertyFilter ? propertyFilter.value : 'ALL';

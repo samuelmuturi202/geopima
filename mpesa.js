@@ -1,26 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Sidebar Toggle & Dropdown Controls
-  const toggleBtn = document.getElementById('toggle-sidebar');
-  const sidebar = document.getElementById('sidebar');
-  const financeBtn = document.getElementById('finance-dropdown-toggle');
-
-  if (toggleBtn && sidebar) {
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-    });
-  }
-
-  if (financeBtn) {
-    financeBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const dropdown = financeBtn.closest('.nav-dropdown');
-      if (dropdown) dropdown.classList.toggle('open');
-    });
-  }
-
-  // 2. Export Button Dropdown Logic
+  // 1. Export Button Dropdown Logic
   const exportDropdown = document.getElementById('export-dropdown');
   const exportToggleBtn = document.getElementById('export-toggle-btn');
   const exportExcelBtn = document.getElementById('export-excel-btn');
@@ -53,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Transactions Dataset (Exact match to screenshot image)
+  // 2. Transactions Dataset
   const mpesaPayments = [
     { id: 1, dateTime: "08-08-2026 07:31:02am", transId: "UH8EB2EVQT", accountNo: "0758887219", tenant: "FRANCIS SALANO", property: "HARRISON PLOT", unit: "H5", payer: "FRANCIS", amount: "2,000.00", status: "successful" },
     { id: 2, dateTime: "08-08-2026 07:10:18am", transId: "UH8QT24XDK", accountNo: "0741689876", tenant: "JOSEPH GICHANA", property: "AGNES NJAMBI", unit: "H18", payer: "JOSEPH", amount: "2,600.00", status: "successful" },
@@ -69,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
     { id: 12, dateTime: "07-08-2026 22:11:16pm", transId: "UH7JS1ZJ95", accountNo: "0792361151", tenant: "JASON", property: "MONICAH PLOT", unit: "B3", payer: "JASON", amount: "11,750.00", status: "successful" }
   ];
 
-  // 4. Render Table Records
+  // 3. Render Table Records
   const tableBody = document.getElementById('mpesa-table-body');
 
   function renderTable(data) {
@@ -89,7 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${item.property}</td>
         <td>${item.unit}</td>
         <td>${item.payer}</td>
-        <td>${item.amount}</td>
+        <td><strong>KES ${item.amount}</strong></td>
         <td><span class="badge ${badgeClass}">${item.status}</span></td>
       `;
       tableBody.appendChild(row);
@@ -98,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   renderTable(mpesaPayments);
 
-  // 5. Action Button Event Listeners
+  // 4. Action Button Event Listeners
   const confirmBtn = document.getElementById('confirm-multiple-btn');
   if (confirmBtn) {
     confirmBtn.addEventListener('click', () => {
