@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Geopima Agencies - Invoice #INV038950</title>
+
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Shared Global Layout Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Invoice Page Specific Styles -->
+  <link rel="stylesheet" href="invoice.css">
+</head>
+<body>
+
+  <!-- Collapsible Sidebar Nav -->
+  <aside id="sidebar" class="collapsed">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li>
+        <a href="index.html">
+          <i class="fa-solid fa-gauge-high"></i> 
+          <span>Dashboard</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      <li>
+        <a href="collect-rent.html">
+          <i class="fa-regular fa-credit-card"></i> 
+          <span>Collect Rent</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      <li class="active">
+        <a href="invoices.html">
+          <i class="fa-solid fa-file-invoice-dollar"></i> 
+          <span>Invoices</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      
+      <!-- Finance Dropdown Section -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Collected Rent</span></a></li>
+          <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Mpesa Collection</span></a></li>
+          <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Coop Collection</span></a></li>
+          <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Fees Discounted</span></a></li>
+        </ul>
+      </li>
+
+      <!-- Fees Setup Dropdown Section -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="fees-dropdown-toggle">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Fees Setup</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="fees-submenu">
+          <li><a href="vote-heads.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Vote Heads</span></a></li>
+          <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Deposits</span></a></li>
+        </ul>
+      </li>
+
+      <li><a href="landlords.html"><i class="fa-solid fa-user-group"></i> <span>Landlords</span> <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="properties.html"><i class="fa-solid fa-house"></i> <span>Properties</span> <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="unit.html"><i class="fa-solid fa-sitemap"></i> <span>Units</span> <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="tenants.html"><i class="fa-solid fa-users"></i> <span>Tenants</span> <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="communication.html"><i class="fa-solid fa-bullhorn"></i> <span>Communication</span> <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="configuration.html"><i class="fa-solid fa-gear"></i> <span>Configurations</span> <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar" title="Toggle Sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Samuel Muturi</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <main class="container">
+      
+      <!-- Page Title & Breadcrumb -->
+      <div class="page-title-row">
+        <h1 class="page-title">Tenant Invoice</h1>
+        <nav class="breadcrumb">
+          <a href="index.html">Home</a> / <a href="invoices.html">Invoices</a> / <span>INV038950</span>
+        </nav>
+      </div>
+
+      <!-- Main Invoice View Grid -->
+      <div class="invoice-grid">
+
+        <!-- Printable Invoice Paper Panel -->
+        <section class="invoice-paper" id="invoice-printable">
+          
+          <!-- Agency Header -->
+          <div class="inv-header">
+            <div class="agency-brand">
+              <div class="logo-box"><i class="fa-solid fa-house-medical"></i></div>
+              <div class="agency-details">
+                <h2>PEMWA AGENCY</h2>
+                <p>1254-00200, GPO Nairobi</p>
+                <p>Email: pemwaagency@yahoo.com</p>
+                <p>Contact: 0725768616 | 0101768816</p>
+              </div>
+            </div>
+            <div class="inv-meta">
+              <h1>INVOICE</h1>
+              <p><strong>#:</strong> <span id="inv-num">INV038950</span></p>
+              <p><strong>PERIOD:</strong> <span id="inv-period">AUGUST-2026</span></p>
+              <p><strong>DATE:</strong> <span id="inv-date">5-Aug-2026</span></p>
+            </div>
+          </div>
+
+          <hr class="inv-divider">
+
+          <!-- Tenant Details -->
+          <div class="tenant-details-block">
+            <h3>Invoice To:</h3>
+            <p class="tenant-name"><strong>ABIGAEL (W4617)</strong></p>
+            <p><strong>Property:</strong> Dorothy</p>
+            <p><strong>Unit No:</strong> B13</p>
+            <p><strong>Contact:</strong> 254798967207</p>
+          </div>
+
+          <!-- Line Items Table -->
+          <div class="table-responsive">
+            <table class="inv-table" id="line-items-table">
+              <thead>
+                <tr>
+                  <th>ITEM</th>
+                  <th>DESCRIPTION</th>
+                  <th class="text-right">AMOUNT</th>
+                  <th class="text-center no-print" style="width: 40px;"></th>
+                </tr>
+              </thead>
+              <tbody id="line-items-body">
+                <tr>
+                  <td>Rent</td>
+                  <td>House Rent</td>
+                  <td class="text-right">4,000.00</td>
+                  <td class="text-center no-print">
+                    <button class="btn-icon-cog" title="Item Options"><i class="fa-solid fa-gear"></i> <i class="fa-solid fa-caret-down"></i></button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Invoice Summary Totals -->
+          <div class="totals-block">
+            <div class="totals-row">
+              <span>SubTotal:</span>
+              <strong id="summary-subtotal">4,000.00</strong>
+            </div>
+            <div class="totals-row">
+              <span>Net Total:</span>
+              <strong id="summary-nettotal">4,000.00</strong>
+            </div>
+            <div class="totals-row">
+              <span>Less Paid:</span>
+              <strong id="summary-lesspaid">5,000.00</strong>
+            </div>
+            <div class="totals-row balance-row">
+              <span>Balance:</span>
+              <strong id="summary-balance" class="text-credit">-1,000.00</strong>
+            </div>
+          </div>
+
+          <!-- Payment Receipt Log Table -->
+          <div class="payments-block">
+            <h3>Payment Details</h3>
+            <div class="table-responsive">
+              <table class="inv-table payments-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>RECEIPT</th>
+                    <th>BANK</th>
+                    <th>TYPE</th>
+                    <th>PAID ON</th>
+                    <th>VIA</th>
+                    <th class="text-right">AMOUNT</th>
+                  </tr>
+                </thead>
+                <tbody id="payment-details-body">
+                  <tr>
+                    <td>1</td>
+                    <td><a href="#" class="receipt-link">2022057894</a></td>
+                    <td>Lipa Na M-pesa<br><small class="text-muted">REF#: UHABP26JAE</small></td>
+                    <td>Mpesa</td>
+                    <td>10-08-2026</td>
+                    <td>Auto</td>
+                    <td class="text-right">5,000.00</td>
+                  </tr>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td colspan="6" class="text-right"><strong>TOTAL (KES):</strong></td>
+                    <td class="text-right"><strong id="total-paid-footer">5,000.00</strong></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- Right Action Operations Sidebar -->
+        <aside class="action-sidebar">
+          
+          <!-- Primary Actions Card -->
+          <div class="action-card">
+            <button class="btn btn-action btn-cyan" id="btn-send-link">
+              <i class="fa-solid fa-paper-plane"></i> Send Invoice Link
+            </button>
+            <button class="btn btn-action btn-outline-green" id="btn-download-pdf">
+              <i class="fa-solid fa-download"></i> Download
+            </button>
+            <button class="btn btn-action btn-navy" id="btn-add-payment">
+              <i class="fa-solid fa-wallet"></i> Add Payment
+            </button>
+            <button class="btn btn-action btn-outline-gray" id="btn-live-view">
+              <i class="fa-solid fa-link"></i> View Live Invoice
+            </button>
+            <button class="btn btn-action btn-teal" id="btn-view-statement">
+              <i class="fa-solid fa-file-lines"></i> View Statement
+            </button>
+          </div>
+
+          <!-- Secondary Actions Card -->
+          <div class="action-card">
+            <button class="btn btn-action btn-light-gray" id="btn-request-payment">
+              <i class="fa-solid fa-hand-holding-dollar"></i> Request Payment
+            </button>
+            <button class="btn btn-action btn-light-gray" id="btn-offer-discount">
+              <i class="fa-solid fa-minus"></i> Offer Discount
+            </button>
+            <button class="btn btn-action btn-light-gray" id="btn-add-item">
+              <i class="fa-solid fa-plus"></i> Add to Invoice
+            </button>
+            <button class="btn btn-action btn-light-gray" id="btn-add-deposit">
+              <i class="fa-solid fa-plus"></i> Add deposit
+            </button>
+            <button class="btn btn-action btn-light-gray" id="btn-change-month">
+              <i class="fa-solid fa-pen-to-square"></i> Change Month
+            </button>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Modal Component: Add Payment -->
+  <div class="modal-overlay" id="modal-payment">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-wallet"></i> Record Payment</h3>
+        <button class="close-modal">&times;</button>
+      </div>
+      <form id="form-add-payment">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Transaction Reference / Receipt No.</label>
+            <input type="text" id="pay-ref" required placeholder="e.g. QHB8291029">
+          </div>
+          <div class="form-group">
+            <label>Payment Channel</label>
+            <select id="pay-channel">
+              <option value="Mpesa">Mpesa</option>
+              <option value="Coop Bank">Co-op Bank</option>
+              <option value="Cash">Cash</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Amount (KES)</label>
+            <input type="number" id="pay-amount" step="0.01" required placeholder="4000.00">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray close-modal">Cancel</button>
+          <button type="submit" class="btn btn-navy">Save Payment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Shared Global Script -->
+  <script src="script.js"></script>
+  <!-- Invoice Logic Script -->
+  <script src="invoice.js"></script>
+</body>
+</html>
