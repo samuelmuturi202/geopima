@@ -3,311 +3,393 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Vote Heads - WiseRenter</title>
+  <title>Geopima Agencies - Vote Heads</title>
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Page Styling -->
+  <!-- Shared Main Layout Styles -->
+  <link rel="stylesheet" href="styles.css">
+  
+  <!-- Vote Heads Page Specific Styles -->
   <link rel="stylesheet" href="vote-heads.css">
 </head>
 <body>
 
-  <!-- Full Height App Layout -->
-  <div class="app-layout">
-
-    <!-- Full Height Sidebar Navigation -->
-    <aside id="sidebar">
-      <div class="brand">
-        <i class="fa-solid fa-building-user"></i>
-        <span>WiseRenter</span>
-      </div>
-      <ul class="nav-menu">
-        <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        
-        <!-- Collapsible Finance Dropdown -->
-        <li class="nav-dropdown">
-          <button class="dropdown-btn" id="finance-dropdown-toggle">
-            <i class="fa-solid fa-chart-column"></i>
-            <span>Finance</span> 
-            <i class="fa-solid fa-chevron-down chevron"></i>
-          </button>
-          <ul class="submenu" id="finance-submenu">
-            <li><a href="finance.html"><i class="fa-regular fa-circle submenu-icon"></i> Collected Rent</a></li>
-            <li><a href="mpesa.html"><i class="fa-regular fa-circle submenu-icon"></i> Mpesa Collection</a></li>
-            <li><a href="coop.html"><i class="fa-regular fa-circle submenu-icon"></i> Coop Collection</a></li>
-            <li><a href="discounts.html"><i class="fa-regular fa-circle submenu-icon"></i> Fees Discounted</a></li>
-          </ul>
-        </li>
-
-        <!-- Collapsible Fees Setup Dropdown (Expanded for active Vote Heads page) -->
-        <li class="nav-dropdown open">
-          <button class="dropdown-btn" id="fees-dropdown-toggle">
-            <i class="fa-solid fa-wrench"></i>
-            <span>Fees Setup</span> 
-            <i class="fa-solid fa-chevron-down chevron"></i>
-          </button>
-          <ul class="submenu" id="fees-submenu">
-            <li><a href="vote-heads.html" class="sub-active"><i class="fa-regular fa-circle submenu-icon"></i> Vote Heads</a></li>
-            <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> Deposits</a></li>
-          </ul>
-        </li>
-
-        <li><a href="#"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-      </ul>
-    </aside>
-
-    <!-- Main Content & Header Wrapper -->
-    <div class="main-wrapper">
+  <!-- Collapsible Sidebar Nav (Main shared layout) -->
+  <aside id="sidebar" class="collapsed">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li>
+        <a href="index.html">
+          <i class="fa-solid fa-gauge-high"></i> 
+          <span>Dashboard</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      <li>
+        <a href="collect-rent.html">
+          <i class="fa-regular fa-credit-card"></i> 
+          <span>Collect Rent</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+      <li>
+        <a href="invoices.html">
+          <i class="fa-solid fa-file-invoice-dollar"></i> 
+          <span>Invoices</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
       
-      <!-- Top Navigation Header -->
-      <header class="top-header">
-        <div class="header-left">
-          <button class="menu-toggle" id="toggle-sidebar" aria-label="Toggle menu">
-            <i class="fa-solid fa-bars"></i>
-          </button>
-          <div class="brand-logo">
-            <span class="logo-icon"><i class="fa-solid fa-v"></i></span>
-            <span class="logo-text">WiseRenter</span>
+      <!-- Finance Dropdown Section -->
+      <li class="nav-dropdown">
+        <button class="dropdown-btn" id="finance-dropdown-toggle">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Finance</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="finance-submenu">
+          <li><a href="finance.html" data-section="Collected Rent"><i class="fa-regular fa-circle submenu-icon"></i> <span>Collected Rent</span></a></li>
+          <li><a href="mpesa.html" data-section="Mpesa Collection"><i class="fa-regular fa-circle submenu-icon"></i> <span>Mpesa Collection</span></a></li>
+          <li><a href="coop.html" data-section="Coop Collection"><i class="fa-regular fa-circle submenu-icon"></i> <span>Coop Collection</span></a></li>
+          <li><a href="discounts.html" data-section="Fees Discounted"><i class="fa-regular fa-circle submenu-icon"></i> <span>Fees Discounted</span></a></li>
+        </ul>
+      </li>
+
+      <!-- Fees Setup Dropdown Section (Expanded) -->
+      <li class="nav-dropdown open">
+        <button class="dropdown-btn" id="fees-dropdown-toggle">
+          <i class="fa-solid fa-wrench"></i>
+          <span>Fees Setup</span> 
+          <i class="fa-solid fa-chevron-down chevron"></i>
+        </button>
+        <ul class="submenu" id="fees-submenu">
+          <li><a href="vote-heads.html" class="sub-active"><i class="fa-regular fa-circle submenu-icon"></i> <span>Vote Heads</span></a></li>
+          <li><a href="deposits.html"><i class="fa-regular fa-circle submenu-icon"></i> <span>Deposits</span></a></li>
+        </ul>
+      </li>
+
+      <!-- Landlords Link -->
+      <li>
+        <a href="landlords.html">
+          <i class="fa-solid fa-user-group"></i> 
+          <span>Landlords</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Properties Link -->
+      <li>
+        <a href="properties.html">
+          <i class="fa-solid fa-house"></i> 
+          <span>Properties</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Units Link -->
+      <li>
+        <a href="unit.html">
+          <i class="fa-solid fa-sitemap"></i> 
+          <span>Units</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Tenants Link -->
+      <li>
+        <a href="tenants.html">
+          <i class="fa-solid fa-users"></i> 
+          <span>Tenants</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <!-- Communication Link -->
+      <li>
+        <a href="communication.html">
+          <i class="fa-solid fa-bullhorn"></i> 
+          <span>Communication</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          <i class="fa-solid fa-coins"></i> 
+          <span>Expenditure</span> 
+          <i class="fa-solid fa-chevron-left chevron"></i>
+        </a>
+      </li>
+
+      <!-- Configurations Link -->
+      <li>
+        <a href="configuration.html">
+          <i class="fa-solid fa-gear"></i> 
+          <span>Configurations</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+
+      <li>
+        <a href="#">
+          <i class="fa-solid fa-chart-bar"></i> 
+          <span>Closed Reports</span> 
+          <i class="fa-solid fa-chevron-left chevron"></i>
+        </a>
+      </li>
+      <li>
+        <a href="#">
+          <i class="fa-solid fa-chart-pie"></i> 
+          <span>Report Center</span> 
+          <i class="fa-solid fa-chevron-right chevron"></i>
+        </a>
+      </li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Area -->
+  <div class="main-wrapper">
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar" title="Toggle Sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <!-- Theme Mode Toggle Button -->
+        <button id="theme-toggle" class="theme-toggle-btn" title="Toggle Theme">
+          <i class="fa-solid fa-moon" id="theme-icon"></i>
+        </button>
+
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Samuel Muturi</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <main class="container">
+      
+      <!-- Title & Breadcrumb -->
+      <div class="page-title-row">
+        <h1 class="page-title">Vote Heads</h1>
+        <nav class="breadcrumb">
+          <a href="index.html">Home</a> / <span>Fees Setup</span>
+        </nav>
+      </div>
+
+      <!-- Layout Grid -->
+      <div class="vote-heads-grid">
+
+        <!-- Left Section: Vote Heads Table -->
+        <section class="card-panel">
+          <div class="card-header border-navy">
+            <h2><i class="fa-solid fa-sitemap"></i> Vote Heads</h2>
+            <button class="btn btn-navy" id="add-vote-head-btn">
+              <i class="fa-solid fa-plus"></i> Vote Head
+            </button>
           </div>
-        </div>
-        <div class="header-right">
-          <div class="user-profile">
-            <span>Peter Mwaniki</span>
-            <i class="fa-solid fa-caret-down"></i>
+
+          <div class="card-body">
+            <!-- Table Controls Toolbar -->
+            <div class="table-toolbar">
+              <div class="entries-control">
+                Show 
+                <select id="entries-select">
+                  <option value="10">10</option>
+                  <option value="25">25</option>
+                  <option value="50">50</option>
+                </select> 
+                entries
+              </div>
+              <div class="search-control">
+                <label for="table-search">Search:</label>
+                <input type="text" id="table-search">
+              </div>
+            </div>
+
+            <!-- Data Table -->
+            <div class="table-responsive">
+              <table class="data-table" id="vote-heads-table">
+                <thead>
+                  <tr>
+                    <th class="col-sortable"># <i class="fa-solid fa-arrow-up-long"></i><i class="fa-solid fa-arrow-down-long"></i></th>
+                    <th class="col-sortable">Name <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">Description <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">Tenants <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">Amount <i class="fa-solid fa-sort"></i></th>
+                    <th class="col-sortable">Action <i class="fa-solid fa-sort"></i></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td>Balance B/F</td>
+                    <td>Balance Brought Forward</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>
+                      661,100.00
+                      <span class="sub-amount">(-434,747.00)</span>
+                    </td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td>Rent</td>
+                    <td>House Rent</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>7,450,070.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>3</td>
+                    <td>Garbage</td>
+                    <td>Garbage Fee</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>52,280.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td>Security</td>
+                    <td>Security Fee</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>0.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td>Water</td>
+                    <td>Water Bill</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>83,480.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td>Electricity</td>
+                    <td>Electricity Bill</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>4,000.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td>Internet</td>
+                    <td>Internet Bill</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>0.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td>Deposit</td>
+                    <td>House Deposit</td>
+                    <td><a href="#" class="link-dashed">tenants</a></td>
+                    <td>26,000.00</td>
+                    <td class="action-cell">
+                      <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Pagination Footer -->
+            <div class="table-footer">
+              <div class="table-info" id="table-info">Showing 1 to 8 of 8 entries</div>
+              <ul class="pagination">
+                <li><button class="page-btn disabled">Previous</button></li>
+                <li><button class="page-btn active">1</button></li>
+                <li><button class="page-btn disabled">Next</button></li>
+              </ul>
+            </div>
           </div>
-        </div>
-      </header>
+        </section>
 
-      <!-- Main Container Content -->
-      <main class="main-container">
-        
-        <!-- Title & Breadcrumb -->
-        <div class="page-title-row">
-          <h1 class="page-title">Vote Heads</h1>
-          <nav class="breadcrumb">
-            <a href="index.html">Home</a> / <span>Fees Setup</span>
-          </nav>
-        </div>
+        <!-- Right Section: Prioritize List -->
+        <section class="card-panel">
+          <div class="card-header border-navy">
+            <h2><i class="fa-solid fa-filter"></i> Prioritize</h2>
+          </div>
+          <div class="card-body">
+            <p class="drag-hint">Drag 'n' Drop to order</p>
 
-        <!-- Layout Grid -->
-        <div class="vote-heads-grid">
+            <ul class="priority-list" id="priority-list">
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Balance B/F</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Rent</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Garbage</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Security</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Water</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Electricity</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Internet</span>
+              </li>
+              <li class="priority-item" draggable="true">
+                <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
+                <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
+                <span>Deposit</span>
+              </li>
+            </ul>
 
-          <!-- Left Section: Vote Heads Table -->
-          <section class="card-panel">
-            <div class="card-header border-navy">
-              <h2><i class="fa-solid fa-sitemap"></i> Vote Heads</h2>
-              <button class="btn btn-navy" id="add-vote-head-btn">
-                <i class="fa-solid fa-plus"></i> Vote Head
+            <div class="card-actions-right">
+              <button class="btn btn-green" id="save-priority-btn">
+                <i class="fa-solid fa-floppy-disk"></i> save changes
               </button>
             </div>
+          </div>
+        </section>
 
-            <div class="card-body">
-              <!-- Table Controls Toolbar -->
-              <div class="table-toolbar">
-                <div class="entries-control">
-                  Show 
-                  <select id="entries-select">
-                    <option value="10">10</option>
-                    <option value="25">25</option>
-                    <option value="50">50</option>
-                  </select> 
-                  entries
-                </div>
-                <div class="search-control">
-                  <label for="table-search">Search:</label>
-                  <input type="text" id="table-search">
-                </div>
-              </div>
-
-              <!-- Data Table -->
-              <div class="table-responsive">
-                <table class="data-table" id="vote-heads-table">
-                  <thead>
-                    <tr>
-                      <th class="col-sortable"># <i class="fa-solid fa-arrow-up-long"></i><i class="fa-solid fa-arrow-down-long"></i></th>
-                      <th class="col-sortable">Name <i class="fa-solid fa-sort"></i></th>
-                      <th class="col-sortable">Description <i class="fa-solid fa-sort"></i></th>
-                      <th class="col-sortable">Tenants <i class="fa-solid fa-sort"></i></th>
-                      <th class="col-sortable">Amount <i class="fa-solid fa-sort"></i></th>
-                      <th class="col-sortable">Action <i class="fa-solid fa-sort"></i></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>1</td>
-                      <td>Balance B/F</td>
-                      <td>Balance Brought Forward</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>
-                        661,100.00
-                        <span class="sub-amount">(-434,747.00)</span>
-                      </td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>2</td>
-                      <td>Rent</td>
-                      <td>House Rent</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>7,450,070.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>Garbage</td>
-                      <td>Garbage Fee</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>52,280.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>4</td>
-                      <td>Security</td>
-                      <td>Security Fee</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>0.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>Water</td>
-                      <td>Water Bill</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>83,480.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>6</td>
-                      <td>Electricity</td>
-                      <td>Electricity Bill</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>4,000.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>7</td>
-                      <td>Internet</td>
-                      <td>Internet Bill</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>0.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>8</td>
-                      <td>Deposit</td>
-                      <td>House Deposit</td>
-                      <td><a href="#" class="link-dashed">tenants</a></td>
-                      <td>26,000.00</td>
-                      <td class="action-cell">
-                        <a href="#" class="action-edit">edit</a> | <a href="#" class="action-delete">delete</a>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Pagination Footer -->
-              <div class="table-footer">
-                <div class="table-info" id="table-info">Showing 1 to 8 of 8 entries</div>
-                <ul class="pagination">
-                  <li><button class="page-btn disabled">Previous</button></li>
-                  <li><button class="page-btn active">1</button></li>
-                  <li><button class="page-btn disabled">Next</button></li>
-                </ul>
-              </div>
-            </div>
-          </section>
-
-          <!-- Right Section: Prioritize List -->
-          <section class="card-panel">
-            <div class="card-header border-navy">
-              <h2><i class="fa-solid fa-filter"></i> Prioritize</h2>
-            </div>
-            <div class="card-body">
-              <p class="drag-hint">Drag 'n' Drop to order</p>
-
-              <ul class="priority-list" id="priority-list">
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Balance B/F</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Rent</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Garbage</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Security</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Water</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Electricity</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Internet</span>
-                </li>
-                <li class="priority-item" draggable="true">
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon"></i>
-                  <i class="fa-solid fa-ellipsis-vertical drag-icon offset"></i>
-                  <span>Deposit</span>
-                </li>
-              </ul>
-
-              <div class="card-actions-right">
-                <button class="btn btn-green" id="save-priority-btn">
-                  <i class="fa-solid fa-floppy-disk"></i> save changes
-                </button>
-              </div>
-            </div>
-          </section>
-
-        </div>
-      </main>
-    </div>
-
+      </div>
+    </main>
   </div>
 
+  <!-- Shared Main Script (Sidebar toggle & dark mode) -->
+  <script src="script.js"></script>
+  <!-- Vote Heads Specific Logic -->
   <script src="vote-heads.js"></script>
 </body>
 </html>
