@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Role Permissions - Geopima Agencies</title>
+  
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core Dashboard Stylesheets -->
+  <link rel="stylesheet" href="../styles.css">
+  <link rel="stylesheet" href="role-permissions.css">
+</head>
+<body>
+
+  <!-- Dashboard Sidebar Navigation -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
+    </div>
+    <ul class="nav-menu">
+      <li><a href="../index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../landlords.html"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../tenants.html"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../communication.html"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li class="active"><a href="../configuration.html"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- Top Agency Header -->
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Samuel Muturi</span>
+        <i class="fa-solid fa-caret-down"></i>
+      </div>
+    </header>
+
+    <!-- Page Container -->
+    <div class="container">
+      
+      <!-- Top Title & Breadcrumb -->
+      <div class="top-page-header">
+        <h2 id="pageTitle">PERMISSIONS</h2>
+        <div class="breadcrumb-trail">
+          <a href="../configuration.html">Home</a> / <a href="user-roles.html">Authentication</a> / <a href="user-roles.html">Roles</a> / <span id="breadcrumbRole">permissions</span>
+        </div>
+      </div>
+
+      <!-- Main Permissions Card -->
+      <div class="permissions-card">
+        <form id="permissionsForm">
+          <div id="permissionsContainer">
+            <!-- Dynamically populated or rendered categories -->
+          </div>
+          
+          <div class="permissions-footer">
+            <button type="submit" class="btn-save-permissions">
+              <i class="fa-solid fa-floppy-disk"></i> Save Permissions
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Shared Scripts -->
+  <script src="../js/api.js"></script>
+  <script src="../script.js"></script>
+  <script src="role-permissions.js"></script>
+</body>
+</html>

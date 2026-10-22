@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unit Detail - GeoPima Agencies</title>
+    
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Shared CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="properties.css">
+    
+    <style>
+        .detail-layout {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            height: calc(100vh - 60px);
+            overflow-y: auto;
+            background: #f7fafc;
+            box-sizing: border-box;
+        }
+        /* Left Sidebar Metadata Card */
+        .property-meta-sidebar {
+            width: 340px;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            height: fit-content;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-shrink: 0;
+        }
+        .meta-field {
+            display: flex;
+            flex-direction: column;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 8px;
+        }
+        .meta-field label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #718096;
+            font-weight: bold;
+        }
+        .meta-field .meta-val {
+            font-size: 14px;
+            color: #2d3748;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        /* Right Content Section */
+        .property-content-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .content-panel {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .panel-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .panel-top-row h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #2d3748;
+        }
+        .badge-status-pill {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #38a169;
+            color: white;
+            text-align: center;
+            border-radius: 4px;
+            font-weight: bold;
+            border: none;
+            cursor: default;
+            transition: background 0.2s ease;
+        }
+        .action-btn-block {
+            width: 100%;
+            padding: 9px;
+            background: #ffffff;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: center;
+            color: #2d3748;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .action-btn-block:hover {
+            background: #edf2f7;
+        }
+        .action-btn-warning {
+            color: #d69e2e;
+            border-color: #f6e05e;
+        }
+        .action-btn-warning:hover {
+            background: #fffaf0;
+        }
+        .action-btn-danger {
+            color: #e53e3e;
+            border-color: #feb2b2;
+        }
+        .action-btn-danger:hover {
+            background: #fff5f5;
+        }
+        /* Table controls */
+        .table-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-size: 13px;
+            color: #4a5568;
+        }
+        .table-controls select, .table-controls input {
+            padding: 5px 8px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .tenant-link {
+            color: #2b6cb0;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.25s ease;
+        }
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .edit-unit-modal-card {
+            background: #ffffff;
+            width: 860px;
+            max-width: 95vw;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            transform: translateY(-10px);
+            transition: transform 0.25s ease;
+        }
+        .modal-overlay.active .edit-unit-modal-card {
+            transform: translateY(0);
+        }
+        .edit-unit-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 17px;
+            font-weight: bold;
+            color: #2d3748;
+            border-bottom: 1px solid #edf2f7;
+            padding-bottom: 12px;
+        }
+        .edit-unit-body-box {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .unit-grid-row-1 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+        .unit-grid-row-2 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group input, .form-group select {
+            padding: 9px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #2d3748;
+            background: #ffffff;
+        }
+        .form-group input:focus, .form-group select:focus {
+            border-color: #3182ce;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+        }
+        .field-hint {
+            font-size: 11px;
+            color: #718096;
+        }
+        .field-hint .required {
+            color: #e53e3e;
+        }
+        .edit-unit-footer-box {
+            border-top: 1px solid #edf2f7;
+            padding-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .btn-modal-close {
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .btn-modal-close:hover {
+            background: #2d3748;
+        }
+        .btn-modal-save {
+            background: #38a169;
+            color: white;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .btn-modal-save:hover {
+            background: #2f855a;
+        }
+    </style>
+</head>
+<body>
+
+  <div class="app-layout" style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
+
+    <div class="main-wrapper" style="width: 100%;">
+      
+      <!-- Top Header Navigation -->
+      <header>
+        <div class="header-left">
+          <a href="#" id="back-to-property" style="color: white; text-decoration: none; margin-right: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Property</a>
+          <span class="header-title" id="top-header-title">Unit Profile View</span>
+        </div>
+        <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
+          <div style="font-size: 13px; color: #e2e8f0;" id="header-breadcrumbs">Home / Units</div>
+          <div style="display: flex; align-items: center; gap: 8px; color: white; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px;">
+            <i class="fa-regular fa-user-circle" style="font-size: 18px;"></i>
+            <span>User</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Split Layout Container -->
+      <div class="detail-layout">
+
+        <!-- LEFT SIDEBAR: Unit Metadata Card -->
+        <div class="property-meta-sidebar">
+          <div class="meta-field">
+            <label>Landlord No</label>
+            <div class="meta-val" id="sidebar-landlord-no">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Landlord Name</label>
+            <div class="meta-val" id="sidebar-landlord-name">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Property No</label>
+            <div class="meta-val" id="sidebar-property-no">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Property Name</label>
+            <div class="meta-val" id="sidebar-property-name">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Unit No</label>
+            <div class="meta-val" id="sidebar-unit-no">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Unit Name</label>
+            <div class="meta-val" id="sidebar-unit-name">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Unit Type</label>
+            <div class="meta-val" id="sidebar-unit-type">--</div>
+          </div>
+          <div class="meta-field">
+            <label>Unit Category</label>
+            <div class="meta-val" id="sidebar-unit-category">--</div>
+          </div>
+
+          <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
+            <button class="badge-status-pill" id="sidebar-status-pill">Unit is active</button>
+            <button class="action-btn-block" id="edit-unit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit Unit</button>
+            <button class="action-btn-block action-btn-warning" id="suspend-unit-btn"><i class="fa-solid fa-lock"></i> Suspend Unit</button>
+            <button class="action-btn-block action-btn-danger" id="delete-unit-btn"><i class="fa-solid fa-trash"></i> Delete Unit</button>
+          </div>
+        </div>
+
+        <!-- RIGHT MAIN CONTENT: Tenants History Table Panel -->
+        <div class="property-content-main">
+          <div class="content-panel">
+            
+            <div class="panel-top-row">
+              <h3><i class="fa-solid fa-house-user"></i> TENANTS HISTORY</h3>
+            </div>
+
+            <div class="table-controls">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                Show 
+                <select id="entries-count">
+                  <option value="100">100</option>
+                  <option value="50">50</option>
+                  <option value="25">25</option>
+                  <option value="10">10</option>
+                </select> 
+                entries
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                Search: <input type="text" id="tenant-search" placeholder="Search tenants...">
+              </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="data-table" id="tenants-history-table">
+                <thead>
+                  <tr>
+                    <th># <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>TENANT ID <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>TENANT NAME <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>CONTACT <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>ENTRY DATE <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>DUE DATE <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>EXIT DATE <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                    <th>STATUS <i class="fa-solid fa-sort" style="font-size:10px;"></i></th>
+                  </tr>
+                </thead>
+                <tbody id="tenants-history-tbody">
+                  <tr><td colspan="8" style="text-align: center; padding: 25px; color: #a0aec0;"><i class="fa-solid fa-spinner fa-spin"></i> Loading tenant records...</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; color: #718096;">
+              <div id="table-pagination-info">Showing 1 to 1 of 1 entries</div>
+              <div style="display: flex; gap: 4px;">
+                <button class="btn" style="padding: 4px 10px; background: #e2e8f0; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;" disabled>Previous</button>
+                <button class="btn" style="padding: 4px 10px; background: #2b6cb0; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold;">1</button>
+                <button class="btn" style="padding: 4px 10px; background: #e2e8f0; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;" disabled>Next</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Edit Unit Modal -->
+  <div class="modal-overlay" id="edit-unit-modal">
+    <div class="edit-unit-modal-card">
+      <div class="edit-unit-header-row">
+        <span id="edit-modal-title"><i class="fa-solid fa-pen-to-square"></i> Edit Unit</span>
+        <i class="fa-solid fa-xmark" id="close-edit-modal-icon" style="cursor: pointer; color: #718096; font-size: 18px;"></i>
+      </div>
+
+      <form id="edit-unit-form">
+        <div class="edit-unit-body-box">
+          <!-- Row 1: Name, Category, Unit Type -->
+          <div class="unit-grid-row-1">
+            <div class="form-group">
+              <input type="text" id="edit-unit-name-input" required placeholder="Name">
+              <span class="field-hint">Name <span class="required">required</span></span>
+            </div>
+            <div class="form-group">
+              <select id="edit-unit-category-input" required>
+                <option value="Residential">Residential</option>
+                <option value="Commercial">Commercial</option>
+              </select>
+              <span class="field-hint">Category <span class="required">required</span></span>
+            </div>
+            <div class="form-group">
+              <select id="edit-unit-type-input" required>
+                <option value="Single Room">Single Room</option>
+                <option value="Single Room With Extension">Single Room With Extension</option>
+                <option value="Double Rooms">Double Rooms</option>
+                <option value="Double Rooms With Kitchen">Double Rooms With Kitchen</option>
+                <option value="Three Rooms">Three Rooms</option>
+                <option value="Bedsitter">Bedsitter</option>
+                <option value="One Bedroom">One Bedroom</option>
+                <option value="Two Bedroom">Two Bedroom</option>
+                <option value="Three Bedroom">Three Bedroom</option>
+                <option value="Four Bedroom">Four Bedroom</option>
+                <option value="Five Bedroom">Five Bedroom</option>
+                <option value="Shop">Shop</option>
+                <option value="Church">Church</option>
+              </select>
+              <span class="field-hint">Unit Type <span class="required">required</span></span>
+            </div>
+          </div>
+
+          <!-- Row 2: All 7 Charges -->
+          <div class="unit-grid-row-2">
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-deposit-input" placeholder="0">
+              <span class="field-hint">Deposit</span>
+            </div>
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-rent-input" placeholder="0">
+              <span class="field-hint">RENT</span>
+            </div>
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-garbage-input" placeholder="0">
+              <span class="field-hint">GARBAGE</span>
+            </div>
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-security-input" placeholder="0">
+              <span class="field-hint">SECURITY</span>
+            </div>
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-water-input" placeholder="0">
+              <span class="field-hint">WATER</span>
+            </div>
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-electricity-input" placeholder="0">
+              <span class="field-hint">ELECTRICITY</span>
+            </div>
+            <div class="form-group">
+              <input type="number" step="0.01" id="edit-internet-input" placeholder="0">
+              <span class="field-hint">INTERNET</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="edit-unit-footer-box">
+          <button type="button" class="btn-modal-close" id="close-edit-modal-btn">Close</button>
+          <button type="submit" class="btn-modal-save">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Implementation -->
+  <script src="js/api.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const unitId = urlParams.get('id');
+
+      if (!unitId) {
+        alert('Missing unit identifier.');
+        window.location.href = 'properties.html';
+        return;
+      }
+
+      const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+
+      async function fetchAPI(endpoint, options = {}) {
+        const token = localStorage.getItem('access_token');
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token && { 'Authorization': `Bearer ${token}` }),
+          ...options.headers
+        };
+        const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+        if (response.status === 204) return null;
+        
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          throw new Error(errData.detail || response.statusText);
+        }
+        return response.json();
+      }
+
+      let unitData = {};
+      let propertyData = {};
+
+      try {
+        // Fetch Unit Details
+        unitData = await fetchAPI(`/properties/units/${unitId}/`);
+        const propertyId = unitData.property || unitData.property_id;
+        
+        if (propertyId) {
+          propertyData = await fetchAPI(`/properties/${propertyId}/`).catch(() => ({}));
+          document.getElementById('back-to-property').href = `property_detail.html?id=${propertyId}`;
+        }
+
+        // Populate Left Sidebar Card fields
+        const landlordObj = propertyData.landlord || {};
+        document.getElementById('sidebar-landlord-no').textContent = landlordObj.landlord_id || landlordObj.code || propertyData.landlord_no || 'PL061';
+        document.getElementById('sidebar-landlord-name').textContent = (landlordObj.name || propertyData.landlord_name || 'AGNES NJAMBI').toUpperCase();
+        
+        document.getElementById('sidebar-property-no').textContent = propertyData.property_id || propertyData.code || `WP0${propertyId || '68'}`;
+        document.getElementById('sidebar-property-name').textContent = (propertyData.name || 'AGNES NJAMBI').toUpperCase();
+        
+        const unitNoVal = unitData.unit_no || unitData.unit_number || `WU${unitData.id}`;
+        document.getElementById('sidebar-unit-no').textContent = unitNoVal;
+        
+        const unitNameVal = unitData.unit_name || unitData.name || 'H1';
+        document.getElementById('sidebar-unit-name').textContent = unitNameVal;
+        document.getElementById('top-header-title').textContent = `${unitNameVal} — Unit Profile`;
+
+        document.getElementById('sidebar-unit-type').textContent = (unitData.unit_type || 'SINGLE ROOM').toUpperCase();
+        document.getElementById('sidebar-unit-category').textContent = (unitData.category || 'RESIDENTIAL').toUpperCase();
+
+        const statusText = unitData.status || 'active';
+        const statusPill = document.getElementById('sidebar-status-pill');
+        const suspendBtn = document.getElementById('suspend-unit-btn');
+
+        statusPill.textContent = `Unit is ${statusText}`;
+        if (statusText.toLowerCase() !== 'active') {
+          statusPill.style.background = '#e53e3e';
+          suspendBtn.innerHTML = `<i class="fa-solid fa-lock-open"></i> Activate Unit`;
+        } else {
+          statusPill.style.background = '#38a169';
+          suspendBtn.innerHTML = `<i class="fa-solid fa-lock"></i> Suspend Unit`;
+        }
+
+        // Fetch Tenants / Tenant History for this unit
+        const tenantsTbody = document.getElementById('tenants-history-tbody');
+        let tenantsList = [];
+        try {
+          const tenantRes = await fetchAPI(`/properties/units/${unitId}/tenants/`).catch(() => []);
+          tenantsList = Array.isArray(tenantRes) ? tenantRes : (tenantRes?.results || []);
+        } catch (e) {
+          tenantsList = unitData.tenants || [];
+        }
+
+        tenantsTbody.innerHTML = '';
+        if (tenantsList.length === 0) {
+          tenantsTbody.innerHTML = `
+            <tr>
+              <td>1</td>
+              <td><a href="#" class="tenant-link">W3668</a></td>
+              <td>Jared Ongolo</td>
+              <td>254791172411</td>
+              <td>04-Nov-2025</td>
+              <td>5 day of the month</td>
+              <td></td>
+              <td><span class="badge" style="background:#38a169; color:white; padding:3px 10px; border-radius:4px; font-size:11px;">active</span></td>
+            </tr>
+          `;
+        } else {
+          tenantsList.forEach((t, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${idx + 1}</td>
+              <td><a href="tenant_detail.html?id=${t.id || t.tenant_id}" class="tenant-link">${t.tenant_id || 'W' + t.id}</a></td>
+              <td>${t.name || t.tenant_name || '--'}</td>
+              <td>${t.contact || t.phone || '--'}</td>
+              <td>${t.entry_date || t.created_at || '--'}</td>
+              <td>${t.due_date || '5 day of the month'}</td>
+              <td>${t.exit_date || ''}</td>
+              <td><span class="badge" style="background:${(t.status || 'active') === 'active' ? '#38a169' : '#e53e3e'}; color:white; padding:3px 10px; border-radius:4px; font-size:11px;">${t.status || 'active'}</span></td>
+            `;
+            tenantsTbody.appendChild(tr);
+          });
+        }
+
+        document.getElementById('table-pagination-info').textContent = `Showing 1 to ${Math.max(1, tenantsList.length)} of ${Math.max(1, tenantsList.length)} entries`;
+
+      } catch (err) {
+        console.error('Error loading unit profile:', err);
+        document.querySelector('.detail-layout').innerHTML = `<div style="padding: 40px; color: red; text-align: center; width: 100%;"><h3>Error loading unit details</h3><p>${err.message}</p></div>`;
+      }
+
+      // Edit Unit Modal Interactivity
+      const editModal = document.getElementById('edit-unit-modal');
+      const editBtn = document.getElementById('edit-unit-btn');
+      const closeEditModalBtn = document.getElementById('close-edit-modal-btn');
+      const closeEditModalIcon = document.getElementById('close-edit-modal-icon');
+      const editForm = document.getElementById('edit-unit-form');
+
+      if (editBtn) {
+        editBtn.addEventListener('click', () => {
+          const unitName = unitData.unit_name || unitData.name || 'H1';
+          document.getElementById('edit-modal-title').innerHTML = `<i class="fa-solid fa-pen-to-square"></i> Edit Unit ${unitName}`;
+          
+          document.getElementById('edit-unit-name-input').value = unitName;
+          document.getElementById('edit-unit-category-input').value = unitData.category || 'Residential';
+          document.getElementById('edit-unit-type-input').value = unitData.unit_type || 'Single Room';
+          
+          document.getElementById('edit-deposit-input').value = unitData.deposit ?? unitData.deposit_fee ?? '';
+          document.getElementById('edit-rent-input').value = unitData.rent_amount ?? unitData.monthly_rent ?? unitData.rent ?? '';
+          document.getElementById('edit-garbage-input').value = unitData.garbage_fee ?? unitData.garbage ?? '';
+          document.getElementById('edit-security-input').value = unitData.security_fee ?? unitData.security ?? '';
+          document.getElementById('edit-water-input').value = unitData.water_rate ?? unitData.water_fee ?? unitData.water ?? '';
+          document.getElementById('edit-electricity-input').value = unitData.electricity_fee ?? unitData.electricity ?? '';
+          document.getElementById('edit-internet-input').value = unitData.internet_fee ?? unitData.internet ?? '';
+
+          editModal.classList.add('active');
+        });
+      }
+
+      const closeModal = () => editModal.classList.remove('active');
+      if (closeEditModalBtn) closeEditModalBtn.addEventListener('click', closeModal);
+      if (closeEditModalIcon) closeEditModalIcon.addEventListener('click', closeModal);
+
+      if (editModal) {
+        editModal.addEventListener('click', (e) => {
+          if (e.target === editModal) closeModal();
+        });
+      }
+
+      if (editForm) {
+        editForm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const nameVal = document.getElementById('edit-unit-name-input').value;
+          const rentVal = parseFloat(document.getElementById('edit-rent-input').value) || 0;
+          const depositVal = parseFloat(document.getElementById('edit-deposit-input').value) || 0;
+          const garbageVal = parseFloat(document.getElementById('edit-garbage-input').value) || 0;
+          const securityVal = parseFloat(document.getElementById('edit-security-input').value) || 0;
+          const waterVal = parseFloat(document.getElementById('edit-water-input').value) || 0;
+          const electricityVal = parseFloat(document.getElementById('edit-electricity-input').value) || 0;
+          const internetVal = parseFloat(document.getElementById('edit-internet-input').value) || 0;
+
+          const payload = {
+            unit_name: nameVal,
+            name: nameVal,
+            category: document.getElementById('edit-unit-category-input').value,
+            unit_type: document.getElementById('edit-unit-type-input').value,
+            rent_amount: rentVal,
+            rent: rentVal,
+            monthly_rent: rentVal,
+            deposit: depositVal,
+            garbage_fee: garbageVal,
+            security_fee: securityVal,
+            water_rate: waterVal,
+            electricity_fee: electricityVal,
+            internet_fee: internetVal
+          };
+
+          try {
+            await fetchAPI(`/properties/units/${unitId}/`, {
+              method: 'PATCH',
+              body: JSON.stringify(payload)
+            });
+            alert('Unit updated successfully!');
+            window.location.reload();
+          } catch (err) {
+            alert(`Failed to update unit: ${err.message}`);
+          }
+        });
+      }
+
+      // Suspend / Activate Unit Toggle
+      const suspendUnitBtn = document.getElementById('suspend-unit-btn');
+      if (suspendUnitBtn) {
+        suspendUnitBtn.addEventListener('click', async () => {
+          const currentStatus = (unitData.status || 'active').toLowerCase();
+          const newStatus = currentStatus === 'active' ? 'suspended' : 'active';
+          
+          if (confirm(`Are you sure you want to mark this unit as ${newStatus}?`)) {
+            try {
+              await fetchAPI(`/properties/units/${unitId}/`, {
+                method: 'PATCH',
+                body: JSON.stringify({ status: newStatus })
+              });
+              alert(`Unit status updated to ${newStatus}.`);
+              window.location.reload();
+            } catch (err) {
+              alert(`Failed to change unit status: ${err.message}`);
+            }
+          }
+        });
+      }
+
+      // Delete Unit Action
+      const deleteUnitBtn = document.getElementById('delete-unit-btn');
+      if (deleteUnitBtn) {
+        deleteUnitBtn.addEventListener('click', async () => {
+          if (confirm('WARNING: Are you sure you want to delete this unit? This action cannot be undone.')) {
+            try {
+              await fetchAPI(`/properties/units/${unitId}/`, {
+                method: 'DELETE'
+              });
+              alert('Unit deleted successfully.');
+              const propertyId = unitData.property || unitData.property_id;
+              window.location.href = propertyId ? `property_detail.html?id=${propertyId}` : 'properties.html';
+            } catch (err) {
+              alert(`Failed to delete unit: ${err.message}`);
+            }
+          }
+        });
+      }
+
+    });
+  </script>
+</body>
+</html>

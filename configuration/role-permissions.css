@@ -1,0 +1,125 @@
+/* Role Permissions Page Styling */
+body {
+  background-color: #f8f9fa;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  color: #333;
+}
+
+.top-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.top-page-header h2 {
+  font-size: 24px;
+  color: #212529;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.breadcrumb-trail {
+  font-size: 14px;
+  color: #6c757d;
+}
+
+.breadcrumb-trail a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.permissions-card {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-top: 3px solid #007bff;
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.permission-section {
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  background-color: #fff;
+}
+
+.permission-section-header {
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  font-size: 13px;
+  font-weight: bold;
+  color: #212529;
+  border-bottom: 1px solid #dee2e6;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+}
+
+.permission-section-header i {
+  font-size: 11px;
+  color: #495057;
+}
+
+.permission-checkboxes-grid {
+  padding: 12px 15px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+  font-size: 13px;
+  color: #495057;
+}
+
+@media (max-width: 992px) {
+  .permission-checkboxes-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .permission-checkboxes-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"] {
+  cursor: pointer;
+  width: 15px;
+  height: 15px;
+}
+
+.permissions-footer {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-save-permissions {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-save-permissions:hover {
+  background-color: #218838;
+}

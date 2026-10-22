@@ -1,18 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
-  // Mock Data representation from image
-  const unitsData = [
-    { id: 1, unitNo: 'WU0001', unitName: 'H1', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Maureen', vacancy: 'occupied', status: 'Active' },
-    { id: 2, unitNo: 'WU0002', unitName: 'H2', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Agnes', vacancy: 'occupied', status: 'Active' },
-    { id: 3, unitNo: 'WU0003', unitName: 'H3', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Alex', vacancy: 'occupied', status: 'Active' },
-    { id: 4, unitNo: 'WU0004', unitName: 'H4', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'BENARD', vacancy: 'occupied', status: 'Active' },
-    { id: 5, unitNo: 'WU0005', unitName: 'H5', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Elly', vacancy: 'occupied', status: 'Active' },
-    { id: 6, unitNo: 'WU0006', unitName: 'H6', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Hilary', vacancy: 'occupied', status: 'Active' },
-    { id: 7, unitNo: 'WU0007', unitName: 'H7', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Victor', vacancy: 'occupied', status: 'Active' },
-    { id: 8, unitNo: 'WU0008', unitName: 'H8', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'William', vacancy: 'occupied', status: 'Active' },
-    { id: 9, unitNo: 'WU0009', unitName: 'H9', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Clan', vacancy: 'occupied', status: 'Active' },
-    { id: 10, unitNo: 'WU0010', unitName: 'H10', property: 'Mary Mwihaki Plot', landlord: 'Mary Mwihaki', unitType: 'Single Room', unitCategory: 'Residential', tenant: 'Elizabeth', vacancy: 'occupied', status: 'Active' }
-  ];
+  async function fetchAPI(endpoint, options = {}) {
+    const token = localStorage.getItem('access_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers
+    };
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    return response.json();
+  }
 
   // DOM Elements
   const tableBody = document.getElementById('table-body');
@@ -28,99 +27,255 @@ document.addEventListener('DOMContentLoaded', () => {
   const vacancyFilter = document.getElementById('filter-vacancy');
   const statusFilter = document.getElementById('filter-status');
 
-  // Page State variables
-  let filteredData = [...unitsData];
+  // Page State
   let currentPage = 1;
-  let rowsPerPage = parseInt(entriesSelect.value);
+  let rowsPerPage = parseInt(entriesSelect ? entriesSelect.value : 10);
 
-  // Render Table
-  function renderTable() {
+  // Load Database Properties into Dropdown
+  async function loadPropertiesFilter() {
+    if (!propertyFilter) return;
+    try {
+      const response = await fetchAPI('/properties/');
+      const properties = response.results || response;
+      
+      // Clear old options except default 'All'
+      propertyFilter.innerHTML = '<option value="All">Property: All</option>';
+      
+      properties.forEach(prop => {
+        const propName = prop.name || prop.property_name;
+        if (propName) {
+          const option = document.createElement('option');
+          option.value = propName;
+          option.textContent = propName;
+          propertyFilter.appendChild(option);
+        }
+      });
+    } catch (err) {
+      console.error('Failed to load properties list for filter:', err);
+    }
+  }
+
+  // Load Database Landlords into Dropdown
+  async function loadLandlordsFilter() {
+    if (!landlordFilter) return;
+    try {
+      // Adjust endpoint if your landlords list URL differs (e.g. '/landlords/' or '/properties/landlords/')
+      const response = await fetchAPI('/landlords/');
+      const landlords = response.results || response;
+      
+      // Clear old options except default 'All'
+      landlordFilter.innerHTML = '<option value="All">Landlord: All</option>';
+      
+      landlords.forEach(landlord => {
+        const name = landlord.name || landlord.full_name || `${landlord.first_name || ''} ${landlord.last_name || ''}`.trim();
+        if (name) {
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          landlordFilter.appendChild(option);
+        }
+      });
+    } catch (err) {
+      console.error('Failed to load landlords list for filter:', err);
+    }
+  }
+
+  async function loadUnits() {
+    if (!tableBody) return;
+
+    try {
+      const query = searchInput ? searchInput.value.trim() : '';
+      const selectedProp = propertyFilter ? propertyFilter.value : 'All';
+      const selectedLandlord = landlordFilter ? landlordFilter.value : 'All';
+      const selectedVacancy = vacancyFilter ? vacancyFilter.value : 'All';
+      const selectedStatus = statusFilter ? statusFilter.value : 'All';
+
+      const params = new URLSearchParams();
+      params.append('page', currentPage);
+      params.append('page_size', rowsPerPage);
+
+      if (query) params.append('search', query);
+      if (selectedProp !== 'All') params.append('property', selectedProp);
+      if (selectedLandlord !== 'All') params.append('landlord', selectedLandlord);
+      if (selectedVacancy !== 'All') params.append('vacancy', selectedVacancy);
+      if (selectedStatus !== 'All') params.append('status', selectedStatus);
+
+      const response = await fetchAPI(`/properties/units/?${params.toString()}`);
+      const units = response.results || response;
+      const totalCount = response.count || units.length;
+
+      renderTable(units, totalCount);
+    } catch (err) {
+      console.error('Failed to load units:', err);
+      tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red; padding:20px;">Error fetching units from backend.</td></tr>`;
+    }
+  }
+
+  function renderTable(items, totalEntries) {
     tableBody.innerHTML = '';
 
-    const start = (currentPage - 1) * rowsPerPage;
-    const end = start + rowsPerPage;
-    const paginatedItems = filteredData.slice(start, end);
-
-    if (paginatedItems.length === 0) {
+    if (!items || items.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 20px;">No units found matching criteria.</td></tr>`;
-      tableInfo.textContent = 'Showing 0 to 0 of 0 entries';
+      if (tableInfo) tableInfo.textContent = 'Showing 0 to 0 of 0 entries';
       return;
     }
 
-    paginatedItems.forEach((row, index) => {
+    const start = (currentPage - 1) * rowsPerPage;
+
+    items.forEach((row, index) => {
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${start + index + 1}</td>
-        <td><a href="#" class="link-code">${row.unitNo}</a></td>
-        <td>${row.unitName}</td>
-        <td><a href="#" class="link-text">${row.property}</a></td>
-        <td><a href="#" class="link-text">${row.landlord}</a></td>
-        <td>${row.unitType}</td>
-        <td>${row.unitCategory}</td>
-        <td><a href="#" class="link-text">${row.tenant}</a></td>
-        <td class="text-center"><span class="badge-outline-occupied">${row.vacancy}</span></td>
-        <td class="text-center"><span class="badge-solid-active">${row.status.toLowerCase()}</span></td>
+        <td><a href="#" class="link-code">${row.unitNo || row.unit_number || ''}</a></td>
+        <td>${row.unitName || row.name || ''}</td>
+        <td><a href="#" class="link-text">${row.property || row.property_name || '-'}</a></td>
+        <td><a href="#" class="link-text">${row.landlord || row.landlord_name || '-'}</a></td>
+        <td>${row.unitType || row.unit_type || 'Single Room'}</td>
+        <td>${row.unitCategory || row.category || 'Residential'}</td>
+        <td><a href="#" class="link-text">${row.tenant || row.tenant_name || 'Vacant'}</a></td>
+        <td class="text-center"><span class="badge-outline-occupied">${row.vacancy || (row.is_occupied ? 'occupied' : 'vacant')}</span></td>
+        <td class="text-center"><span class="badge-solid-active">${(row.status || 'Active').toLowerCase()}</span></td>
       `;
       tableBody.appendChild(tr);
     });
 
-    // Update Footer Info
-    const totalEntries = filteredData.length;
-    const actualEnd = Math.min(end, totalEntries);
-    tableInfo.textContent = `Showing ${start + 1} to ${actualEnd} of ${totalEntries} entries`;
-  }
-
-  // Filter Logic
-  function applyFilters() {
-    const query = searchInput.value.toLowerCase().trim();
-    const selectedProp = propertyFilter.value;
-    const selectedLandlord = landlordFilter.value;
-    const selectedVacancy = vacancyFilter.value;
-    const selectedStatus = statusFilter.value;
-
-    filteredData = unitsData.filter(item => {
-      const matchesSearch = 
-        item.unitNo.toLowerCase().includes(query) ||
-        item.unitName.toLowerCase().includes(query) ||
-        item.property.toLowerCase().includes(query) ||
-        item.landlord.toLowerCase().includes(query) ||
-        item.tenant.toLowerCase().includes(query);
-
-      const matchesProperty = selectedProp === 'All' || item.property === selectedProp;
-      const matchesLandlord = selectedLandlord === 'All' || item.landlord === selectedLandlord;
-      const matchesVacancy = selectedVacancy === 'All' || item.vacancy === selectedVacancy;
-      const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-
-      return matchesSearch && matchesProperty && matchesLandlord && matchesVacancy && matchesStatus;
-    });
-
-    currentPage = 1;
-    renderTable();
+    const actualEnd = Math.min(start + items.length, totalEntries);
+    if (tableInfo) {
+      tableInfo.textContent = `Showing ${start + 1} to ${actualEnd} of ${totalEntries} entries`;
+    }
   }
 
   // Toggle Export Menu
-  exportBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    exportMenu.classList.toggle('show');
-  });
+  if (exportBtn && exportMenu) {
+    exportBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      exportMenu.classList.toggle('show');
+    });
 
-  document.addEventListener('click', () => {
-    exportMenu.classList.remove('show');
-  });
+    document.addEventListener('click', () => {
+      exportMenu.classList.remove('show');
+    });
+  }
 
-  // Event Listeners for Filtering
-  searchInput.addEventListener('input', applyFilters);
-  propertyFilter.addEventListener('change', applyFilters);
-  landlordFilter.addEventListener('change', applyFilters);
-  vacancyFilter.addEventListener('change', applyFilters);
-  statusFilter.addEventListener('change', applyFilters);
+  // Helper to extract currently rendered table rows for export
+  function getExportData() {
+    const rows = Array.from(tableBody.querySelectorAll('tr'));
+    return rows.map(tr => {
+      const cols = tr.querySelectorAll('td');
+      if (cols.length < 10) return null;
+      return {
+        index: cols[0].innerText,
+        unitNo: cols[1].innerText,
+        unitName: cols[2].innerText,
+        property: cols[3].innerText,
+        landlord: cols[4].innerText,
+        unitType: cols[5].innerText,
+        unitCategory: cols[6].innerText,
+        tenant: cols[7].innerText,
+        vacancy: cols[8].innerText,
+        status: cols[9].innerText
+      };
+    }).filter(Boolean);
+  }
 
-  entriesSelect.addEventListener('change', () => {
-    rowsPerPage = parseInt(entriesSelect.value);
-    currentPage = 1;
-    renderTable();
-  });
+  // 1. CSV Export Handler
+  const exportCsvBtn = document.getElementById('export-csv');
+  if (exportCsvBtn) {
+    exportCsvBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const data = getExportData();
+      if (data.length === 0) return alert('No data available to export.');
 
-  // Initial Load
-  renderTable();
+      const headers = ['#', 'Unit No', 'Unit Name', 'Property', 'Landlord', 'Unit Type', 'Unit Category', 'Tenant', 'Vacancy', 'Status'];
+      const csvRows = [headers.join(',')];
+
+      data.forEach(row => {
+        const values = [
+          `"${row.index}"`,
+          `"${row.unitNo}"`,
+          `"${row.unitName}"`,
+          `"${row.property}"`,
+          `"${row.landlord}"`,
+          `"${row.unitType}"`,
+          `"${row.unitCategory}"`,
+          `"${row.tenant}"`,
+          `"${row.vacancy}"`,
+          `"${row.status}"`
+        ];
+        csvRows.push(values.join(','));
+      });
+
+      const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.setAttribute('href', url);
+      a.setAttribute('download', 'units_report.csv');
+      a.click();
+    });
+  }
+
+  // 2. Excel Export Handler
+  const exportExcelBtn = document.getElementById('export-excel');
+  if (exportExcelBtn) {
+    exportExcelBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const data = getExportData();
+      if (data.length === 0) return alert('No data available to export.');
+
+      let html = '<table><tr><th>#</th><th>Unit No</th><th>Unit Name</th><th>Property</th><th>Landlord</th><th>Unit Type</th><th>Unit Category</th><th>Tenant</th><th>Vacancy</th><th>Status</th></tr>';
+      data.forEach(row => {
+        html += `<tr><td>${row.index}</td><td>${row.unitNo}</td><td>${row.unitName}</td><td>${row.property}</td><td>${row.landlord}</td><td>${row.unitType}</td><td>${row.unitCategory}</td><td>${row.tenant}</td><td>${row.vacancy}</td><td>${row.status}</td></tr>`;
+      });
+      html += '</table>';
+
+      const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'units_report.xls';
+      a.click();
+    });
+  }
+
+  // 3. PDF Export Handler
+  const exportPdfBtn = document.getElementById('export-pdf');
+  if (exportPdfBtn) {
+    exportPdfBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.print();
+    });
+  }
+
+  let debounceTimer;
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        currentPage = 1;
+        loadUnits();
+      }, 300);
+    });
+  }
+
+  if (propertyFilter) propertyFilter.addEventListener('change', () => { currentPage = 1; loadUnits(); });
+  if (landlordFilter) landlordFilter.addEventListener('change', () => { currentPage = 1; loadUnits(); });
+  if (vacancyFilter) vacancyFilter.addEventListener('change', () => { currentPage = 1; loadUnits(); });
+  if (statusFilter) statusFilter.addEventListener('change', () => { currentPage = 1; loadUnits(); });
+
+  if (entriesSelect) {
+    entriesSelect.addEventListener('change', () => {
+      rowsPerPage = parseInt(entriesSelect.value);
+      currentPage = 1;
+      loadUnits();
+    });
+  }
+
+  // Initialize data loading
+  async function init() {
+    await loadPropertiesFilter();
+    await loadLandlordsFilter();
+    await loadUnits();
+  }
+
+  init();
 });

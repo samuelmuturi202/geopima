@@ -1,39 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
-  // Mock Data Store
-  const mockData = {
-    landlords: [
-      { id: '1', name: 'John Kamau' },
-      { id: '2', name: 'Mary Wanjiku' }
-    ],
-    properties: {
-      '1': [
-        { id: 'p1', name: 'Agnes Njambi Plot' },
-        { id: 'p2', name: 'Daniel Plot' }
-      ],
-      '2': [
-        { id: 'p3', name: 'Grace Gaitho House' }
-      ]
-    },
-    units: {
-      'p1': [
-        { id: 'u101', name: 'Unit A1 - Peter Njoroge' },
-        { id: 'u102', name: 'Unit A2 - Sarah Wairimu' }
-      ],
-      'p2': [
-        { id: 'u201', name: 'Unit B1 - David Chege' }
-      ],
-      'p3': [
-        { id: 'u301', name: 'Unit C1 - Lucy Wambui' }
-      ]
-    },
-    allTenants: [
-      { id: 't1', name: 'Peter Njoroge (Unit A1 - Agnes Njambi Plot)' },
-      { id: 't2', name: 'Sarah Wairimu (Unit A2 - Agnes Njambi Plot)' },
-      { id: 't3', name: 'David Chege (Unit B1 - Daniel Plot)' },
-      { id: 't4', name: 'Lucy Wambui (Unit C1 - Grace Gaitho House)' }
-    ]
-  };
+  async function fetchAPI(endpoint, options = {}) {
+    const token = localStorage.getItem('access_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers
+    };
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    return response.json();
+  }
 
   // Elements
   const landlordSelect = document.getElementById('select-landlord');
@@ -41,30 +19,38 @@ document.addEventListener('DOMContentLoaded', () => {
   const unitSelect = document.getElementById('select-unit');
   const directTenantSelect = document.getElementById('select-tenant-direct');
 
-  // Populate Initial Dropdowns
-  function init() {
-    if (landlordSelect) {
-      mockData.landlords.forEach(landlord => {
-        const opt = document.createElement('option');
-        opt.value = landlord.id;
-        opt.textContent = landlord.name;
-        landlordSelect.appendChild(opt);
-      });
-    }
+  // Load Initial Data from Backend
+  async function init() {
+    try {
+      if (landlordSelect) {
+        const landlords = await fetchAPI('/properties/landlords/');
+        const landlordList = landlords.results || landlords;
+        landlordList.forEach(landlord => {
+          const opt = document.createElement('option');
+          opt.value = landlord.id;
+          opt.textContent = landlord.name || `${landlord.first_name} ${landlord.last_name}`;
+          landlordSelect.appendChild(opt);
+        });
+      }
 
-    if (directTenantSelect) {
-      mockData.allTenants.forEach(tenant => {
-        const opt = document.createElement('option');
-        opt.value = tenant.id;
-        opt.textContent = tenant.name;
-        directTenantSelect.appendChild(opt);
-      });
+      if (directTenantSelect) {
+        const tenants = await fetchAPI('/tenants/active-list/');
+        const tenantList = tenants.results || tenants;
+        tenantList.forEach(tenant => {
+          const opt = document.createElement('option');
+          opt.value = tenant.id;
+          opt.textContent = tenant.display_label || `${tenant.name} (${tenant.unit_name || 'Unit'})`;
+          directTenantSelect.appendChild(opt);
+        });
+      }
+    } catch (err) {
+      console.error('Error populating initial dropdowns:', err);
     }
   }
 
-  // Handle Landlord Selection -> Load Properties
+  // Handle Landlord Selection -> Load Properties from API
   if (landlordSelect) {
-    landlordSelect.addEventListener('change', (e) => {
+    landlordSelect.addEventListener('change', async (e) => {
       const landlordId = e.target.value;
 
       propertySelect.innerHTML = '';
@@ -72,16 +58,24 @@ document.addEventListener('DOMContentLoaded', () => {
       unitSelect.disabled = true;
       unitSelect.innerHTML = '<option value="">--Select Property First--</option>';
 
-      if (landlordId && mockData.properties[landlordId]) {
-        propertySelect.disabled = false;
-        propertySelect.innerHTML = '<option value="">--Select Property--</option>';
+      if (landlordId) {
+        try {
+          propertySelect.disabled = false;
+          propertySelect.innerHTML = '<option value="">Loading properties...</option>';
 
-        mockData.properties[landlordId].forEach(prop => {
-          const opt = document.createElement('option');
-          opt.value = prop.id;
-          opt.textContent = prop.name;
-          propertySelect.appendChild(opt);
-        });
+          const properties = await fetchAPI(`/properties/properties/?landlord=${landlordId}`);
+          const propertyList = properties.results || properties;
+
+          propertySelect.innerHTML = '<option value="">--Select Property--</option>';
+          propertyList.forEach(prop => {
+            const opt = document.createElement('option');
+            opt.value = prop.id;
+            opt.textContent = prop.name;
+            propertySelect.appendChild(opt);
+          });
+        } catch (err) {
+          propertySelect.innerHTML = '<option value="">Error loading properties</option>';
+        }
       } else {
         propertySelect.disabled = true;
         propertySelect.innerHTML = '<option value="">--Select Landlord First--</option>';
@@ -89,23 +83,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Handle Property Selection -> Load Units/Tenants
+  // Handle Property Selection -> Load Units from API
   if (propertySelect) {
-    propertySelect.addEventListener('change', (e) => {
+    propertySelect.addEventListener('change', async (e) => {
       const propertyId = e.target.value;
 
       unitSelect.innerHTML = '';
 
-      if (propertyId && mockData.units[propertyId]) {
-        unitSelect.disabled = false;
-        unitSelect.innerHTML = '<option value="">--Select Unit/Tenant--</option>';
+      if (propertyId) {
+        try {
+          unitSelect.disabled = false;
+          unitSelect.innerHTML = '<option value="">Loading units...</option>';
 
-        mockData.units[propertyId].forEach(unit => {
-          const opt = document.createElement('option');
-          opt.value = unit.id;
-          opt.textContent = unit.name;
-          unitSelect.appendChild(opt);
-        });
+          const units = await fetchAPI(`/properties/units/?property=${propertyId}`);
+          const unitList = units.results || units;
+
+          unitSelect.innerHTML = '<option value="">--Select Unit/Tenant--</option>';
+          unitList.forEach(unit => {
+            const opt = document.createElement('option');
+            opt.value = unit.id;
+            opt.textContent = unit.display_label || `${unit.unit_number} - ${unit.tenant_name || 'Vacant'}`;
+            unitSelect.appendChild(opt);
+          });
+        } catch (err) {
+          unitSelect.innerHTML = '<option value="">Error loading units</option>';
+        }
       } else {
         unitSelect.disabled = true;
         unitSelect.innerHTML = '<option value="">--Select Property First--</option>';
@@ -123,7 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Please select Landlord, Property, and Unit/Tenant before continuing.');
         return;
       }
-      alert(`Proceeding to collect rent for Unit ID: ${selectedUnit}`);
+      window.location.href = `collect-rent-payment.html?unit_id=${selectedUnit}`;
     });
   }
 
@@ -137,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Please select a tenant before continuing.');
         return;
       }
-      alert(`Proceeding to collect rent for Tenant ID: ${selectedTenant}`);
+      window.location.href = `collect-rent-payment.html?tenant_id=${selectedTenant}`;
     });
   }
 

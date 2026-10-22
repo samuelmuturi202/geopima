@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landlord Profile - Geopima Agencies</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="landlords.css">
+  <style>
+    .details-container { display: flex; gap: 20px; padding: 20px; align-items: flex-start; }
+    .profile-card { flex: 0 0 320px; background: #fff; padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .properties-card { flex: 1; background: #fff; padding: 20px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .detail-group { margin-bottom: 12px; border-bottom: 1px solid #eef0f2; padding-bottom: 6px; }
+    .detail-group label { display: block; font-size: 11px; color: #7f8c8d; text-transform: uppercase; margin-top: 2px; }
+    .detail-group .val { font-size: 14px; font-weight: 500; color: #2c3e50; }
+    .action-buttons { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .flex-row { display: flex; gap: 10px; }
+  </style>
+</head>
+<body>
+  <div style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
+    <!-- Sidebar -->
+    <aside id="sidebar">
+      <div class="brand"><i class="fa-solid fa-building-user"></i><span>Geopima Agencies</span></div>
+      <ul class="nav-menu">
+        <li><a href="index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard</a></li>
+        <li class="active"><a href="landlords.html"><i class="fa-solid fa-user-group"></i> Landlords</a></li>
+      </ul>
+    </aside>
+
+    <div class="main-wrapper">
+      <header>
+        <div class="header-left"><span class="header-title" id="page-title-name">LANDLORD PROFILE</span></div>
+        <div class="header-right"><span class="breadcrumbs">Home / Registration</span></div>
+      </header>
+
+      <main class="details-container">
+        <!-- Left: Landlord Details Panel -->
+        <div class="profile-card">
+          <h2 id="display-header-name" style="text-transform: uppercase; margin-bottom: 15px;">-</h2>
+          
+          <div class="detail-group">
+            <div class="val" id="val-landlord-id">-</div>
+            <label><i class="fa-solid fa-hashtag"></i> Landlord Number</label>
+          </div>
+          <div class="detail-group">
+            <div class="val" id="val-name">-</div>
+            <label><i class="fa-solid fa-user"></i> Landlord Name</label>
+          </div>
+
+          <div class="flex-row">
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-gender">-</div>
+              <label><i class="fa-solid fa-venus-mars"></i> Gender</label>
+            </div>
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-id-number">-</div>
+              <label><i class="fa-solid fa-id-card"></i> ID Number</label>
+            </div>
+          </div>
+
+          <div class="flex-row">
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-primary-contact">-</div>
+              <label><i class="fa-solid fa-phone"></i> Primary Contact</label>
+            </div>
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-secondary-contact">-</div>
+              <label><i class="fa-solid fa-phone"></i> Secondary Contact</label>
+            </div>
+          </div>
+
+          <div class="detail-group">
+            <div class="val" id="val-email">-</div>
+            <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+          </div>
+
+          <div class="flex-row">
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-physical-address">-</div>
+              <label><i class="fa-solid fa-location-dot"></i> Physical Address</label>
+            </div>
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-postal-address">-</div>
+              <label><i class="fa-solid fa-box"></i> Postal Address</label>
+            </div>
+          </div>
+
+          <div class="flex-row">
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-bank-name">-</div>
+              <label><i class="fa-solid fa-building-columns"></i> Bank Name</label>
+            </div>
+            <div class="detail-group" style="flex: 1;">
+              <div class="val" id="val-account-name">-</div>
+              <label><i class="fa-solid fa-file-invoice"></i> Account Name</label>
+            </div>
+          </div>
+
+          <div class="detail-group">
+            <div class="val" id="val-account-number">-</div>
+            <label><i class="fa-solid fa-credit-card"></i> Account Number</label>
+          </div>
+
+          <div class="detail-group">
+            <div class="val" id="val-reg-date">-</div>
+            <label><i class="fa-solid fa-calendar-days"></i> Registration Date</label>
+          </div>
+
+          <div class="action-buttons">
+            <button id="btn-status-badge" class="btn btn-green" style="width: 100%; border: none;">Landlord is active</button>
+            <div class="flex-row">
+              <button id="btn-edit-landlord" class="btn btn-cyan" style="flex:1;">Edit Landlord</button>
+              <button id="btn-suspend-landlord" class="btn" style="flex:1; background: #f39c12; color:#fff;">Suspend</button>
+              <button id="btn-delete-landlord" class="btn" style="flex:1; background: #e74c3c; color:#fff;">Delete</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Associated Properties Table Panel -->
+        <div class="properties-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 id="properties-title"><i class="fa-solid fa-sitemap"></i> PROPERTIES</h3>
+            <button class="btn btn-navy" id="add-property-btn"><i class="fa-solid fa-plus"></i> Add Property</button>
+          </div>
+
+          <table class="data-table" id="landlord-properties-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>PRO ID</th>
+                <th>CLUSTER</th>
+                <th>PROPERTY NAME</th>
+                <th>DESCRIPTION</th>
+                <th>LOCATION</th>
+                <th>UNITS</th>
+                <th>COMM.</th>
+                <th>STATUS</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Dynamic Rows -->
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="landlord-details.js"></script>
+</body>
+</html>

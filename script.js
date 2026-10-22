@@ -1,4 +1,85 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+
+  /**
+   * Helper to retrieve access token across common localStorage key variations
+   */
+  function getStoredAccessToken() {
+    return localStorage.getItem('access_token') || 
+           localStorage.getItem('accessToken') || 
+           localStorage.getItem('token');
+  }
+
+  /**
+   * Helper to retrieve refresh token across common localStorage key variations
+   */
+  function getStoredRefreshToken() {
+    return localStorage.getItem('refresh_token') || 
+           localStorage.getItem('refreshToken');
+  }
+
+  /**
+   * Helper function to refresh JWT access token if expired
+   */
+  async function refreshAccessToken() {
+    const refreshToken = getStoredRefreshToken();
+    if (!refreshToken) return null;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/token/refresh/`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ refresh: refreshToken })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('access_token', data.access);
+        return data.access;
+      }
+    } catch (err) {
+      console.error('Failed to refresh access token:', err);
+    }
+
+    return null;
+  }
+
+  /**
+   * Centralized API fetch wrapper with automated JWT Authorization headers and auto-refresh
+   */
+  async function fetchAPI(endpoint, options = {}) {
+    let token = getStoredAccessToken();
+
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      ...options.headers
+    };
+
+    let response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+
+    // Handle 401 Unauthorized or 403 Forbidden token expiration
+    if (response.status === 401 || response.status === 403) {
+      console.warn(`[${response.status}] Attempting token refresh for ${endpoint}`);
+      const newToken = await refreshAccessToken();
+
+      if (newToken) {
+        headers['Authorization'] = `Bearer ${newToken}`;
+        response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+      } else if (response.status === 401) {
+        console.warn('Session expired. Redirecting to login.');
+        localStorage.clear();
+        window.location.href = 'login.html';
+        throw new Error('Unauthorized: Session expired.');
+      }
+    }
+
+    if (!response.ok) {
+      throw new Error(`API Error ${response.status}: ${response.statusText}`);
+    }
+
+    return response.json();
+  }
 
   const sidebar = document.getElementById('sidebar');
   const toggleBtn = document.getElementById('toggle-sidebar');
@@ -7,6 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- 1. Persistent Sidebar Collapse/Expand Logic ---
   const applySidebarState = (isCollapsed) => {
+    if (!sidebar) return;
     if (isCollapsed) {
       sidebar.classList.add('collapsed');
     } else {
@@ -14,25 +96,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   };
 
-  // Restore sidebar state from localStorage across page navigation
   const savedSidebarState = localStorage.getItem('sidebarState');
   if (savedSidebarState !== null) {
     applySidebarState(savedSidebarState === 'collapsed');
   } else {
-    // Default state: collapsed
     applySidebarState(true);
   }
 
-  // Toggle button handler
   if (toggleBtn && sidebar) {
     toggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
 
       if (window.innerWidth <= 768) {
-        // Mobile Drawer Toggle
         sidebar.classList.toggle('mobile-open');
       } else {
-        // Desktop Collapse/Expand Toggle
         const isCurrentlyCollapsed = sidebar.classList.contains('collapsed');
         const nextState = !isCurrentlyCollapsed;
         applySidebarState(nextState);
@@ -41,9 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Close mobile drawer when clicking outside
   document.addEventListener('click', (e) => {
-    if (window.innerWidth <= 768 && sidebar.classList.contains('mobile-open')) {
+    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('mobile-open')) {
       if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
         sidebar.classList.remove('mobile-open');
       }
@@ -95,61 +171,63 @@ document.addEventListener('DOMContentLoaded', () => {
   navLinks.forEach(link => {
     link.addEventListener('click', (e) => {
       const targetUrl = link.getAttribute('href');
-      if (targetUrl && targetUrl !== '#') {
+      if (targetUrl && targetUrl !== '#' && !targetUrl.startsWith('javascript:')) {
         window.location.href = targetUrl;
       }
     });
   });
 
-  // --- 5. Chart.js Population Distribution Chart ---
+  // --- 5. Dynamic Chart.js Population Distribution Chart ---
   const chartCanvas = document.getElementById('populationChart');
   let populationChartInstance = null;
 
-  if (chartCanvas) {
-    const ctx = chartCanvas.getContext('2d');
-    const propertyLabels = [
-      'Agnes njambi', 'Alice Njuguna', 'Alice Plot', 'Annastacia Plot', 'Benard Njunge B',
-      'Benard Njunge A', 'Charity MUTHONI Nduta', 'Daniel mwangi', 'Daniel Plot', 'David chege',
-      'David kaime', 'David Kamau', 'Dawaki', 'Dorothy', 'Elizabeth Plot', 'Esther wairimu B',
-      'Esther wairimu', 'Fide A Plot', 'George Kimani ndungu', 'Githima Women Guild plot',
-      'Grace', 'Grace Gaitho', 'Harrison Plot', 'HENRY NJOROGE', 'Isaac githiora'
-    ];
+  async function renderDynamicChart() {
+    if (!chartCanvas) return;
 
-    populationChartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: propertyLabels,
-        datasets: [
-          {
-            label: 'Total Units',
-            data: [20, 8, 8, 18, 12, 12, 12, 42, 24, 20, 8, 20, 20, 80, 50, 8, 30, 8, 12, 32, 30, 12, 14, 12, 12],
-            backgroundColor: '#0099b8'
-          },
-          {
-            label: 'Units Occupied',
-            data: [16, 6, 6, 14, 10, 8, 8, 34, 18, 16, 6, 18, 16, 76, 36, 6, 28, 4, 10, 28, 28, 10, 10, 8, 10],
-            backgroundColor: '#2bb14c'
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          x: {
-            ticks: {
-              font: { size: 10 },
-              maxRotation: 60,
-              minRotation: 60
+    try {
+      const metrics = await fetchAPI('/dashboard/metrics/');
+      const propertyLabels = metrics.properties || [];
+      const totalUnits = metrics.total_units || [];
+      const occupiedUnits = metrics.occupied_units || [];
+
+      const ctx = chartCanvas.getContext('2d');
+      populationChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: propertyLabels,
+          datasets: [
+            {
+              label: 'Total Units',
+              data: totalUnits,
+              backgroundColor: '#0099b8'
+            },
+            {
+              label: 'Units Occupied',
+              data: occupiedUnits,
+              backgroundColor: '#2bb14c'
             }
-          },
-          y: {
-            beginAtZero: true,
-            max: 100
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            x: {
+              ticks: {
+                font: { size: 10 },
+                maxRotation: 60,
+                minRotation: 60
+              }
+            },
+            y: {
+              beginAtZero: true
+            }
           }
         }
-      }
-    });
+      });
+    } catch (err) {
+      console.error('Failed to load chart metrics from API:', err);
+    }
   }
 
   window.addEventListener('resize', () => {
@@ -158,40 +236,49 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- 6. Render Payment Summary Progress Bars ---
+  // --- 6. Dynamic Payment Summary Progress Bars ---
   const summaryContainer = document.getElementById('payment-summary-container');
-  if (summaryContainer) {
-    const paymentData = [
-      { name: "Agnes njambi", collected: 0, total: 51750, pct: 0 },
-      { name: "Alice Njuguna", collected: 18120, total: 48240, pct: 38 },
-      { name: "Alice Plot", collected: 0, total: 21500, pct: 0 },
-      { name: "Annastacia Plot", collected: 1400, total: 55900, pct: 3 },
-      { name: "Benard Njunge B", collected: 4000, total: 31300, pct: 13 },
-      { name: "Benard Njunge A", collected: 6000, total: 28500, pct: 21 },
-      { name: "Charity MUTHONI Nduta", collected: 10850, total: 53750, pct: 20 },
-      { name: "Daniel mwangi", collected: 6000, total: 41100, pct: 15 },
-      { name: "Daniel Plot", collected: 16000, total: 109250, pct: 15 },
-      { name: "David chege", collected: 14700, total: 61500, pct: 24 },
-      { name: "Grace", collected: 48000, total: 47000, pct: 102 }
-    ];
 
-    paymentData.forEach(item => {
-      const isSuccess = item.pct >= 100;
-      const itemEl = document.createElement('div');
-      itemEl.className = 'progress-item';
+  async function renderPaymentSummary() {
+    if (!summaryContainer) return;
+
+    try {
+      const paymentData = await fetchAPI('/dashboard/payment-summaries/');
+      summaryContainer.innerHTML = '';
+
+      const items = Array.isArray(paymentData) ? paymentData : (paymentData.results || []);
       
-      itemEl.innerHTML = `
-        <div class="progress-header">
-          <span>${item.name}</span>
-          <span>${item.collected.toLocaleString()}/${item.total.toLocaleString()} (${item.pct}%)</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div class="progress-bar-fill ${isSuccess ? 'success' : ''}" style="width: ${Math.min(item.pct, 100)}%;"></div>
-        </div>
-      `;
+      if (items.length === 0) {
+        summaryContainer.innerHTML = '<p style="color: #718096; font-size: 14px;">No payment summaries available.</p>';
+        return;
+      }
 
-      summaryContainer.appendChild(itemEl);
-    });
+      items.forEach(item => {
+        const pct = item.pct || 0;
+        const isSuccess = pct >= 100;
+        const itemEl = document.createElement('div');
+        itemEl.className = 'progress-item';
+
+        itemEl.innerHTML = `
+          <div class="progress-header">
+            <span>${item.name || 'N/A'}</span>
+            <span>${Number(item.collected || 0).toLocaleString()}/${Number(item.total || 0).toLocaleString()} (${pct}%)</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill ${isSuccess ? 'success' : ''}" style="width: ${Math.min(pct, 100)}%;"></div>
+          </div>
+        `;
+
+        summaryContainer.appendChild(itemEl);
+      });
+    } catch (err) {
+      console.error('Failed to load payment progress summaries:', err);
+      if (summaryContainer) {
+        summaryContainer.innerHTML = '<p style="color: #e53e3e; font-size: 14px;">Failed to load payment summaries.</p>';
+      }
+    }
   }
 
+  renderDynamicChart();
+  renderPaymentSummary();
 });

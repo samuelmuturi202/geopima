@@ -103,8 +103,8 @@
               <a href="#" class="status-link">suspended</a>
             </div>
             <div class="top-action-buttons">
-              <button class="btn btn-navy-solid"><i class="fa-solid fa-plus"></i> Unit Type</button>
-              <button class="btn btn-navy-solid"><i class="fa-solid fa-plus"></i> Unit Category</button>
+              <button class="btn btn-navy-solid" id="open-unit-type-btn"><i class="fa-solid fa-plus"></i> Unit Type</button>
+              <button class="btn btn-navy-solid" id="open-unit-cat-btn"><i class="fa-solid fa-plus"></i> Unit Category</button>
             </div>
           </div>
         </div>
@@ -127,8 +127,8 @@
                   <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i>
                 </button>
                 <div class="dropdown-menu" id="export-dropdown-menu">
-                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-excel"></i> Excel</a>
-                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+                  <a href="#" class="dropdown-item" id="export-excel-btn"><i class="fa-solid fa-file-excel"></i> Excel</a>
+                  <a href="#" class="dropdown-item" id="export-pdf-btn"><i class="fa-solid fa-file-pdf"></i> PDF</a>
                   <a href="#" class="dropdown-item"><i class="fa-solid fa-print"></i> Print</a>
                 </div>
               </div>
@@ -172,137 +172,17 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td>51</td>
-                    <td><a href="#" class="link-dashed">WP001</a></td>
-                    <td>Mary Mwihaki Plot</td>
-                    <td><a href="#" class="link-dashed">Mary Mwihaki</a></td>
-                    <td>Mary Mwihaki Plot</td>
-                    <td>Mary Mwihaki Plot</td>
-                    <td>Cluster A</td>
-                    <td>15 <sup class="occ-count">(15)</sup></td>
-                    <td>10%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>52</td>
-                    <td><a href="#" class="link-dashed">WP011</a></td>
-                    <td>Mary Wairimu Plot</td>
-                    <td><a href="#" class="link-dashed">Mary Wairimu</a></td>
-                    <td>Mary Wairimu Plot</td>
-                    <td>Mary Wairimu Plot</td>
-                    <td>Cluster A</td>
-                    <td>8 <sup class="occ-count">(8)</sup></td>
-                    <td>10%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>53</td>
-                    <td><a href="#" class="link-dashed">WP020</a></td>
-                    <td>Matasia</td>
-                    <td><a href="#" class="link-dashed">Matasia</a></td>
-                    <td>Matasia</td>
-                    <td>Matasia</td>
-                    <td>Cluster A</td>
-                    <td>43 <sup class="occ-count">(34)</sup></td>
-                    <td>10%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>54</td>
-                    <td><a href="#" class="link-dashed">WP046</a></td>
-                    <td>Monicah Kahara B</td>
-                    <td><a href="#" class="link-dashed">Monicah Kahara</a></td>
-                    <td>KAHARA B</td>
-                    <td>JUBILEE</td>
-                    <td>Cluster A</td>
-                    <td>10 <sup class="occ-count">(9)</sup></td>
-                    <td>5%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>55</td>
-                    <td><a href="#" class="link-dashed">WP028</a></td>
-                    <td>Monicah Plot</td>
-                    <td><a href="#" class="link-dashed">Monicah Kahara</a></td>
-                    <td>rent</td>
-                    <td>KAWANGWARE EQUITY</td>
-                    <td>Cluster A</td>
-                    <td>51 <sup class="occ-count">(40)</sup></td>
-                    <td>5%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>56</td>
-                    <td><a href="#" class="link-dashed">WP013</a></td>
-                    <td>Monicah Wahu</td>
-                    <td><a href="#" class="link-dashed">Monicah</a></td>
-                    <td>Monicah wahu</td>
-                    <td>Monicah Plot</td>
-                    <td>Cluster A</td>
-                    <td>6 <sup class="occ-count">(6)</sup></td>
-                    <td>10%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>57</td>
-                    <td><a href="#" class="link-dashed">WP039</a></td>
-                    <td>Muga</td>
-                    <td><a href="#" class="link-dashed">Joel Muga</a></td>
-                    <td>muga</td>
-                    <td>Mtego kabiria</td>
-                    <td>Cluster A</td>
-                    <td>6 <sup class="occ-count">(5)</sup></td>
-                    <td>10%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>58</td>
-                    <td><a href="#" class="link-dashed">WP014</a></td>
-                    <td>Nancy Kabirisa Plot</td>
-                    <td><a href="#" class="link-dashed">Nancy Kabirisa</a></td>
-                    <td>Nancy Kabirisa Plot</td>
-                    <td>Nancy Kabirisa Plot</td>
-                    <td>Cluster A</td>
-                    <td>77 <sup class="occ-count">(71)</sup></td>
-                    <td>8%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>59</td>
-                    <td><a href="#" class="link-dashed">WP015</a></td>
-                    <td>Nancy Muslim</td>
-                    <td><a href="#" class="link-dashed">Nancy</a></td>
-                    <td>Nancy muslim</td>
-                    <td>muslim</td>
-                    <td>Cluster A</td>
-                    <td>92 <sup class="occ-count">(88)</sup></td>
-                    <td>8%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
-                  <tr>
-                    <td>60</td>
-                    <td><a href="#" class="link-dashed">WP030</a></td>
-                    <td>Nelly Plot</td>
-                    <td><a href="#" class="link-dashed">Nelly Wamoro</a></td>
-                    <td>rent</td>
-                    <td>MOTEGO</td>
-                    <td>Cluster A</td>
-                    <td>9 <sup class="occ-count">(7)</sup></td>
-                    <td>10%</td>
-                    <td><span class="badge badge-success">active</span></td>
-                  </tr>
+                  <!-- Populated dynamically via JS -->
                 </tbody>
               </table>
             </div>
 
             <!-- Table Footer -->
             <div class="table-footer">
-              <div class="table-info" id="table-info">Showing 51 to 60 of 81 entries</div>
+              <div class="table-info" id="table-info">Showing entries</div>
               <ul class="pagination">
                 <li><button class="page-btn">Previous</button></li>
-                <li><button class="page-btn">1</button></li>
-                <li><button class="page-btn active">2</button></li>
+                <li><button class="page-btn active">1</button></li>
                 <li><button class="page-btn">Next</button></li>
               </ul>
             </div>
@@ -315,9 +195,136 @@
 
   </div>
 
-  <!-- Shared JS -->
+  <!-- Add Property Modal -->
+  <div id="property-modal" class="modal-overlay">
+    <div class="modal-card property-modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-house-medical"></i> Add New Property</h3>
+        <button type="button" class="close-btn close-modal">&times;</button>
+      </div>
+      
+      <form id="property-form" style="display: flex; flex-direction: column; gap: 12px; padding: 20px;">
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="property-id" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Property ID:</label>
+            <input type="text" id="property-id" name="property_id" placeholder="e.g. PROP-001" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+          <div style="flex: 2;">
+            <label for="property-name" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Property Name: <span style="color: red;">*</span></label>
+            <input type="text" id="property-name" name="name" required placeholder="Property Name" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="landlord-name" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Landlord Name:</label>
+            <input type="text" id="landlord-name" name="landlord_name" placeholder="Landlord Name" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+          <div style="flex: 1;">
+            <label for="property-cluster" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Cluster:</label>
+            <input type="text" id="property-cluster" name="cluster" placeholder="e.g. CBD" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+        </div>
+
+        <div>
+          <label for="property-location" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Location:</label>
+          <input type="text" id="property-location" name="location" placeholder="e.g. Nyeri" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+        </div>
+
+        <div>
+          <label for="property-description" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Description:</label>
+          <textarea id="property-description" name="description" rows="2" placeholder="Property details..." style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; resize: vertical;"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+          <div style="flex: 1;">
+            <label for="units-count" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Total Units:</label>
+            <input type="number" id="units-count" name="total_units" min="0" value="0" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+          <div style="flex: 1;">
+            <label for="commission-rate" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Commission Rate (%):</label>
+            <input type="number" id="commission-rate" name="commission_percentage" step="0.1" min="0" placeholder="0" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+          </div>
+          <div style="flex: 1;">
+            <label for="property-status" style="display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.85rem;">Status:</label>
+            <select id="property-status" name="status" style="width: 100%; padding: 8px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px;">
+              <option value="active" selected>Active</option>
+              <option value="suspended">Suspended</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="margin-top: 15px; display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid #eee; padding-top: 15px;">
+          <button type="button" class="btn close-modal" style="padding: 8px 15px; cursor: pointer; background:#f3f4f6; color:#374151;">Cancel</button>
+          <button type="submit" class="btn btn-navy-solid" style="padding: 8px 15px; cursor: pointer;">Save Property</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Manage & Add Unit Types Modal -->
+  <div id="unitTypeModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-shapes"></i> Manage & Add Unit Types</h3>
+        <button type="button" class="close-btn" id="closeTypeModalBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="add-custom-box">
+          <label for="newTypeName">Create New Unit Type</label>
+          <div class="input-group">
+            <input type="text" id="newTypeName" placeholder="e.g., Penthouse, Hostel, Workshop" />
+            <button type="button" id="addTypeBtn" class="btn-create"><i class="fa-solid fa-plus"></i> Add</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <label class="section-label">Available Unit Types</label>
+        <div class="unit-type-grid" id="unitTypeGrid"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="cancelTypeModalBtn">Cancel</button>
+        <button type="button" class="btn-apply" id="applyTypeModalBtn">Save Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage & Add Unit Categories Modal -->
+  <div id="unitCatModal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3><i class="fa-solid fa-layer-group"></i> Manage & Add Unit Categories</h3>
+        <button type="button" class="close-btn" id="closeCatModalBtn">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="add-custom-box">
+          <label for="newCatName">Create New Unit Category</label>
+          <div class="input-group">
+            <input type="text" id="newCatName" placeholder="e.g., Executive, Standard, Deluxe" />
+            <button type="button" id="addCatBtn" class="btn-create"><i class="fa-solid fa-plus"></i> Add</button>
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <label class="section-label">Available Categories</label>
+        <div class="unit-type-grid" id="unitCatGrid"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" id="cancelCatModalBtn">Cancel</button>
+        <button type="button" class="btn-apply" id="applyCatModalBtn">Save Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Imports -->
+  <script src="js/api.js"></script>
   <script src="script.js"></script>
-  <!-- Page Specific JS -->
   <script src="properties.js"></script>
 </body>
 </html>

@@ -1,6 +1,5 @@
-document.addEventListener('DOMContentLoaded', () => {
-
-  // Mock dataset for live template preview rendering
+// sms-templates.js
+document.addEventListener('DOMContentLoaded', async () => {
   const mockData = {
     '{tenant}': 'John Smith',
     '{balance}': '10,500.00',
@@ -16,34 +15,68 @@ document.addEventListener('DOMContentLoaded', () => {
     '{discount}': '3,000'
   };
 
-  // Bind input listeners to all template cards for live real-time preview updating
+  async function loadTemplates() {
+    try {
+      const templates = await fetchAPI('/sms-templates/');
+      templates.forEach(t => {
+        const card = document.querySelector(`.template-card[data-category="${t.category}"]`) || document.querySelector(`textarea[data-category="${t.category}"]`)?.closest('.template-card');
+        if (card) {
+          const inputArea = card.querySelector('.template-input');
+          const previewArea = card.querySelector('.template-preview');
+          if (inputArea) {
+            inputArea.value = t.template_text || '';
+            updatePreview(inputArea, previewArea);
+          }
+        }
+      });
+    } catch (error) {
+      console.error('Failed to load SMS templates:', error);
+    }
+  }
+
+  function updatePreview(inputArea, previewArea) {
+    if (!inputArea || !previewArea) return;
+    let text = inputArea.value;
+    
+    Object.keys(mockData).forEach(key => {
+      const regex = new RegExp(key.replace(/[{}]/g, '\\$&'), 'g');
+      text = text.replace(regex, mockData[key]);
+    });
+
+    previewArea.value = text;
+  }
+
   const cards = document.querySelectorAll('.template-card');
 
   cards.forEach(card => {
     const inputArea = card.querySelector('.template-input');
     const previewArea = card.querySelector('.template-preview');
     const saveBtn = card.querySelector('.btn-save');
-
-    function updatePreview() {
-      let text = inputArea.value;
-      
-      Object.keys(mockData).forEach(key => {
-        const regex = new RegExp(key.replace(/[{}]/g, '\\$&'), 'g');
-        text = text.replace(regex, mockData[key]);
-      });
-
-      previewArea.value = text;
-    }
+    const category = card.getAttribute('data-category');
 
     if (inputArea && previewArea) {
-      inputArea.addEventListener('input', updatePreview);
+      inputArea.addEventListener('input', () => updatePreview(inputArea, previewArea));
     }
 
     if (saveBtn) {
-      saveBtn.addEventListener('click', () => {
-        alert('Template changes saved successfully!');
+      saveBtn.addEventListener('click', async () => {
+        if (!category || !inputArea) return;
+        
+        try {
+          await fetchAPI('/sms-templates/bulk-save/', {
+            method: 'POST',
+            body: [{
+              category: category,
+              template_text: inputArea.value
+            }]
+          });
+          alert('Template changes saved successfully to backend!');
+        } catch (err) {
+          alert('Error saving template: ' + err.message);
+        }
       });
     }
   });
 
+  loadTemplates();
 });

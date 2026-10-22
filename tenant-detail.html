@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tenant Detail - Geopima</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Include global API script to fix fetchAPI is not defined error -->
+  <script src="js/api.js"></script>
+  <style>
+    :root {
+      --primary-color: #28a745;
+      --bg-body: #f4f6f9;
+      --card-bg: #ffffff;
+      --text-main: #333333;
+      --text-muted: #6c757d;
+      --border-color: #dee2e6;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-body);
+      color: var(--text-main);
+      padding: 20px;
+    }
+
+    /* Top Breadcrumb & Title Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .breadcrumb {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .breadcrumb a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    /* Main Dashboard Layout */
+    .tenant-detail-container {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+
+    /* Left Sidebar Profile Card */
+    .profile-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      width: 320px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .profile-header {
+      text-align: center;
+      padding-bottom: 15px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 15px;
+    }
+
+    .avatar-placeholder {
+      width: 80px;
+      height: 80px;
+      background: #e9ecef;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px auto;
+      color: #495057;
+      font-size: 2rem;
+    }
+
+    .profile-name {
+      font-size: 1.1rem;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .profile-id {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      background-color: #28a745;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .profile-details {
+      list-style: none;
+    }
+
+    .profile-details li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 1px solid #f1f1f1;
+      font-size: 0.85rem;
+    }
+
+    .profile-details li span.label {
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .profile-details li span.value, .profile-details li a {
+      font-weight: 500;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+
+    .profile-details li a {
+      color: #007bff;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .btn-edit {
+      flex: 1;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      padding: 8px;
+      border-radius: 4px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.85rem;
+    }
+
+    .btn-options {
+      background: #e9ecef;
+      border: 1px solid var(--border-color);
+      color: #495057;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    /* Right Content Panel */
+    .content-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Metric Summary Cards */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .metric-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .metric-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+    }
+
+    .metric-icon.blue { background-color: #17a2b8; }
+    .metric-icon.green { background-color: #28a745; }
+    .metric-icon.gray { background-color: #6c757d; }
+
+    .metric-info .metric-title {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    .metric-info .metric-value {
+      font-size: 1.1rem;
+      font-weight: bold;
+      margin-top: 2px;
+    }
+
+    /* Tabs Navigation */
+    .tabs-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 0 15px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      list-style: none;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .nav-tabs li {
+      padding: 12px 15px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .nav-tabs li.active {
+      color: #007bff;
+      border-bottom-color: #007bff;
+      background: #fff;
+    }
+
+    .nav-tabs li span.badge {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.7rem;
+      color: #333;
+    }
+
+    .nav-tabs li.active span.badge {
+      background: #007bff;
+      color: white;
+    }
+
+    /* Table Toolbar */
+    .table-toolbar {
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+    }
+
+    .toolbar-left, .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toolbar-left select, .toolbar-right input {
+      padding: 5px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* Data Table */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 10px 15px;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: #fafafa;
+      color: #495057;
+      font-weight: bold;
+      font-size: 0.8rem;
+    }
+
+    th i {
+      font-size: 0.7rem;
+      color: #adb5bd;
+      margin-left: 4px;
+    }
+
+    td a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    /* Table Footer & Pagination */
+    .table-footer {
+      padding: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .pagination {
+      display: flex;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .pagination button {
+      background: white;
+      border: none;
+      padding: 6px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      color: #007bff;
+    }
+
+    .pagination button.active {
+      background: #007bff;
+      color: white;
+    }
+
+    .pagination button:not(:last-child) {
+      border-right: 1px solid var(--border-color);
+    }
+
+    .pagination button:hover:not(.active) {
+      background: #f8f9fa;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Page Header -->
+  <div class="page-header">
+    <div class="page-title" id="topTenantName">Loading...</div>
+    <div class="breadcrumb">
+      <a href="index.html">Home</a> / <a href="tenants.html">Tenants</a> / <span id="breadcrumbName">Tenant Detail</span>
+    </div>
+  </div>
+
+  <!-- Main Grid Layout -->
+  <div class="tenant-detail-container">
+    
+    <!-- Left Profile Sidebar -->
+    <div class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-placeholder">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="profile-name" id="sidebarTenantName">-</div>
+        <div class="profile-id" id="sidebarTenantId">-</div>
+        <div><span class="status-badge" id="sidebarStatus">-</span></div>
+      </div>
+
+      <ul class="profile-details">
+        <li>
+          <span class="label"><i class="fa-solid fa-house"></i> Property</span>
+          <a href="#" id="tenantProperty">-</a>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-door-open"></i> Unit</span>
+          <a href="#" id="tenantUnit">-</a>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-user-tie"></i> Landlord</span>
+          <a href="#" id="tenantLandlord">-</a>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-venus-mars"></i> Gender</span>
+          <span class="value" id="tenantGender">-</span>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-id-card"></i> ID Number</span>
+          <span class="value" id="tenantIdNumber">-</span>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-globe"></i> Country</span>
+          <span class="value" id="tenantCountry">-</span>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-phone"></i> Primary Contact</span>
+          <span class="value" id="tenantContact">-</span>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-calendar-days"></i> Entry Date</span>
+          <span class="value" id="tenantEntryDate">-</span>
+        </li>
+        <li>
+          <span class="label"><i class="fa-solid fa-clock"></i> Rent Due</span>
+          <span class="value" id="tenantRentDue">-</span>
+        </li>
+      </ul>
+
+      <div class="profile-actions">
+        <button class="btn-edit"><i class="fa-solid fa-pen-to-square"></i> Edit Tenant</button>
+        <button class="btn-options">Options <i class="fa-solid fa-caret-down"></i></button>
+      </div>
+    </div>
+
+    <!-- Right Content Area -->
+    <div class="content-panel">
+      
+      <!-- Summary Metric Cards -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon blue"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+          <div class="metric-info">
+            <div class="metric-title">Total Expected</div>
+            <div class="metric-value" id="totalExpected">0.00</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon green"><i class="fa-solid fa-wallet"></i></div>
+          <div class="metric-info">
+            <div class="metric-title">Total Paid</div>
+            <div class="metric-value" id="totalPaid">0.00</div>
+          </div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-icon gray"><i class="fa-solid fa-scale-balanced"></i></div>
+          <div class="metric-info">
+            <div class="metric-title">Balance</div>
+            <div class="metric-value" id="totalBalance">0.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabbed Section & Invoices Table -->
+      <div class="tabs-card">
+        <ul class="nav-tabs">
+          <li class="active"><i class="fa-solid fa-file-lines"></i> Invoices <span class="badge" id="badgeInvoices">0</span></li>
+          <li><i class="fa-solid fa-money-bill-transfer"></i> Payments <span class="badge" id="badgePayments">0</span></li>
+          <li><i class="fa-solid fa-file-contract"></i> Agreements <span class="badge" id="badgeAgreements">0</span></li>
+          <li><i class="fa-solid fa-message"></i> Messages <span class="badge" id="badgeMessages">0</span></li>
+          <li><i class="fa-solid fa-timeline"></i> Timeline</li>
+        </ul>
+
+        <div class="table-toolbar">
+          <div class="toolbar-left">
+            Show 
+            <select id="entries-per-page">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+            </select> 
+            entries
+          </div>
+          <div class="toolbar-right">
+            Search: <input type="text" id="table-search" placeholder="">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th># <i class="fa-solid fa-sort"></i></th>
+                <th>INVOICE# <i class="fa-solid fa-sort"></i></th>
+                <th>UNIT <i class="fa-solid fa-sort"></i></th>
+                <th>EXPECTED <i class="fa-solid fa-sort"></i></th>
+                <th>PREPAID <i class="fa-solid fa-sort"></i></th>
+                <th>DISCOUNT <i class="fa-solid fa-sort"></i></th>
+                <th>PAID <i class="fa-solid fa-sort"></i></th>
+                <th>BALANCE <i class="fa-solid fa-sort"></i></th>
+              </tr>
+            </thead>
+            <tbody id="invoice-table-body">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 20px; color: var(--text-muted);">Loading invoices...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="table-footer">
+          <div id="table-info">Showing 0 to 0 of 0 entries</div>
+          <div class="pagination" id="pagination-container">
+            <button class="disabled">Previous</button>
+            <button class="active">1</button>
+            <button class="disabled">Next</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Script to load all tenant data from backend API -->
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const tenantId = urlParams.get('id');
+
+      if (!tenantId) {
+        alert('No Tenant ID provided in URL.');
+        return;
+      }
+
+      try {
+        // Fetch Tenant Profile Details
+        const tenant = await fetchAPI(`/tenants/tenants/${tenantId}/`);
+        if (tenant) {
+          const name = tenant.name || `${tenant.first_name || ''} ${tenant.last_name || ''}`;
+          
+          document.getElementById('topTenantName').textContent = name;
+          document.getElementById('breadcrumbName').textContent = name;
+          document.getElementById('sidebarTenantName').textContent = name;
+          document.getElementById('sidebarTenantId').textContent = tenant.tenantId || tenant.tenant_number || tenantId;
+          document.getElementById('sidebarStatus').textContent = (tenant.status || 'active').toUpperCase();
+          document.getElementById('tenantProperty').textContent = tenant.property_name || tenant.property || '-';
+          document.getElementById('tenantUnit').textContent = tenant.unit_name || tenant.unit || '-';
+          document.getElementById('tenantLandlord').textContent = tenant.landlord_name || tenant.landlord || '-';
+          document.getElementById('tenantGender').textContent = tenant.gender || '-';
+          document.getElementById('tenantIdNumber').textContent = tenant.id_number || '-';
+          document.getElementById('tenantCountry').textContent = tenant.country || 'Kenya';
+          document.getElementById('tenantContact').textContent = tenant.contact || tenant.phone_number || '-';
+          document.getElementById('tenantEntryDate').textContent = tenant.entry_date || tenant.entryDate || '-';
+          
+          const dueDay = tenant.dueDate || tenant.due_date || 5;
+          document.getElementById('tenantRentDue').textContent = `${dueDay} of every month`;
+
+          // Populate Financial Metrics if available
+          if (tenant.financial_summary) {
+            document.getElementById('totalExpected').textContent = Number(tenant.financial_summary.total_expected || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('totalPaid').textContent = Number(tenant.financial_summary.total_paid || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+            document.getElementById('totalBalance').textContent = Number(tenant.financial_summary.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2});
+          }
+        }
+
+        // Fetch Invoices for this Tenant
+        const invoiceResponse = await fetchAPI(`/tenants/tenants/${tenantId}/invoices/`).catch(() => null);
+        const invoices = invoiceResponse ? (invoiceResponse.results || invoiceResponse) : [];
+
+        const invoiceTableBody = document.getElementById('invoice-table-body');
+        invoiceTableBody.innerHTML = '';
+
+        document.getElementById('badgeInvoices').textContent = invoices.length;
+
+        if (!invoices || invoices.length === 0) {
+          invoiceTableBody.innerHTML = `<tr><td colspan="8" style="text-align: center; padding: 20px; color: var(--text-muted);">No invoices found for this tenant.</td></tr>`;
+          document.getElementById('table-info').textContent = 'Showing 0 to 0 of 0 entries';
+        } else {
+          invoices.forEach((inv, index) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${index + 1}</td>
+              <td><a href="#">${inv.invoice_number || inv.invoiceNumber || '-'}</a><br><small style="color:var(--text-muted)">${(inv.period || '').toUpperCase()}</small></td>
+              <td>${inv.unit_name || inv.unit || '-'}</td>
+              <td>${Number(inv.expected || inv.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+              <td>${Number(inv.prepaid || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+              <td>${Number(inv.discount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+              <td>${Number(inv.paid || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+              <td>${Number(inv.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
+            `;
+            invoiceTableBody.appendChild(tr);
+          });
+          document.getElementById('table-info').textContent = `Showing 1 to ${invoices.length} of ${invoices.length} entries`;
+        }
+
+        // Optional: Fetch counts for other tabs if endpoints exist
+        const paymentsRes = await fetchAPI(`/tenants/tenants/${tenantId}/payments/`).catch(() => null);
+        if (paymentsRes) {
+          const payments = paymentsRes.results || paymentsRes;
+          document.getElementById('badgePayments').textContent = Array.isArray(payments) ? payments.length : (payments.count || 0);
+        }
+
+        const agreementsRes = await fetchAPI(`/tenants/tenants/${tenantId}/agreements/`).catch(() => null);
+        if (agreementsRes) {
+          const agreements = agreementsRes.results || agreementsRes;
+          document.getElementById('badgeAgreements').textContent = Array.isArray(agreements) ? agreements.length : (agreements.count || 0);
+        }
+
+      } catch (err) {
+        console.error('Error fetching tenant details from backend:', err);
+      }
+    });
+  </script>
+</body>
+</html>

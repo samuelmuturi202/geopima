@@ -1,4 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+
+  async function fetchAPI(endpoint, options = {}) {
+    const token = localStorage.getItem('access_token');
+    const headers = {
+      'Content-Type': 'application/json',
+      ...(token && { 'Authorization': `Bearer ${token}` }),
+      ...options.headers
+    };
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
+    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+    return response.json();
+  }
 
   // 1. Sidebar Toggle & Finance Menu
   const toggleBtn = document.getElementById('toggle-sidebar');
@@ -42,20 +55,19 @@ document.addEventListener('DOMContentLoaded', () => {
   if (exportExcelBtn) {
     exportExcelBtn.addEventListener('click', () => {
       exportDropdown.classList.remove('active');
-      alert('Downloading Discounts report as Excel (.xlsx)...');
+      window.open(`${API_BASE_URL}/billing/discounts/export/?format=excel`, '_blank');
     });
   }
 
   if (exportPdfBtn) {
     exportPdfBtn.addEventListener('click', () => {
       exportDropdown.classList.remove('active');
-      alert('Downloading Discounts report as PDF (.pdf)...');
+      window.open(`${API_BASE_URL}/billing/discounts/export/?format=pdf`, '_blank');
     });
   }
 
-  // 3. Table Data Rendering Logic
-  const discountData = []; // Default empty set matching screenshot
-
+  // 3. Backend Data Rendering Logic
+  let discountData = [];
   const tableBody = document.getElementById('discounts-table-body');
   const searchInput = document.getElementById('search-input');
   const paginationInfo = document.getElementById('pagination-info');
@@ -64,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="11" class="empty-msg">No data available in table</td></tr>`;
       if (paginationInfo) paginationInfo.textContent = 'Showing 0 to 0 of 0 entries';
       return;
@@ -74,16 +86,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${index + 1}</td>
-        <td>${item.invoice}</td>
-        <td>${item.landlordName}</td>
-        <td>${item.propertyName}</td>
-        <td>${item.unitName}</td>
-        <td>${item.tenantId}</td>
-        <td>${item.tenantName}</td>
-        <td>${item.discountName}</td>
-        <td>${item.description}</td>
-        <td>KES ${item.discount.toLocaleString()}</td>
-        <td>${item.details}</td>
+        <td>${item.invoice || item.invoice_number || ''}</td>
+        <td>${item.landlordName || item.landlord_name || ''}</td>
+        <td>${item.propertyName || item.property_name || ''}</td>
+        <td>${item.unitName || item.unit_name || ''}</td>
+        <td>${item.tenantId || item.tenant_number || ''}</td>
+        <td>${item.tenantName || item.tenant_name || ''}</td>
+        <td>${item.discountName || item.name || ''}</td>
+        <td>${item.description || ''}</td>
+        <td>KES ${Number(item.discount || item.amount || 0).toLocaleString()}</td>
+        <td>${item.details || ''}</td>
       `;
       tableBody.appendChild(row);
     });
@@ -93,19 +105,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  async function loadDiscounts(searchQuery = '') {
+    try {
+      const queryParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
+      const response = await fetchAPI(`/billing/discounts/${queryParam}`);
+      discountData = response.results || response;
+      renderTable(discountData);
+    } catch (err) {
+      console.error('Failed to load discount records:', err);
+      if (tableBody) {
+        tableBody.innerHTML = `<tr><td colspan="11" class="empty-msg" style="color:red;">Error fetching discount records</td></tr>`;
+      }
+    }
+  }
+
   if (searchInput) {
+    let debounceTimer;
     searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      const filtered = discountData.filter(item => 
-        item.tenantName.toLowerCase().includes(query) ||
-        item.propertyName.toLowerCase().includes(query) ||
-        item.discountName.toLowerCase().includes(query)
-      );
-      renderTable(filtered);
+      clearTimeout(debounceTimer);
+      const query = e.target.value.trim();
+      debounceTimer = setTimeout(() => loadDiscounts(query), 300);
     });
   }
 
-  // Render initial table state
-  renderTable(discountData);
-
+  loadDiscounts();
 });

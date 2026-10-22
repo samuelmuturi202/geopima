@@ -3,160 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geopima - User Roles</title>
+  <title>Roles - Geopima Agencies</title>
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Core Dashboard Stylesheet -->
+  <!-- Core Dashboard Stylesheets -->
   <link rel="stylesheet" href="../styles.css">
-  <!-- Page Specific Stylesheet -->
   <link rel="stylesheet" href="user-roles.css">
 </head>
-<body class="bg-light">
+<body>
 
-  <!-- Top Navigation Header -->
-  <header class="top-header">
-    <div class="header-left">
-      <button class="menu-toggle-btn" id="toggle-sidebar" aria-label="Toggle Sidebar">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-      <div class="wiserenter-logo">
-        <span class="logo-w"><i class="fa-solid fa-building-user geopima-icon"></i></span>
-        <div class="logo-text">
-          <span class="brand-name">geopima</span>
-          <span class="brand-sub">property management system</span>
-        </div>
-      </div>
+  <!-- Dashboard Sidebar Navigation -->
+  <aside id="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-building-user"></i>
+      <span>Geopima Agencies</span>
     </div>
-    
-    <div class="header-right">
-      <div class="user-dropdown">
-        <span class="user-name">Peter Mwaniki</span>
+    <ul class="nav-menu">
+      <li><a href="../index.html"><i class="fa-solid fa-gauge-high"></i> Dashboard <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../landlords.html"><i class="fa-solid fa-user-group"></i> Landlords <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../tenants.html"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li><a href="../communication.html"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+      <li class="active"><a href="../configuration.html"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+    </ul>
+  </aside>
+
+  <!-- Main Content Wrapper -->
+  <div class="main-wrapper">
+    <!-- Top Agency Header -->
+    <header>
+      <div class="header-left">
+        <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
+        <span class="header-title">Geopima Property Management</span>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-user-circle user-icon"></i>
+        <span>Samuel Muturi</span>
         <i class="fa-solid fa-caret-down"></i>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <!-- Main Content Container -->
-  <main class="page-container">
-    <div class="content-wrapper">
+    <!-- Page Container -->
+    <div class="container">
       
-      <!-- Top Title Bar with Breadcrumb -->
-      <div class="roles-header-row">
-        <h1 class="roles-title">ROLES</h1>
-        <div class="breadcrumb">
-          <a href="../index.html">Home</a> / <span>Authentication</span>
+      <!-- Top Title & Breadcrumb -->
+      <div class="top-page-header">
+        <h2>ROLES</h2>
+        <div class="breadcrumb-trail">
+          <a href="../configuration.html">Home</a> / Authentication
         </div>
       </div>
 
-      <!-- Main Roles Card Container -->
+      <!-- Main Content Card -->
       <div class="roles-card">
-        
-        <!-- Card Header Actions -->
-        <div class="card-header">
-          <div class="card-title">
-            <i class="fa-solid fa-user-gear"></i>
-            <span>User Roles</span>
+        <!-- Action Bar Header -->
+        <div class="roles-card-header">
+          <div class="roles-card-title">
+            <i class="fa-solid fa-user-gear"></i> User Roles
           </div>
-          <div class="header-buttons">
-            <button class="btn-permissions">
+          <div class="action-group">
+            <button class="btn-top-permissions" id="permissionsBtn">
               <i class="fa-solid fa-key"></i> Permissions
             </button>
-            <button class="btn-new-role">
+            <button class="btn-top-new-role" id="newRoleBtn">
               <i class="fa-solid fa-gear"></i> New Role
             </button>
           </div>
         </div>
 
-        <!-- Table Filtering Controls -->
-        <div class="table-controls">
-          <div class="entries-control">
+        <!-- Controls: Entries & Search -->
+        <div class="table-controls-row">
+          <div class="entries-selector">
             Show 
-            <select id="entriesSelect" class="entries-dropdown">
+            <select id="entriesDropdown">
               <option value="10">10</option>
               <option value="25">25</option>
-              <option value="50">50</option>
-              <option value="100">100</option>
-            </select>
-             entries
+            </select> 
+            entries
           </div>
-          <div class="search-control">
-            <label for="rolesSearch">Search:</label>
-            <input type="text" id="rolesSearch" class="search-input">
+          <div class="search-box-wrapper">
+            Search: <input type="text" id="rolesSearch" placeholder="">
           </div>
         </div>
 
-        <!-- User Roles Table -->
-        <div class="table-responsive">
-          <table class="roles-table">
-            <thead>
-              <tr>
-                <th class="col-num"># <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-name">NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-center">PERMISSION <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-center">EDIT <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-center">DELETE <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="col-num">1</td>
-                <td class="role-name-text">accountant</td>
-                <td class="col-center"><button class="btn-action btn-set-permissions">set permissions</button></td>
-                <td class="col-center"><button class="btn-action btn-edit">edit</button></td>
-                <td class="col-center"><button class="btn-action btn-delete">delete</button></td>
-              </tr>
-              <tr>
-                <td class="col-num">2</td>
-                <td class="role-name-text">admin</td>
-                <td class="col-center"><button class="btn-action btn-set-permissions">set permissions</button></td>
-                <td class="col-center"><button class="btn-action btn-edit">edit</button></td>
-                <td class="col-center"><button class="btn-action btn-delete">delete</button></td>
-              </tr>
-              <tr>
-                <td class="col-num">3</td>
-                <td class="role-name-text">field agent</td>
-                <td class="col-center"><button class="btn-action btn-set-permissions">set permissions</button></td>
-                <td class="col-center"><button class="btn-action btn-edit">edit</button></td>
-                <td class="col-center"><button class="btn-action btn-delete">delete</button></td>
-              </tr>
-              <tr>
-                <td class="col-num">4</td>
-                <td class="role-name-text">secretary</td>
-                <td class="col-center"><button class="btn-action btn-set-permissions">set permissions</button></td>
-                <td class="col-center"><button class="btn-action btn-edit">edit</button></td>
-                <td class="col-center"><button class="btn-action btn-delete">delete</button></td>
-              </tr>
-              <tr>
-                <td class="col-num">5</td>
-                <td class="role-name-text">super admin</td>
-                <td class="col-center"><button class="btn-action btn-set-permissions">set permissions</button></td>
-                <td class="col-center"><button class="btn-action btn-edit">edit</button></td>
-                <td class="col-center"><button class="btn-action btn-delete">delete</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <!-- Table Container -->
+        <table class="roles-table">
+          <thead>
+            <tr>
+              <th class="col-num-header"># <i class="fa-solid fa-sort"></i></th>
+              <th>NAME <i class="fa-solid fa-sort"></i></th>
+              <th class="col-center">PERMISSION <i class="fa-solid fa-sort"></i></th>
+              <th class="col-center">EDIT <i class="fa-solid fa-sort"></i></th>
+              <th class="col-center">DELETE <i class="fa-solid fa-sort"></i></th>
+            </tr>
+          </thead>
+          <tbody id="rolesTableBody">
+            <!-- Populated dynamically via user-roles.js -->
+          </tbody>
+        </table>
 
-        <!-- Table Footer / Pagination -->
-        <div class="table-footer">
-          <div class="entries-info">
-            Showing 1 to 5 of 5 entries
-          </div>
-          <div class="pagination-controls">
-            <button class="page-btn disabled" disabled>Previous</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn disabled" disabled>Next</button>
+        <!-- Footer & Pagination -->
+        <div class="table-footer-row">
+          <div id="tableInfoSummary">Showing 0 to 0 of 0 entries</div>
+          <div class="pagination-group">
+            <button class="page-link-btn" disabled>Previous</button>
+            <button class="page-link-btn active">1</button>
+            <button class="page-link-btn" disabled>Next</button>
           </div>
         </div>
-
       </div>
 
     </div>
-  </main>
+  </div>
 
-  <!-- JavaScript Scripts -->
+  <!-- Shared Scripts -->
+  <script src="../js/api.js"></script>
   <script src="../script.js"></script>
   <script src="user-roles.js"></script>
 </body>

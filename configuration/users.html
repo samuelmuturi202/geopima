@@ -159,7 +159,87 @@
     </div>
   </main>
 
+  <!-- Create New User Modal Component -->
+  <div class="modal-overlay" id="createUserModal" style="display: none;">
+    <div class="modal-container">
+      <div class="modal-header">
+        <h3 class="modal-title">Create New User</h3>
+        <button class="modal-close-btn" id="closeUserModal">&times;</button>
+      </div>
+
+      <form id="createUserForm">
+        <div class="modal-body">
+          
+          <div class="form-group">
+            <input type="text" id="fullName" class="form-control" placeholder="Full Name" required>
+            <span class="field-error">Full Name <span class="required-text">required</span></span>
+          </div>
+
+          <div class="form-group">
+            <input type="text" id="username" class="form-control" placeholder="mwaniki" required>
+            <span class="field-error">Username <span class="required-text">required</span></span>
+          </div>
+
+          <div class="form-group">
+            <input type="email" id="emailAddress" class="form-control" placeholder="Email Address" required>
+            <span class="field-error">E-Mail Address <span class="required-text">required</span></span>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <input type="text" id="phone" class="form-control" placeholder="0712345678" required>
+              <span class="field-error">Phone <span class="required-text">required</span></span>
+            </div>
+            <div class="form-group">
+              <select id="position" class="form-control" required>
+                <option value="" disabled selected>select position</option>
+                <option value="Manager">Manager</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Agent">Agent</option>
+              </select>
+              <span class="field-error">Position <span class="required-text">required</span></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <select id="userRoles" class="form-control" required>
+              <option value="" disabled selected>Select role(s)</option>
+              <option value="Super Admin">Super Admin</option>
+              <option value="Admin">Admin</option>
+              <option value="Field Agent">Field Agent</option>
+              <option value="Secretary">Secretary</option>
+              <option value="Accountant">Accountant</option>
+            </select>
+            <span class="field-error">User role(s) <span class="required-text">required</span></span>
+          </div>
+
+          <div class="form-row-2">
+            <div class="form-group">
+              <input type="password" id="password" class="form-control" placeholder="••••••••••" required>
+              <span class="field-error">Password <span class="required-text">required</span></span>
+            </div>
+            <div class="form-group">
+              <input type="password" id="confirmPassword" class="form-control" placeholder="Re-enter password" required>
+              <span class="field-error">Confirm Password <span class="required-text">required</span></span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" id="cancelUserModal">
+            <i class="fa-solid fa-circle-xmark"></i> Cancel
+          </button>
+          <button type="submit" class="btn-save-user">
+            <i class="fa-solid fa-user-plus"></i> Save User
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- JavaScript Scripts -->
+  <script src="../js/api.js"></script>
   <script src="../script.js"></script>
   <script src="users.js"></script>
 </body>
