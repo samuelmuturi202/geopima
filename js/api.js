@@ -1,9 +1,9 @@
 // js/api.js
 
 /**
- * Base configuration for API integration
+ * Base configuration for API integration (pointing to live Render backend)
  */
-const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
 /**
  * Safely retrieves and parses the user object from localStorage.
@@ -56,11 +56,6 @@ async function fetchAPI(endpoint, options = {}) {
             if (!token) {
                 console.error("No access token found in localStorage. Please log in first.");
             }
-            // Optional: Uncomment below to automatically clear session and kick user to login on 401
-            // else {
-            //     localStorage.clear();
-            //     window.location.href = 'login.html';
-            // }
         }
 
         if (!response.ok) {
@@ -116,7 +111,6 @@ function renderHeaderProfile() {
     // 1. Look for existing template user profile nodes in top headers
     const headerRightElements = document.querySelectorAll('.header-right, .user-dropdown');
     headerRightElements.forEach(container => {
-        // Check if there's a text span or update text content safely
         const nameSpan = container.querySelector('.user-name, span:not([class])');
         if (nameSpan && !nameSpan.id && !nameSpan.querySelector('button')) {
             nameSpan.textContent = displayName;
@@ -126,10 +120,9 @@ function renderHeaderProfile() {
     // 2. Fallback: If no injected header display container exists or it needs the dropdown mechanism
     let profileElem = document.getElementById('top-right-user');
     if (!profileElem) {
-        // Check if a header-right container already handles it cleanly
         const existingHeaderRight = document.querySelector('.top-header .header-right');
         if (existingHeaderRight && existingHeaderRight.textContent.trim() !== '') {
-            return; // Already populated by static layout HTML
+            return; 
         }
 
         profileElem = document.createElement('div');
@@ -176,7 +169,6 @@ function renderHeaderProfile() {
 
 document.addEventListener('DOMContentLoaded', () => {
     const currentPath = window.location.pathname;
-    // Prevent profile checks from redirecting loops on auth-related pages
     if (!currentPath.endsWith('login.html') && !currentPath.endsWith('register.html') && currentPath !== '/') {
         renderHeaderProfile();
     }

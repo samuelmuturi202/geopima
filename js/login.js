@@ -1,3 +1,5 @@
+// js/login.js
+
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -5,7 +7,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     const password = document.getElementById('password').value;
 
     try {
-        const response = await fetch('http://127.0.0.1:8000/api/v1/token/', {
+        const response = await fetch('https://geopima.onrender.com/api/v1/token/', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -39,6 +41,6 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         }
     } catch (err) {
         console.error('Login error:', err);
-        alert('Could not connect to the server. Please ensure the backend is running.');
+        alert('Could not connect to the server. Please ensure your backend is accessible.');
     }
 });
