@@ -5,6 +5,15 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
     const username = document.getElementById('username').value.trim();
     const password = document.getElementById('password').value;
+    
+    // Find the submit button to show loading status (handles Render free tier spin-down delay)
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalButtonText = submitBtn ? submitBtn.textContent : 'Sign In';
+
+    if (submitBtn) {
+        submitBtn.textContent = 'Connecting (Waking up server)...';
+        submitBtn.disabled = true;
+    }
 
     try {
         const response = await fetch('https://geopima.onrender.com/api/v1/token/', {
@@ -41,6 +50,12 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         }
     } catch (err) {
         console.error('Login error:', err);
-        alert('Could not connect to the server. Please ensure your backend is accessible.');
+        alert('Could not connect to the server. If Render was asleep, please wait 30 seconds and try clicking Sign In again.');
+    } finally {
+        // Restore button state
+        if (submitBtn) {
+            submitBtn.textContent = originalButtonText;
+            submitBtn.disabled = false;
+        }
     }
 });
