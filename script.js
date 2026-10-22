@@ -1,5 +1,7 @@
+// js/script.js
+
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+  const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
   /**
    * Helper to retrieve access token across common localStorage key variations
