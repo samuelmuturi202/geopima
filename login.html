@@ -71,6 +71,10 @@
         .btn-submit:hover {
             background-color: #2b6cb0;
         }
+        .btn-submit:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -91,7 +95,7 @@
                 <input type="password" id="password" name="password" required autocomplete="current-password">
             </div>
 
-            <button type="submit" class="btn-submit">Sign In</button>
+            <button type="submit" class="btn-submit" id="submit-btn">Sign In</button>
         </form>
     </div>
 
@@ -99,15 +103,20 @@
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const usernameInput = document.getElementById('username').value;
+            const usernameInput = document.getElementById('username').value.trim();
             const passwordInput = document.getElementById('password').value;
             const errorBox = document.getElementById('error-box');
+            const submitBtn = document.getElementById('submit-btn');
 
             errorBox.style.display = 'none';
             errorBox.textContent = '';
 
+            // Handle Render free tier spin-down delay UI feedback
+            submitBtn.textContent = 'Connecting (Waking server)...';
+            submitBtn.disabled = true;
+
             try {
-                const response = await fetch('http://127.0.0.1:8000/api/v1/token/', {
+                const response = await fetch('https://geopima.onrender.com/api/v1/token/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: usernameInput, password: passwordInput })
@@ -118,8 +127,16 @@
                 if (response.ok) {
                     // Save JWT credentials and user object into localStorage
                     localStorage.setItem('access_token', data.access);
-                    localStorage.setItem('refresh_token', data.refresh);
-                    localStorage.setItem('user_data', JSON.stringify(data.user));
+                    if (data.refresh) {
+                        localStorage.setItem('refresh_token', data.refresh);
+                    }
+                    
+                    const userObj = data.user || {
+                        username: usernameInput,
+                        full_name: usernameInput,
+                        is_superuser: true
+                    };
+                    localStorage.setItem('user_data', JSON.stringify(userObj));
 
                     // Redirect to dashboard page
                     window.location.href = 'index.html';
@@ -129,8 +146,11 @@
                 }
             } catch (err) {
                 console.error('Login error:', err);
-                errorBox.textContent = 'Backend server unreachable. Make sure Django is running.';
+                errorBox.textContent = 'Backend server unreachable. If Render was asleep, please wait 30 seconds and try again.';
                 errorBox.style.display = 'block';
+            } finally {
+                submitBtn.textContent = 'Sign In';
+                submitBtn.disabled = false;
             }
         });
     </script>
