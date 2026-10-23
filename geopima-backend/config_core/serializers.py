@@ -2,7 +2,17 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Group
-from .models import AgencyProfile, UserRole, UserProfile, PaymentBank, SMSTemplate, AgreementTemplate
+from .models import (
+    AgencyProfile, 
+    MessengerConfig, 
+    MailerConfig, 
+    MpesaConfig, 
+    UserRole, 
+    UserProfile, 
+    PaymentBank, 
+    SMSTemplate, 
+    AgreementTemplate
+)
 
 User = get_user_model()
 
@@ -15,7 +25,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         role_permissions = []
         role_name = "Field Agent"
         
-        # Safely fetch user profile handling potential duplicate rows gracefully
         profile_obj = UserProfile.objects.filter(user=user).first()
         if profile_obj and profile_obj.role:
             role_name = profile_obj.role.name
@@ -116,7 +125,6 @@ class UserAccountSerializer(serializers.ModelSerializer):
             last_name=last_name
         )
 
-        # Safely create or update profile without triggering multiple objects exception
         profile, _ = UserProfile.objects.get_or_create(user=user)
         if role:
             profile.role = role
@@ -134,6 +142,8 @@ class UserAccountSerializer(serializers.ModelSerializer):
 
 
 class AgencyProfileSerializer(serializers.ModelSerializer):
+    contact2 = serializers.CharField(source='contact_2', required=False, allow_blank=True, allow_null=True)
+
     class Meta:
         model = AgencyProfile
         fields = [
@@ -145,6 +155,24 @@ class AgencyProfileSerializer(serializers.ModelSerializer):
             'company_name': {'required': False, 'allow_blank': True},
             'email': {'required': False, 'allow_blank': True}
         }
+
+
+class MessengerConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessengerConfig
+        fields = '__all__'
+
+
+class MailerConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MailerConfig
+        fields = '__all__'
+
+
+class MpesaConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MpesaConfig
+        fields = '__all__'
 
 
 class UserRoleSerializer(serializers.ModelSerializer):

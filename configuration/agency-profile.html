@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geopima Agencies - Agency Profile</title>
+  <title>Geopima Agencies - Configurations</title>
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -42,113 +42,240 @@
   <main class="page-container">
     <div class="content-wrapper">
       
-      <!-- Sub Navigation Links Top Right -->
+      <!-- Sub Navigation Tabs -->
       <nav class="sub-nav-tabs">
-        <a href="agency-profile.html" class="sub-nav-link active">agency_profile</a>
-        <a href="messenger-configs.html" class="sub-nav-link">messenger_configs</a>
-        <a href="mailer-configs.html" class="sub-nav-link">mailer_configs</a>
-        <a href="mpesa-configs.html" class="sub-nav-link">mpesa_configs</a>
+        <button type="button" class="sub-nav-link active" data-tab="agencyTab">agency_profile</button>
+        <button type="button" class="sub-nav-link" data-tab="messengerTab">messenger_configs</button>
+        <button type="button" class="sub-nav-link" data-tab="mailerTab">mailer_configs</button>
+        <button type="button" class="sub-nav-link" data-tab="mpesaTab">mpesa_configs</button>
       </nav>
 
-      <!-- Agency Profile White Card Container -->
-      <div class="profile-card">
-        <form id="agencyProfileForm" class="profile-form">
-          
-          <!-- Left Column: Agency Branding / Logo -->
-          <div class="logo-col">
-            <div class="logo-preview-box">
-              <div class="roof-illustration">
-                <i class="fa-solid fa-house-chimney"></i>
-                <i class="fa-solid fa-house-chimney active-roof"></i>
-                <i class="fa-solid fa-house-chimney"></i>
-              </div>
-              <h1 class="agency-title">PEMWA AGENCY</h1>
-              <p class="agency-motto">Your Comfort Our Concern</p>
-            </div>
-          </div>
-
-          <!-- Right Column: Form Inputs Grid -->
-          <div class="form-col">
-            
-            <div class="form-row row-3-cols">
-              <div class="field-container">
-                <input type="text" id="companyName" class="custom-input" value="Pemwa Agency">
-                <label for="companyName" class="sub-label">Company Name</label>
-              </div>
-
-              <div class="field-container">
-                <input type="text" id="shortName" class="custom-input" value="">
-                <label for="shortName" class="sub-label">Short Name</label>
-              </div>
-
-              <div class="field-container flex-grow">
-                <input type="text" id="mottoSlogan" class="custom-input" value='"Your Comfort Our Concern"'>
-                <label for="mottoSlogan" class="sub-label">Motto/Slogan</label>
-              </div>
-            </div>
-
-            <div class="form-row row-3-cols">
-              <div class="field-container">
-                <input type="text" id="contact" class="custom-input" value="0725768616">
-                <label for="contact" class="sub-label">Contact</label>
-              </div>
-
-              <div class="field-container">
-                <input type="text" id="contact2" class="custom-input" value="0101768816">
-                <label for="contact2" class="sub-label">Contact 2</label>
-              </div>
-
-              <div class="field-container flex-grow">
-                <input type="email" id="email" class="custom-input" value="pemwaagency@yahoo.com">
-                <label for="email" class="sub-label">Email</label>
-              </div>
-            </div>
-
-            <div class="form-row row-2-cols">
-              <div class="field-container flex-2">
-                <input type="text" id="physicalAddress" class="custom-input" value="Jagam Stalls, Naivasha Rd, Opposite Faulu Bank">
-                <label for="physicalAddress" class="sub-label">Physical Address</label>
-              </div>
-
-              <div class="field-container flex-1">
-                <input type="text" id="postalAddress" class="custom-input" value="1254-00200, GPO Nairobi">
-                <label for="postalAddress" class="sub-label">Postal Address</label>
-              </div>
-            </div>
-
-            <div class="form-row row-2-cols">
-              <div class="field-container flex-1">
-                <input type="text" id="website" class="custom-input" value="www.pemwaagency.co.ke">
-                <label for="website" class="sub-label">Website</label>
-              </div>
-
-              <div class="field-container flex-1">
-                <select id="endMonthTransition" class="custom-input select-input">
-                  <option value="auto" selected>Automatically transition to new month</option>
-                  <option value="manual">Manual transition</option>
-                </select>
-                <label for="endMonthTransition" class="sub-label">End Month Transition Type</label>
-              </div>
-            </div>
-
-            <div class="form-row full-width">
-              <div class="field-container full-width-field">
-                <div class="file-input-wrapper">
-                  <input type="file" id="companyLogo" class="file-input">
+      <!-- TAB 1: AGENCY PROFILE -->
+      <div id="agencyTab" class="config-tab-content">
+        <div class="profile-card">
+          <form id="agencyProfileForm" class="profile-form">
+            <div class="logo-col">
+              <div class="logo-preview-box">
+                <div class="roof-illustration">
+                  <i class="fa-solid fa-house-chimney"></i>
+                  <i class="fa-solid fa-house-chimney active-roof"></i>
+                  <i class="fa-solid fa-house-chimney"></i>
                 </div>
-                <label for="companyLogo" class="sub-label">Company Logo</label>
+                <h1 class="agency-title">PEMWA AGENCY</h1>
+                <p class="agency-motto">Your Comfort Our Concern</p>
               </div>
             </div>
 
-            <div class="form-actions-row">
+            <div class="form-col">
+              <div class="form-row row-3-cols">
+                <div class="field-container">
+                  <input type="text" id="companyName" class="custom-input" value="Pemwa Agency">
+                  <label for="companyName" class="sub-label">Company Name</label>
+                </div>
+                <div class="field-container">
+                  <input type="text" id="shortName" class="custom-input">
+                  <label for="shortName" class="sub-label">Short Name</label>
+                </div>
+                <div class="field-container flex-grow">
+                  <input type="text" id="mottoSlogan" class="custom-input">
+                  <label for="mottoSlogan" class="sub-label">Motto/Slogan</label>
+                </div>
+              </div>
+
+              <div class="form-row row-3-cols">
+                <div class="field-container">
+                  <input type="text" id="contact" class="custom-input">
+                  <label for="contact" class="sub-label">Contact</label>
+                </div>
+                <div class="field-container">
+                  <input type="text" id="contact2" class="custom-input">
+                  <label for="contact2" class="sub-label">Contact 2</label>
+                </div>
+                <div class="field-container flex-grow">
+                  <input type="email" id="email" class="custom-input">
+                  <label for="email" class="sub-label">Email</label>
+                </div>
+              </div>
+
+              <div class="form-row row-2-cols">
+                <div class="field-container flex-2">
+                  <input type="text" id="physicalAddress" class="custom-input">
+                  <label for="physicalAddress" class="sub-label">Physical Address</label>
+                </div>
+                <div class="field-container flex-1">
+                  <input type="text" id="postalAddress" class="custom-input">
+                  <label for="postalAddress" class="sub-label">Postal Address</label>
+                </div>
+              </div>
+
+              <div class="form-row row-2-cols">
+                <div class="field-container flex-1">
+                  <input type="text" id="website" class="custom-input">
+                  <label for="website" class="sub-label">Website</label>
+                </div>
+                <div class="field-container flex-1">
+                  <select id="endMonthTransition" class="custom-input select-input">
+                    <option value="auto">Automatically transition to new month</option>
+                    <option value="manual">Manual transition</option>
+                  </select>
+                  <label for="endMonthTransition" class="sub-label">End Month Transition Type</label>
+                </div>
+              </div>
+
+              <div class="form-actions-row">
+                <button type="submit" class="btn-save-changes">
+                  <i class="fa-solid fa-floppy-disk"></i> Save Changes
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- TAB 2: MESSENGER CONFIGS -->
+      <div id="messengerTab" class="config-tab-content" style="display: none;">
+        <div class="profile-card" style="padding: 30px 40px;">
+          <h2 style="font-size: 1.15rem; font-weight: 700; color: #475569; margin-bottom: 24px;">SMS Configurations</h2>
+          <form id="messengerForm" class="form-col" style="gap: 20px;">
+            <div class="field-container">
+              <input type="text" id="serviceProvider" class="custom-input" value="WISERENTER" required>
+              <label for="serviceProvider" class="sub-label">Service Provider <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="field-container">
+              <input type="text" id="senderId" class="custom-input" required>
+              <label for="senderId" class="sub-label">Sender ID <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="field-container">
+              <input type="password" id="partnerId" class="custom-input" placeholder="••••" required>
+              <label for="partnerId" class="sub-label">Partner ID <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="field-container">
+              <input type="password" id="partnerKey" class="custom-input" placeholder="••••••••••••••••••••••••••••" required>
+              <label for="partnerKey" class="sub-label">Partner Key <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="field-container">
+              <input type="text" id="agencyPhone" class="custom-input">
+              <label for="agencyPhone" class="sub-label">Send payment notification to agency</label>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+              <input type="checkbox" id="notifyTenant" style="width: 16px; height: 16px; cursor: pointer;" checked>
+              <label for="notifyTenant" style="font-size: 0.88rem; color: #374151; cursor: pointer;">Send Payment Notification to tenant</label>
+            </div>
+            <div class="form-actions-row" style="margin-top: 15px;">
               <button type="submit" class="btn-save-changes">
                 <i class="fa-solid fa-floppy-disk"></i> Save Changes
               </button>
             </div>
+          </form>
+        </div>
+      </div>
 
-          </div>
+      <!-- TAB 3: MAILER CONFIGS -->
+      <div id="mailerTab" class="config-tab-content" style="display: none;">
+        <div class="profile-card" style="padding: 30px 40px;">
+          <h2 style="font-size: 1.15rem; font-weight: 700; color: #475569; margin-bottom: 24px;">Email (Webmail) Configurations</h2>
+          <form id="mailerForm" class="form-col" style="gap: 20px;">
+            <div class="field-container">
+              <input type="text" id="smtpHost" class="custom-input" placeholder="mail.domain.com" required>
+              <label for="smtpHost" class="sub-label">SMTP Host e.g. mail.domain.com <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="form-row row-2-cols">
+              <div class="field-container">
+                <input type="text" id="smtpPort" class="custom-input" placeholder="465, 587" required>
+                <label for="smtpPort" class="sub-label">SMTP Port e.g. 465, 587 <span style="color: #dc2626;">required</span></label>
+              </div>
+              <div class="field-container">
+                <select id="smtpEncryption" class="custom-input select-input" required>
+                  <option value="tls">tls</option>
+                  <option value="ssl">ssl</option>
+                  <option value="none">none</option>
+                </select>
+                <label for="smtpEncryption" class="sub-label">SMTP Encryption <span style="color: #dc2626;">required</span></label>
+              </div>
+            </div>
+            <div class="field-container">
+              <input type="text" id="smtpUsername" class="custom-input" placeholder="api@domain.com" required>
+              <label for="smtpUsername" class="sub-label">SMTP Username e.g. api@domain.com <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="field-container">
+              <input type="password" id="smtpPassword" class="custom-input" placeholder="••••••••" required>
+              <label for="smtpPassword" class="sub-label">SMTP Password <span style="color: #dc2626;">required</span></label>
+            </div>
+            <div class="form-row row-2-cols">
+              <div class="field-container">
+                <input type="text" id="billingDisplayName" class="custom-input" required>
+                <label for="billingDisplayName" class="sub-label">Billing Email Display Name <span style="color: #dc2626;">required</span></label>
+              </div>
+              <div class="field-container">
+                <input type="email" id="billingEmail" class="custom-input" placeholder="billing@domain.com" required>
+                <label for="billingEmail" class="sub-label">Billing Email e.g. billing@domain.com <span style="color: #dc2626;">required</span></label>
+              </div>
+            </div>
+            <div class="form-row row-2-cols">
+              <div class="field-container">
+                <input type="text" id="infoDisplayName" class="custom-input" required>
+                <label for="infoDisplayName" class="sub-label">Info Email Display Name <span style="color: #dc2626;">required</span></label>
+              </div>
+              <div class="field-container">
+                <input type="email" id="infoEmail" class="custom-input" placeholder="info@domain.com" required>
+                <label for="infoEmail" class="sub-label">Info Email e.g. info@domain.com <span style="color: #dc2626;">required</span></label>
+              </div>
+            </div>
+            <div class="form-actions-row" style="margin-top: 15px;">
+              <button type="submit" class="btn-save-changes">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
 
-        </form>
+      <!-- TAB 4: MPESA CONFIGS -->
+      <div id="mpesaTab" class="config-tab-content" style="display: none;">
+        <div class="profile-card" style="padding: 30px 40px;">
+          <h2 style="font-size: 1.15rem; font-weight: 700; color: #475569; margin-bottom: 24px;">Mpesa Configurations</h2>
+          <form id="mpesaForm" class="form-col" style="gap: 20px;">
+            <div class="field-container">
+              <input type="text" id="shortcode" class="custom-input" value="4107433" required>
+              <label for="shortcode" class="sub-label">Mpesa ShortCode</label>
+            </div>
+            <div class="form-row row-2-cols">
+              <div class="field-container">
+                <input type="password" id="consumerKey" class="custom-input" placeholder="•••••••" required>
+                <label for="consumerKey" class="sub-label">Consumer Key</label>
+              </div>
+              <div class="field-container">
+                <input type="password" id="consumerSecret" class="custom-input" placeholder="•••••••" required>
+                <label for="consumerSecret" class="sub-label">Consumer Secret</label>
+              </div>
+            </div>
+            <div class="form-row row-2-cols">
+              <div class="field-container">
+                <input type="password" id="passKey" class="custom-input" placeholder="•••••••" required>
+                <label for="passKey" class="sub-label">Pass Key</label>
+              </div>
+              <div class="field-container">
+                <input type="text" id="initiatorName" class="custom-input" placeholder="•••••••" required>
+                <label for="initiatorName" class="sub-label">Initiator Name</label>
+              </div>
+            </div>
+            <div class="form-row row-2-cols">
+              <div class="field-container">
+                <input type="password" id="initiatorPassword" class="custom-input" placeholder="•••••••" required>
+                <label for="initiatorPassword" class="sub-label">Initiator Password</label>
+              </div>
+              <div class="field-container">
+                <input type="text" id="initiatorEncryption" class="custom-input" placeholder="•••••••" required>
+                <label for="initiatorEncryption" class="sub-label">Initiator Encryption</label>
+              </div>
+            </div>
+            <div class="form-actions-row" style="margin-top: 15px;">
+              <button type="submit" class="btn-save-changes">
+                <i class="fa-solid fa-floppy-disk"></i> Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
 
     </div>

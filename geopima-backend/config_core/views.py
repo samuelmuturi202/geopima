@@ -10,6 +10,9 @@ from properties.models import Property
 from billing.models import VoteHead
 from .models import (
     AgencyProfile, 
+    MessengerConfig, 
+    MailerConfig, 
+    MpesaConfig, 
     UserRole, 
     PaymentBank, 
     SMSTemplate, 
@@ -19,6 +22,9 @@ from .permissions import IsSuperAdminOrAdmin, CanManageFinances, CanManageTempla
 from .serializers import (
     CustomTokenObtainPairSerializer,
     AgencyProfileSerializer, 
+    MessengerConfigSerializer,
+    MailerConfigSerializer,
+    MpesaConfigSerializer,
     UserRoleSerializer,
     PaymentBankSerializer, 
     SMSTemplateSerializer, 
@@ -102,6 +108,33 @@ class AgencyProfileViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, m
 
     def get_object(self):
         obj, _ = AgencyProfile.objects.get_or_create(id=1)
+        return obj
+
+
+class MessengerConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    serializer_class = MessengerConfigSerializer
+
+    def get_object(self):
+        obj, _ = MessengerConfig.objects.get_or_create(id=1)
+        return obj
+
+
+class MailerConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    serializer_class = MailerConfigSerializer
+
+    def get_object(self):
+        obj, _ = MailerConfig.objects.get_or_create(id=1)
+        return obj
+
+
+class MpesaConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    serializer_class = MpesaConfigSerializer
+
+    def get_object(self):
+        obj, _ = MpesaConfig.objects.get_or_create(id=1)
         return obj
 
 

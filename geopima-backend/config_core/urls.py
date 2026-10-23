@@ -7,6 +7,9 @@ from .views import (
     DashboardMetricsView,
     PaymentSummariesView,
     AgencyProfileViewSet,
+    MessengerConfigViewSet,
+    MailerConfigViewSet,
+    MpesaConfigViewSet,
     UserRoleViewSet,
     PaymentBankViewSet,
     SMSTemplateViewSet,
@@ -19,6 +22,9 @@ app_name = 'config_core'
 
 router = DefaultRouter()
 router.register(r'agency-profile', AgencyProfileViewSet, basename='agency-profile')
+router.register(r'messenger-configs', MessengerConfigViewSet, basename='messenger-configs')
+router.register(r'mailer-configs', MailerConfigViewSet, basename='mailer-configs')
+router.register(r'mpesa-configs', MpesaConfigViewSet, basename='mpesa-configs')
 router.register(r'user-roles', UserRoleViewSet, basename='user-role')
 router.register(r'users', UserAccountViewSet, basename='user-account')
 router.register(r'payment-banks', PaymentBankViewSet, basename='payment-bank')
