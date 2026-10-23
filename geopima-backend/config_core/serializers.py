@@ -59,12 +59,15 @@ class UserAccountSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(read_only=True)
     user_phone = serializers.SerializerMethodField(read_only=True)
     user_position = serializers.SerializerMethodField(read_only=True)
+    date_joined = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", read_only=True)
+    permissions = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'password', 'full_name', 'name', 
-            'phone', 'user_phone', 'role_id', 'role', 'position', 'user_position', 'is_active'
+            'phone', 'user_phone', 'role_id', 'role', 'position', 'user_position', 
+            'is_active', 'date_joined', 'is_superuser', 'permissions'
         ]
         extra_kwargs = {
             'email': {'required': True},
@@ -77,7 +80,7 @@ class UserAccountSerializer(serializers.ModelSerializer):
 
     def get_role(self, obj):
         profile = UserProfile.objects.filter(user=obj).first()
-        return profile.role.name if profile and profile.role else None
+        return profile.role.name if profile and profile.role else "super admin"
 
     def get_user_phone(self, obj):
         profile = UserProfile.objects.filter(user=obj).first()
@@ -86,6 +89,12 @@ class UserAccountSerializer(serializers.ModelSerializer):
     def get_user_position(self, obj):
         profile = UserProfile.objects.filter(user=obj).first()
         return profile.position if profile else ''
+
+    def get_permissions(self, obj):
+        profile = UserProfile.objects.filter(user=obj).first()
+        if profile and profile.role and hasattr(profile.role, 'permissions'):
+            return profile.role.permissions
+        return []
 
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
