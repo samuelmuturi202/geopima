@@ -136,7 +136,15 @@ class UserAccountSerializer(serializers.ModelSerializer):
 class AgencyProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = AgencyProfile
-        fields = '__all__'
+        fields = [
+            'id', 'company_name', 'short_name', 'motto_slogan', 
+            'contact', 'contact2', 'email', 'physical_address', 
+            'postal_address', 'website', 'end_month_transition'
+        ]
+        extra_kwargs = {
+            'company_name': {'required': False, 'allow_blank': True},
+            'email': {'required': False, 'allow_blank': True}
+        }
 
 
 class UserRoleSerializer(serializers.ModelSerializer):
