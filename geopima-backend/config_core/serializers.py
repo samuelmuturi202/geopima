@@ -14,9 +14,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         
         role_permissions = []
         role_name = "Field Agent"
-        if hasattr(user, 'profile') and user.profile and user.profile.role:
-            role_name = user.profile.role.name
-            role_permissions = user.profile.role.permissions
+        
+        # Safely fetch user profile handling potential duplicate rows gracefully
+        profile_obj = UserProfile.objects.filter(user=user).first()
+        if profile_obj and profile_obj.role:
+            role_name = profile_obj.role.name
+            role_permissions = profile_obj.role.permissions
         elif user.groups.exists():
             role_name = user.groups.first().name
 
@@ -52,10 +55,10 @@ class UserAccountSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True
     )
-    role = serializers.CharField(source='profile.role.name', read_only=True)
+    role = serializers.SerializerMethodField(read_only=True)
     name = serializers.SerializerMethodField(read_only=True)
-    user_phone = serializers.CharField(source='profile.phone', read_only=True)
-    user_position = serializers.CharField(source='profile.position', read_only=True)
+    user_phone = serializers.SerializerMethodField(read_only=True)
+    user_position = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = User
@@ -71,6 +74,18 @@ class UserAccountSerializer(serializers.ModelSerializer):
     def get_name(self, obj):
         full = f"{obj.first_name} {obj.last_name}".strip()
         return full if full else obj.username
+
+    def get_role(self, obj):
+        profile = UserProfile.objects.filter(user=obj).first()
+        return profile.role.name if profile and profile.role else None
+
+    def get_user_phone(self, obj):
+        profile = UserProfile.objects.filter(user=obj).first()
+        return profile.phone if profile else ''
+
+    def get_user_position(self, obj):
+        profile = UserProfile.objects.filter(user=obj).first()
+        return profile.position if profile else ''
 
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
@@ -92,6 +107,7 @@ class UserAccountSerializer(serializers.ModelSerializer):
             last_name=last_name
         )
 
+        # Safely create or update profile without triggering multiple objects exception
         profile, _ = UserProfile.objects.get_or_create(user=user)
         if role:
             profile.role = role
