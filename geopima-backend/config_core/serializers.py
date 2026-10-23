@@ -149,11 +149,12 @@ class AgencyProfileSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'company_name', 'short_name', 'motto_slogan', 
             'contact', 'contact2', 'email', 'physical_address', 
-            'postal_address', 'website', 'end_month_transition'
+            'postal_address', 'website', 'end_month_transition', 'logo'
         ]
         extra_kwargs = {
             'company_name': {'required': False, 'allow_blank': True},
-            'email': {'required': False, 'allow_blank': True}
+            'email': {'required': False, 'allow_blank': True},
+            'logo': {'required': False, 'allow_null': True}
         }
 
 

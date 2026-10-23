@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 1. Agency Profile Form Logic ---
+  // --- 1. Agency Profile Form Logic (Supports Multipart File Uploads) ---
   const profileForm = document.getElementById('agencyProfileForm');
   async function loadAgencyProfile() {
     try {
@@ -39,21 +39,38 @@ document.addEventListener('DOMContentLoaded', () => {
   if (profileForm) {
     profileForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const payload = {
-        company_name: document.getElementById('companyName').value,
-        short_name: document.getElementById('shortName').value,
-        motto_slogan: document.getElementById('mottoSlogan').value,
-        contact: document.getElementById('contact').value,
-        contact2: document.getElementById('contact2').value,
-        email: document.getElementById('email').value,
-        physical_address: document.getElementById('physicalAddress').value,
-        postal_address: document.getElementById('postalAddress').value,
-        website: document.getElementById('website').value,
-        end_month_transition: document.getElementById('endMonthTransition').value
-      };
+      
+      const formData = new FormData();
+      formData.append('company_name', document.getElementById('companyName').value);
+      formData.append('short_name', document.getElementById('shortName').value);
+      formData.append('motto_slogan', document.getElementById('mottoSlogan').value);
+      formData.append('contact', document.getElementById('contact').value);
+      formData.append('contact2', document.getElementById('contact2').value);
+      formData.append('email', document.getElementById('email').value);
+      formData.append('physical_address', document.getElementById('physicalAddress').value);
+      formData.append('postal_address', document.getElementById('postalAddress').value);
+      formData.append('website', document.getElementById('website').value);
+      formData.append('end_month_transition', document.getElementById('endMonthTransition').value);
+
+      const logoFile = document.getElementById('companyLogo').files[0];
+      if (logoFile) {
+        formData.append('logo', logoFile);
+      }
+
       try {
-        await fetchAPI('/agency-profile/1/', { method: 'PUT', body: JSON.stringify(payload) });
+        // Use FormData natively via fetch to support file uploads
+        const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
+        const response = await fetch('/api/v1/agency-profile/1/', {
+          method: 'PUT',
+          headers: {
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+          },
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Failed to update agency profile');
         alert('Agency Profile saved successfully!');
+        loadAgencyProfile();
       } catch (err) { alert('Error saving profile: ' + err.message); }
     });
   }
