@@ -10,6 +10,7 @@ from .views import (
     MessengerConfigViewSet,
     MailerConfigViewSet,
     MpesaConfigViewSet,
+    CreditBankConfigViewSet,
     UserRoleViewSet,
     PaymentBankViewSet,
     SMSTemplateViewSet,
@@ -25,6 +26,7 @@ router.register(r'agency-profile', AgencyProfileViewSet, basename='agency-profil
 router.register(r'messenger-configs', MessengerConfigViewSet, basename='messenger-configs')
 router.register(r'mailer-configs', MailerConfigViewSet, basename='mailer-configs')
 router.register(r'mpesa-configs', MpesaConfigViewSet, basename='mpesa-configs')
+router.register(r'credit-bank-configs', CreditBankConfigViewSet, basename='credit-bank-configs')
 router.register(r'user-roles', UserRoleViewSet, basename='user-role')
 router.register(r'users', UserAccountViewSet, basename='user-account')
 router.register(r'payment-banks', PaymentBankViewSet, basename='payment-bank')

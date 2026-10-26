@@ -7,6 +7,7 @@ from .models import (
     MessengerConfig, 
     MailerConfig, 
     MpesaConfig, 
+    CreditBankConfig,
     UserRole, 
     UserProfile, 
     PaymentBank, 
@@ -173,6 +174,12 @@ class MailerConfigSerializer(serializers.ModelSerializer):
 class MpesaConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = MpesaConfig
+        fields = '__all__'
+
+
+class CreditBankConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CreditBankConfig
         fields = '__all__'
 
 

@@ -69,6 +69,19 @@ class MpesaConfig(models.Model):
         return f"Mpesa Config - {self.shortcode}"
 
 
+class CreditBankConfig(models.Model):
+    """Stores Credit Bank Smart Alias API integration parameters and Paybill details."""
+    paybill_number = models.CharField(max_length=50, default='4045619')
+    client_id = models.CharField(max_length=255, blank=True)
+    secret_key = models.CharField(max_length=255, blank=True)
+    signing_key = models.CharField(max_length=255, blank=True)
+    is_live = models.BooleanField(default=False)  # False = Sandbox, True = Production
+
+    def __str__(self):
+        mode = "Production" if self.is_live else "Sandbox"
+        return f"Credit Bank Config ({mode}) - Paybill: {self.paybill_number}"
+
+
 class UserRole(models.Model):
     name = models.CharField(max_length=50, unique=True)
     permissions = models.JSONField(default=list, blank=True)

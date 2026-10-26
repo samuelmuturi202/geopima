@@ -1,3 +1,4 @@
+import os
 from rest_framework import viewsets, mixins, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -13,6 +14,7 @@ from .models import (
     MessengerConfig, 
     MailerConfig, 
     MpesaConfig, 
+    CreditBankConfig,
     UserRole, 
     PaymentBank, 
     SMSTemplate, 
@@ -25,6 +27,7 @@ from .serializers import (
     MessengerConfigSerializer,
     MailerConfigSerializer,
     MpesaConfigSerializer,
+    CreditBankConfigSerializer,
     UserRoleSerializer,
     PaymentBankSerializer, 
     SMSTemplateSerializer, 
@@ -135,6 +138,21 @@ class MpesaConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mix
 
     def get_object(self):
         obj, _ = MpesaConfig.objects.get_or_create(id=1)
+        return obj
+
+
+class CreditBankConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
+    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    serializer_class = CreditBankConfigSerializer
+
+    def get_object(self):
+        obj, created = CreditBankConfig.objects.get_or_create(id=1)
+        if created or not obj.client_id:
+            obj.client_id = os.getenv('CREDIT_BANK_SANDBOX_ID', '')
+            obj.secret_key = os.getenv('CREDIT_BANK_SECRET_KEY', '')
+            obj.signing_key = os.getenv('CREDIT_BANK_SIGNING_KEY', '')
+            obj.paybill_number = '4045619'
+            obj.save()
         return obj
 
 
