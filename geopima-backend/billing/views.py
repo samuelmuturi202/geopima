@@ -1,3 +1,6 @@
+import hmac
+import hashlib
+import os
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -52,6 +55,21 @@ class CreditBankSmartAliasWebhookView(APIView):
     permission_classes = (AllowAny,)
 
     def post(self, request):
+        # 1. Verify HMAC signature using the signing key from your .env file
+        signature_header = request.headers.get('X-Signature') or request.headers.get('Signature')
+        signing_key = os.getenv('CREDIT_BANK_SIGNING_KEY', '').encode('utf-8')
+        
+        if signature_header and signing_key:
+            computed_signature = hmac.new(
+                signing_key, 
+                request.body, 
+                hashlib.sha256
+            ).hexdigest()
+            
+            if not hmac.compare_digest(signature_header, computed_signature):
+                return Response({"error": "Invalid signature"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # 2. Proceed with payload parsing and processing
         data = request.data
         
         # Extract payload attributes from Credit Bank webhook
@@ -71,7 +89,7 @@ class CreditBankSmartAliasWebhookView(APIView):
         if SmartAliasTransaction.objects.filter(transaction_reference=trans_id).exists():
             return Response({"status": "Already processed"}, status=status.HTTP_200_OK)
 
-        # 1. Log incoming transaction payload
+        # 3. Log incoming transaction payload
         tx_log = SmartAliasTransaction.objects.create(
             transaction_reference=trans_id,
             account_alias=alias,
@@ -82,7 +100,7 @@ class CreditBankSmartAliasWebhookView(APIView):
         )
 
         try:
-            # 2. Mark as processed (automated reconciliation against units/invoices can hook here)
+            # 4. Mark as processed (automated reconciliation against units/invoices can hook here)
             tx_log.is_processed = True
             tx_log.save()
 
