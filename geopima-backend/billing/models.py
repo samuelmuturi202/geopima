@@ -47,6 +47,23 @@ class Deposit(models.Model):
         return f"{self.deposit_code} - {self.tenant}"
 
 
+class SmartAliasTransaction(models.Model):
+    """Logs incoming webhook payloads from Credit Bank Smart Alias collection service (Paybill 4045619)."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    transaction_reference = models.CharField(max_length=100, unique=True)
+    account_alias = models.CharField(max_length=100)  # e.g., "House No. 1"
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+    phone_number = models.CharField(max_length=20, blank=True, null=True)
+    sender_name = models.CharField(max_length=255, blank=True, null=True)
+    paybill_number = models.CharField(max_length=50, default='4045619')
+    raw_payload = models.JSONField()
+    is_processed = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.account_alias} - KES {self.amount} ({self.transaction_reference})"
+
+
 class Invoice(models.Model):
     STATUS_CHOICES = [
         ('unpaid', 'Unpaid'),
@@ -86,7 +103,6 @@ class Invoice(models.Model):
 
     @property
     def rent_paid(self) -> Decimal:
-        """Sum of all allocated M-Pesa payments for this invoice."""
         return sum(payment.amount_allocated for payment in self.allocations.all())
 
     @property

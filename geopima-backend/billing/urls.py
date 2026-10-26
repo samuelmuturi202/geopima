@@ -5,7 +5,8 @@ from .views import (
     DepositViewSet, 
     InvoiceViewSet,
     DashboardMetricsView,
-    PaymentSummariesView
+    PaymentSummariesView,
+    CreditBankSmartAliasWebhookView
 )
 
 app_name = 'billing'
@@ -18,6 +19,7 @@ router.register(r'invoices', InvoiceViewSet, basename='invoice')
 
 # Wire up API routes
 urlpatterns = [
+    path('webhooks/credit-bank/smart-alias/', CreditBankSmartAliasWebhookView.as_view(), name='smart-alias-webhook'),
     path('dashboard/metrics/', DashboardMetricsView.as_view(), name='dashboard-metrics'),
     path('dashboard/payment-summaries/', PaymentSummariesView.as_view(), name='payment-summaries'),
     path('', include(router.urls)),

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import VoteHead, Deposit, Invoice, InvoiceItem, Agency
+from .models import VoteHead, Deposit, Invoice, InvoiceItem, Agency, SmartAliasTransaction
 
 
 class VoteHeadSerializer(serializers.ModelSerializer):
@@ -16,6 +16,12 @@ class DepositSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deposit
         fields = ['id', 'deposit_code', 'reference_no', 'tenant_name', 'property_name', 'unit_name', 'amount', 'status']
+
+
+class SmartAliasTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SmartAliasTransaction
+        fields = '__all__'
 
 
 class InvoiceItemSerializer(serializers.ModelSerializer):
