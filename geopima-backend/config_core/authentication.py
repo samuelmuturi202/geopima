@@ -25,12 +25,11 @@ class SafeJWTAuthentication(JWTAuthentication):
 
 class SafeModelBackend(ModelBackend):
     """
-    Completely overrides get_user and user_can_authenticate to guarantee 
-    that fetching users by primary key never throws MultipleObjectsReturned.
+    Overrides the default Django backend user retrieval to prevent 
+    MultipleObjectsReturned crashes when primary keys overlap in session cookies.
     """
     def get_user(self, user_id):
         try:
-            # Use filter().first() instead of get() to handle duplicate records safely
             return UserModel.objects.filter(pk=user_id).first()
         except Exception:
             return None
