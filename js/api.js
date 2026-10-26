@@ -23,13 +23,13 @@ function getStoredUser() {
 
 /**
  * Centralized API fetch wrapper with automated JWT Authorization headers 
- * and automatic JSON body serialization.
+ * and automatic JSON/FormData body serialization.
  */
 async function fetchAPI(endpoint, options = {}) {
     let token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
 
     const headers = {
-        // Only set Content-Type to application/json if the body is not FormData (e.g. file uploads)
+        // Only set Content-Type to application/json if body is not FormData
         ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),
         ...(token && { 'Authorization': `Bearer ${token}` }),
         ...options.headers
@@ -52,7 +52,6 @@ async function fetchAPI(endpoint, options = {}) {
 
         if (response.status === 401 || response.status === 403) {
             console.warn(`[401/403] Authorization failed for ${endpoint}. Token may be expired or missing.`);
-            
             if (!token) {
                 console.error("No access token found in localStorage. Please log in first.");
             }
@@ -93,7 +92,7 @@ function renderHeaderProfile() {
     const user = getStoredUser();
     const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
 
-    // List of public pages where the header profile should not trigger a redirect
+    // List of public pages where header profile should not trigger redirect
     const publicPages = ['login.html', 'register.html'];
     const currentPath = window.location.pathname;
     const isPublicPage = publicPages.some(page => currentPath.endsWith(page));
@@ -106,7 +105,7 @@ function renderHeaderProfile() {
         return;
     }
 
-    const displayName = user?.full_name || user?.name || user?.username || 'Peter Mwaniki';
+    const displayName = user?.full_name || user?.name || user?.username || 'Samuel Muturi';
 
     // 1. Look for existing template user profile nodes in top headers
     const headerRightElements = document.querySelectorAll('.header-right, .user-dropdown');
@@ -117,7 +116,7 @@ function renderHeaderProfile() {
         }
     });
 
-    // 2. Fallback: If no injected header display container exists or it needs the dropdown mechanism
+    // 2. Fallback: If no injected header display container exists
     let profileElem = document.getElementById('top-right-user');
     if (!profileElem) {
         const existingHeaderRight = document.querySelector('.top-header .header-right');
