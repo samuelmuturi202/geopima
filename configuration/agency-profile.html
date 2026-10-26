@@ -54,18 +54,24 @@
       <div id="agencyTab" class="config-tab-content">
         <div class="profile-card">
           <form id="agencyProfileForm" class="profile-form">
+            
+            <!-- Left Column: Dynamic Branding Preview Box -->
             <div class="logo-col">
               <div class="logo-preview-box">
-                <div class="roof-illustration">
-                  <i class="fa-solid fa-house-chimney"></i>
-                  <i class="fa-solid fa-house-chimney active-roof"></i>
-                  <i class="fa-solid fa-house-chimney"></i>
+                <div id="logoPreviewContainer" class="logo-preview-media" style="margin-bottom: 8px; display: flex; justify-content: center;">
+                  <!-- Default fallback illustration if no custom logo uploaded -->
+                  <div class="roof-illustration" id="defaultRoofIllustration">
+                    <i class="fa-solid fa-house-chimney"></i>
+                    <i class="fa-solid fa-house-chimney active-roof"></i>
+                    <i class="fa-solid fa-house-chimney"></i>
+                  </div>
                 </div>
-                <h1 class="agency-title">PEMWA AGENCY</h1>
-                <p class="agency-motto">Your Comfort Our Concern</p>
+                <h1 class="agency-title" id="previewCompanyName">PEMWA AGENCY</h1>
+                <p class="agency-motto" id="previewMottoSlogan">Your Comfort Our Concern</p>
               </div>
             </div>
 
+            <!-- Right Column: Form Inputs Grid -->
             <div class="form-col">
               <div class="form-row row-3-cols">
                 <div class="field-container">
@@ -77,7 +83,7 @@
                   <label for="shortName" class="sub-label">Short Name</label>
                 </div>
                 <div class="field-container flex-grow">
-                  <input type="text" id="mottoSlogan" class="custom-input">
+                  <input type="text" id="mottoSlogan" class="custom-input" value="Your Comfort Our Concern">
                   <label for="mottoSlogan" class="sub-label">Motto/Slogan</label>
                 </div>
               </div>
@@ -122,7 +128,7 @@
                 </div>
               </div>
 
-              <!-- Restored Company Logo File Input -->
+              <!-- Company Logo File Input -->
               <div class="form-row full-width">
                 <div class="field-container full-width-field">
                   <div class="file-input-wrapper">

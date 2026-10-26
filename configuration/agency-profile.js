@@ -16,6 +16,39 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // --- Live Preview Elements Binding ---
+  const companyNameInput = document.getElementById('companyName');
+  const mottoSloganInput = document.getElementById('mottoSlogan');
+  const previewCompanyName = document.getElementById('previewCompanyName');
+  const previewMottoSlogan = document.getElementById('previewMottoSlogan');
+  const logoPreviewContainer = document.getElementById('logoPreviewContainer');
+  const companyLogoInput = document.getElementById('companyLogo');
+
+  if (companyNameInput && previewCompanyName) {
+    companyNameInput.addEventListener('input', (e) => {
+      previewCompanyName.textContent = e.target.value.trim() || 'AGENCY NAME';
+    });
+  }
+
+  if (mottoSloganInput && previewMottoSlogan) {
+    mottoSloganInput.addEventListener('input', (e) => {
+      previewMottoSlogan.textContent = e.target.value.trim();
+    });
+  }
+
+  if (companyLogoInput && logoPreviewContainer) {
+    companyLogoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(uploadEvent) {
+          logoPreviewContainer.innerHTML = `<img src="${uploadEvent.target.result}" alt="Company Logo" style="max-height: 70px; max-width: 150px; object-fit: contain;">`;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
   // --- 1. Agency Profile Form Logic (Supports Multipart File Uploads) ---
   const profileForm = document.getElementById('agencyProfileForm');
   async function loadAgencyProfile() {
@@ -32,6 +65,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('postalAddress').value = data.postal_address || '';
         document.getElementById('website').value = data.website || '';
         if (data.end_month_transition) document.getElementById('endMonthTransition').value = data.end_month_transition;
+
+        // Update live preview fields on load
+        if (previewCompanyName) previewCompanyName.textContent = data.company_name || 'AGENCY NAME';
+        if (previewMottoSlogan) previewMottoSlogan.textContent = data.motto_slogan || '';
+
+        // Render logo if already exists in backend
+        if (data.logo && logoPreviewContainer) {
+          logoPreviewContainer.innerHTML = `<img src="${data.logo}" alt="Company Logo" style="max-height: 70px; max-width: 150px; object-fit: contain;">`;
+        }
       }
     } catch (err) { console.error('Failed to load agency profile', err); }
   }
@@ -58,7 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       try {
-        // Use FormData natively via fetch to support file uploads
         const token = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
         const response = await fetch('/api/v1/agency-profile/1/', {
           method: 'PUT',
