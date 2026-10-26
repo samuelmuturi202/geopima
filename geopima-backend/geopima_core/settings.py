@@ -64,6 +64,12 @@ ROOT_URLCONF = 'geopima_core.urls'
 # Custom Auth User Model
 AUTH_USER_MODEL = 'tenants.User'
 
+# Safe Authentication Backends to prevent MultipleObjectsReturned crashes
+AUTHENTICATION_BACKENDS = [
+    'config_core.authentication.SafeModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -154,7 +160,7 @@ SIMPLE_JWT = {
 
 
 # CORS Configuration
-CORS_ALLOW_ALL_ORIGINS = True  # Set to specific origins in production if needed
+CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_METHODS = [
     'DELETE',

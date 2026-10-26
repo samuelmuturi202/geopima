@@ -1,5 +1,10 @@
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.settings import api_settings
+from django.contrib.auth.backends import ModelBackend
+from django.contrib.auth import get_user_model
+
+UserModel = get_user_model()
+
 
 class SafeJWTAuthentication(JWTAuthentication):
     def get_user(self, validated_token):
@@ -18,3 +23,15 @@ class SafeJWTAuthentication(JWTAuthentication):
 
             # Fallback gracefully to fetch the first user record if duplicates exist
             return self.user_model.objects.filter(**{api_settings.USER_ID_FIELD: user_id}).first()
+
+
+class SafeModelBackend(ModelBackend):
+    """
+    Overrides Django's default ModelBackend.get_user to prevent 
+    MultipleObjectsReturned crashes on the admin panel or session auth.
+    """
+    def get_user(self, user_id):
+        try:
+            return UserModel._default_manager.filter(pk=user_id).first()
+        except UserModel.DoesNotExist:
+            return None
