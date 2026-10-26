@@ -8,10 +8,9 @@
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- Core Stylesheet -->
-  <link rel="stylesheet" href="styles.css">
-  <!-- Agency Profile Page Stylesheet -->
-  <link rel="stylesheet" href="agency-profile.css">
+  <!-- Root-Absolute Paths to Prevent 404s on Vercel Subfolders -->
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="stylesheet" href="/agency-profile.css">
 </head>
 <body class="bg-light">
 
@@ -59,7 +58,6 @@
             <div class="logo-col">
               <div class="logo-preview-box">
                 <div id="logoPreviewContainer" class="logo-preview-media" style="margin-bottom: 8px; display: flex; justify-content: center;">
-                  <!-- Default fallback illustration if no custom logo uploaded -->
                   <div class="roof-illustration" id="defaultRoofIllustration">
                     <i class="fa-solid fa-house-chimney"></i>
                     <i class="fa-solid fa-house-chimney active-roof"></i>
@@ -297,9 +295,9 @@
     </div>
   </main>
 
-  <!-- JavaScript Scripts (Ensure js/api.js loads before dependent scripts) -->
-  <script src="js/api.js"></script>
-  <script src="js/script.js"></script>
-  <script src="agency-profile.js"></script>
+  <!-- Root-Absolute Script Paths to Prevent 404s -->
+  <script src="/js/api.js"></script>
+  <script src="/js/script.js"></script>
+  <script src="/agency-profile.js"></script>
 </body>
 </html>
