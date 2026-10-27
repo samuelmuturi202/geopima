@@ -75,7 +75,7 @@ class CreditBankConfig(models.Model):
     client_id = models.CharField(max_length=255, blank=True)
     secret_key = models.CharField(max_length=255, blank=True)
     signing_key = models.CharField(max_length=255, blank=True)
-    is_live = models.BooleanField(default=False)  # False = Sandbox, True = Production
+    is_live = models.BooleanField(default=False)
 
     def __str__(self):
         mode = "Production" if self.is_live else "Sandbox"
@@ -110,17 +110,24 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 
 
 class PaymentBank(models.Model):
+    BANK_TYPE_CHOICES = [
+        ('bank', 'Standard Bank Account'),
+        ('mpesa', 'M-Pesa Paybill / Till'),
+        ('smart_alias', 'Credit Bank Smart Alias'),
+    ]
+
     short_name = models.CharField(max_length=50)
     long_name = models.CharField(max_length=100)
-    branch = models.CharField(max_length=100)
+    branch = models.CharField(max_length=100, blank=True, null=True)
     acc_name = models.CharField(max_length=100)
     business_no = models.CharField(max_length=50, blank=True, null=True)
-    acc_number = models.CharField(max_length=50)
+    acc_number = models.CharField(max_length=100)
+    bank_type = models.CharField(max_length=20, choices=BANK_TYPE_CHOICES, default='bank')
     is_active = models.BooleanField(default=True)
     on_invoice = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.short_name} - {self.acc_number}"
+        return f"{self.short_name} - {self.acc_number} ({self.get_bank_type_display()})"
 
 
 class SMSTemplate(models.Model):

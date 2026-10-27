@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geopima - Payment Banks</title>
+  <title>Geopima - Payment Banks & Smart Aliases</title>
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,7 +32,7 @@
     
     <div class="header-right">
       <div class="user-dropdown">
-        <span class="user-name">Peter Mwaniki</span>
+        <span class="user-name">Admin</span>
         <i class="fa-solid fa-caret-down"></i>
       </div>
     </div>
@@ -43,15 +43,15 @@
     <div class="content-wrapper">
       
       <div class="banks-header-row">
-        <h1 class="banks-title">Payment Banks</h1>
+        <h1 class="banks-title">Payment Banks & Smart Aliases</h1>
         <div class="breadcrumb">
           <a href="../index.html">Home</a> / <span>Configurations</span>
         </div>
       </div>
 
       <div class="top-action-container">
-        <button class="btn-new-bank">
-          <i class="fa-solid fa-circle-plus"></i> New Bank
+        <button class="btn-new-bank" id="btnNewBank">
+          <i class="fa-solid fa-circle-plus"></i> New Bank / Channel
         </button>
       </div>
 
@@ -77,54 +77,26 @@
           <table class="banks-table">
             <thead>
               <tr>
-                <th class="col-short">SHORT NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-long">LONG NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-branch">BRANCH <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-acc-name">ACC NAME <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-biz-no">BUSINESS NO <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-acc-num">ACC NUMBER <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-center">STATUS <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-center">ON INVOICE <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
-                <th class="col-center">ACTION <i class="fa-solid fa-arrows-up-down sort-icon"></i></th>
+                <th>SHORT NAME</th>
+                <th>LONG NAME</th>
+                <th>BRANCH</th>
+                <th>ACC NAME</th>
+                <th>BUSINESS NO</th>
+                <th>ACC / ALIAS NUMBER</th>
+                <th class="col-center">TYPE</th>
+                <th class="col-center">STATUS</th>
+                <th class="col-center">ON INVOICE</th>
+                <th class="col-center">ACTION</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Equity</td>
-                <td>Equity Bank Kenya</td>
-                <td>Kawangware</td>
-                <td>Pemwa Agency</td>
-                <td></td>
-                <td>0630279926996</td>
-                <td class="col-center"><span class="badge-status active">active</span></td>
-                <td class="col-center"><i class="fa-solid fa-circle-xmark icon-on-invoice-no"></i></td>
-                <td class="col-center">
-                  <a href="#" class="action-link link-edit">edit</a> | 
-                  <a href="#" class="action-link link-delete">delete</a>
-                </td>
-              </tr>
-              <tr>
-                <td>Lipa Na M-Pesa</td>
-                <td>Paybill Number</td>
-                <td>Kawangware</td>
-                <td>Pemwa Agency</td>
-                <td>4107433</td>
-                <td>primary_contact</td>
-                <td class="col-center"><span class="badge-status active">active</span></td>
-                <td class="col-center"><i class="fa-solid fa-circle-xmark icon-on-invoice-no"></i></td>
-                <td class="col-center">
-                  <a href="#" class="action-link link-edit">edit</a> | 
-                  <a href="#" class="action-link link-delete">delete</a>
-                </td>
-              </tr>
+              <!-- Dynamic rows populated via JS -->
             </tbody>
           </table>
         </div>
 
         <div class="table-footer">
-          <div class="entries-info">
-            Showing 1 to 2 of 2 entries
-          </div>
+          <div class="entries-info" id="entriesInfo">Showing 0 entries</div>
           <div class="pagination-controls">
             <button class="page-btn disabled" disabled>Previous</button>
             <button class="page-btn active">1</button>
@@ -136,6 +108,56 @@
 
     </div>
   </main>
+
+  <!-- Add/Edit Bank Modal Form -->
+  <div id="bankModal" class="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); align-items:center; justify-content:center; z-index:1000;">
+    <div class="modal-content" style="background:#fff; padding:25px; border-radius:6px; width:100%; max-width:500px; box-shadow:0 4px 12px rgba(0,0,0,0.15);">
+      <h2 id="modalTitle" style="margin-bottom:15px; font-size:1.2rem; color:#1e293b;">Add Payment Bank / Channel</h2>
+      <form id="bankForm">
+        <input type="hidden" id="bankId">
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Channel Type</label>
+          <select id="bankType" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;">
+            <option value="bank">Standard Bank Account</option>
+            <option value="mpesa">M-Pesa Paybill / Till</option>
+            <option value="smart_alias">Credit Bank Smart Alias</option>
+          </select>
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Short Name</label>
+          <input type="text" id="shortName" required style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Long Name</label>
+          <input type="text" id="longName" required style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Branch</label>
+          <input type="text" id="branch" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Account Name</label>
+          <input type="text" id="accName" required style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;">
+        </div>
+        <div style="margin-bottom:12px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Business No (Paybill / Till)</label>
+          <input type="text" id="businessNo" style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;" placeholder="e.g. 4045619 or 4107433">
+        </div>
+        <div style="margin-bottom:15px;">
+          <label style="display:block; font-size:0.82rem; margin-bottom:4px; font-weight:600;">Account Number / Smart Alias</label>
+          <input type="text" id="accNumber" required style="width:100%; padding:8px; border:1px solid #cbd5e1; border-radius:4px;" placeholder="e.g. Account Number or tenant phone / primary_contact">
+        </div>
+        <div style="display:flex; gap:15px; margin-bottom:15px;">
+          <label><input type="checkbox" id="isActive" checked> Active</label>
+          <label><input type="checkbox" id="onInvoice"> Show on Invoice</label>
+        </div>
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+          <button type="button" id="closeModal" style="padding:6px 14px; background:#e2e8f0; border:none; border-radius:4px; cursor:pointer;">Cancel</button>
+          <button type="submit" style="padding:6px 14px; background:#0f4c81; color:#fff; border:none; border-radius:4px; cursor:pointer;">Save Bank</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- JavaScript Scripts -->
   <script src="js/api.js"></script>

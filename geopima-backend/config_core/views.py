@@ -51,9 +51,9 @@ class CurrentUserView(APIView):
         role_name = "Field Agent"
         role_permissions = []
         
-        if hasattr(user, 'role') and user.role:
-            role_name = user.role.name
-            role_permissions = user.role.permissions
+        if hasattr(user, 'profile') and user.profile and user.profile.role:
+            role_name = user.profile.role.name
+            role_permissions = user.profile.role.permissions
         elif user.groups.exists():
             role_name = user.groups.first().name
 
@@ -171,10 +171,6 @@ class UserAccountViewSet(viewsets.ModelViewSet):
         return User.objects.all().order_by('-id')
 
     def get_object(self):
-        """
-        Safely retrieves user records using filter().first() to prevent 
-        MultipleObjectsReturned crashes on duplicate IDs during API operations.
-        """
         queryset = self.filter_queryset(self.get_queryset())
         lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
         filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
@@ -188,13 +184,13 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 
 
 class PaymentBankViewSet(viewsets.ModelViewSet):
-    queryset = PaymentBank.objects.all()
+    queryset = PaymentBank.objects.all().order_by('-id')
     serializer_class = PaymentBankSerializer
     permission_classes = [IsAuthenticated, CanManageFinances]
 
 
 class SMSTemplateViewSet(viewsets.ModelViewSet):
-    queryset = SMSTemplate.objects.all()
+    queryset = SMSTemplate.objects.all().order_by('-id')
     serializer_class = SMSTemplateSerializer
     permission_classes = [IsAuthenticated, CanManageTemplates]
 
@@ -227,6 +223,6 @@ class SMSTemplateViewSet(viewsets.ModelViewSet):
 
 
 class AgreementTemplateViewSet(viewsets.ModelViewSet):
-    queryset = AgreementTemplate.objects.all()
+    queryset = AgreementTemplate.objects.all().order_by('-id')
     serializer_class = AgreementTemplateSerializer
     permission_classes = [IsAuthenticated, CanManageTemplates]
