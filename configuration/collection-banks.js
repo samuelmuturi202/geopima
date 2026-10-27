@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function loadPaymentBanks() {
     try {
-      banksData = await fetchAPI('/payment-banks/');
+      const response = await fetchAPI('/payment-banks/');
+      // Handles both plain arrays and paginated result sets safely
+      banksData = Array.isArray(response) ? response : (response.results || []);
       renderTable(banksData);
     } catch (error) {
       console.error('Failed to load payment banks:', error);

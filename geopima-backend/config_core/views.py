@@ -187,6 +187,7 @@ class PaymentBankViewSet(viewsets.ModelViewSet):
     queryset = PaymentBank.objects.all().order_by('-id')
     serializer_class = PaymentBankSerializer
     permission_classes = [IsAuthenticated, CanManageFinances]
+    pagination_class = None  # Returns a plain JSON list directly
 
 
 class SMSTemplateViewSet(viewsets.ModelViewSet):
