@@ -158,7 +158,7 @@ class CreditBankConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin
 
 
 class UserRoleViewSet(viewsets.ModelViewSet):
-    queryset = UserRole.objects.all()
+    queryset = UserRole.objects.all().order_by('-id')
     serializer_class = UserRoleSerializer
     permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
 
@@ -168,7 +168,7 @@ class UserAccountViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
 
     def get_queryset(self):
-        return User.objects.all()
+        return User.objects.all().order_by('-id')
 
     def get_object(self):
         """
