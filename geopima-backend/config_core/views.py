@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework.exceptions import NotFound
 from django.contrib.auth import get_user_model
 
 from properties.models import Property
@@ -168,6 +169,22 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return User.objects.all()
+
+    def get_object(self):
+        """
+        Safely retrieves user records using filter().first() to prevent 
+        MultipleObjectsReturned crashes on duplicate IDs during API operations.
+        """
+        queryset = self.filter_queryset(self.get_queryset())
+        lookup_url_kwarg = self.lookup_url_kwarg or self.lookup_field
+        filter_kwargs = {self.lookup_field: self.kwargs[lookup_url_kwarg]}
+        
+        obj = queryset.filter(**filter_kwargs).first()
+        if obj is None:
+            raise NotFound("No User matches the given query.")
+            
+        self.check_object_permissions(self.request, obj)
+        return obj
 
 
 class PaymentBankViewSet(viewsets.ModelViewSet):
