@@ -18,7 +18,6 @@
 
   <div class="app-layout" style="display: flex; width: 100vw; height: 100vh; overflow: hidden;">
 
-    <!-- Sidebar Navigation Menu -->
     <aside id="sidebar">
       <div class="brand">
         <i class="fa-solid fa-building-user"></i>
@@ -61,9 +60,8 @@
           </a>
         </li>
 
-        <!-- Active Page -->
         <li class="active"><a href="properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
         <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
         <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
         <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
@@ -73,10 +71,8 @@
       </ul>
     </aside>
 
-    <!-- Main View Panel -->
     <div class="main-wrapper">
       
-      <!-- Top Header Navigation -->
       <header>
         <div class="header-left">
           <i class="fa-solid fa-bars" id="toggle-sidebar"></i>
@@ -89,10 +85,8 @@
         </div>
       </header>
 
-      <!-- Main Container Content -->
       <main class="properties-container">
         
-        <!-- Page Title Bar with Top Actions -->
         <div class="page-header-row">
           <div class="title-left">
             <h2>Properties</h2>
@@ -109,7 +103,6 @@
           </div>
         </div>
 
-        <!-- Main Card Section -->
         <section class="card-panel">
           <div class="card-header border-light">
             <div class="header-title">
@@ -129,14 +122,13 @@
                 <div class="dropdown-menu" id="export-dropdown-menu">
                   <a href="#" class="dropdown-item" id="export-excel-btn"><i class="fa-solid fa-file-excel"></i> Excel</a>
                   <a href="#" class="dropdown-item" id="export-pdf-btn"><i class="fa-solid fa-file-pdf"></i> PDF</a>
-                  <a href="#" class="dropdown-item"><i class="fa-solid fa-print"></i> Print</a>
+                  <a href="#" class="dropdown-item" id="export-print-btn"><i class="fa-solid fa-print"></i> Print</a>
                 </div>
               </div>
             </div>
           </div>
 
           <div class="card-body">
-            <!-- Filter Bar -->
             <div class="table-toolbar">
               <div class="entries-control">
                 Show 
@@ -154,7 +146,6 @@
               </div>
             </div>
 
-            <!-- Data Table -->
             <div class="table-responsive">
               <table class="data-table" id="properties-table">
                 <thead>
@@ -177,7 +168,6 @@
               </table>
             </div>
 
-            <!-- Table Footer -->
             <div class="table-footer">
               <div class="table-info" id="table-info">Showing entries</div>
               <ul class="pagination">
@@ -322,7 +312,6 @@
     </div>
   </div>
 
-  <!-- JavaScript Imports -->
   <script src="js/api.js"></script>
   <script src="script.js"></script>
   <script src="properties.js"></script>

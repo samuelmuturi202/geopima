@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return response.json();
   }
 
-  // DOM Elements
   const tableBody = document.getElementById('table-body');
   const searchInput = document.getElementById('table-search');
   const entriesSelect = document.getElementById('entries-per-page');
@@ -21,26 +20,20 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportBtn = document.getElementById('export-btn');
   const exportMenu = document.getElementById('export-menu');
 
-  // Filters
   const propertyFilter = document.getElementById('filter-property');
   const landlordFilter = document.getElementById('filter-landlord');
   const vacancyFilter = document.getElementById('filter-vacancy');
   const statusFilter = document.getElementById('filter-status');
 
-  // Page State
   let currentPage = 1;
-  let rowsPerPage = parseInt(entriesSelect ? entriesSelect.value : 10);
+  let rowsPerPage = parseInt(entriesSelect ? entriesSelect.value : 50);
 
-  // Load Database Properties into Dropdown
   async function loadPropertiesFilter() {
     if (!propertyFilter) return;
     try {
       const response = await fetchAPI('/properties/');
       const properties = response.results || response;
-      
-      // Clear old options except default 'All'
       propertyFilter.innerHTML = '<option value="All">Property: All</option>';
-      
       properties.forEach(prop => {
         const propName = prop.name || prop.property_name;
         if (propName) {
@@ -55,17 +48,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Load Database Landlords into Dropdown
   async function loadLandlordsFilter() {
     if (!landlordFilter) return;
     try {
-      // Adjust endpoint if your landlords list URL differs (e.g. '/landlords/' or '/properties/landlords/')
-      const response = await fetchAPI('/landlords/');
+      const response = await fetchAPI('/properties/landlords/');
       const landlords = response.results || response;
-      
-      // Clear old options except default 'All'
       landlordFilter.innerHTML = '<option value="All">Landlord: All</option>';
-      
       landlords.forEach(landlord => {
         const name = landlord.name || landlord.full_name || `${landlord.first_name || ''} ${landlord.last_name || ''}`.trim();
         if (name) {
@@ -124,10 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     items.forEach((row, index) => {
       const tr = document.createElement('tr');
+      const unitId = row.id;
+      const unitNo = row.unitNo || row.unit_number || row.unit_no || '';
+      const unitName = row.unitName || row.name || row.unit_name || '';
+      
       tr.innerHTML = `
         <td>${start + index + 1}</td>
-        <td><a href="#" class="link-code">${row.unitNo || row.unit_number || ''}</a></td>
-        <td>${row.unitName || row.name || ''}</td>
+        <td><a href="unit_detail.html?id=${unitId}" class="link-code">${unitNo}</a></td>
+        <td>${unitName}</td>
         <td><a href="#" class="link-text">${row.property || row.property_name || '-'}</a></td>
         <td><a href="#" class="link-text">${row.landlord || row.landlord_name || '-'}</a></td>
         <td>${row.unitType || row.unit_type || 'Single Room'}</td>
@@ -145,7 +137,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Toggle Export Menu
   if (exportBtn && exportMenu) {
     exportBtn.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -157,7 +148,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Helper to extract currently rendered table rows for export
   function getExportData() {
     const rows = Array.from(tableBody.querySelectorAll('tr'));
     return rows.map(tr => {
@@ -178,7 +168,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }).filter(Boolean);
   }
 
-  // 1. CSV Export Handler
   const exportCsvBtn = document.getElementById('export-csv');
   if (exportCsvBtn) {
     exportCsvBtn.addEventListener('click', (e) => {
@@ -214,7 +203,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Excel Export Handler
   const exportExcelBtn = document.getElementById('export-excel');
   if (exportExcelBtn) {
     exportExcelBtn.addEventListener('click', (e) => {
@@ -237,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. PDF Export Handler
   const exportPdfBtn = document.getElementById('export-pdf');
   if (exportPdfBtn) {
     exportPdfBtn.addEventListener('click', (e) => {
@@ -270,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Initialize data loading
   async function init() {
     await loadPropertiesFilter();
     await loadLandlordsFilter();

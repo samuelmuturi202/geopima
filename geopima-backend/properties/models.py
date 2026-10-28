@@ -33,6 +33,7 @@ class Property(models.Model):
         ('active', 'Active'),
         ('inactive', 'Inactive'),
         ('under_maintenance', 'Under Maintenance'),
+        ('suspended', 'Suspended'),
     ]
 
     property_id = models.CharField(max_length=20, unique=True)
@@ -74,9 +75,9 @@ class Unit(models.Model):
     garbage_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     water_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
-    unit_type = models.CharField(max_length=50, default='Residential', blank=True, null=True)
-    category = models.CharField(max_length=50, default='Standard', blank=True, null=True)
-    status = models.CharField(max_length=30, default='Available', blank=True, null=True)
+    unit_type = models.CharField(max_length=50, default='Single Room', blank=True, null=True)
+    category = models.CharField(max_length=50, default='Residential', blank=True, null=True)
+    status = models.CharField(max_length=30, default='active', blank=True, null=True)
     
     is_occupied = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)

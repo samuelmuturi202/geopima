@@ -354,7 +354,7 @@
 
           <div style="display: flex; align-items: center; gap: 8px; color: white; border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px;">
             <i class="fa-regular fa-user-circle user-icon" style="font-size: 18px;"></i>
-            <span>User</span>
+            <span>Samuel Muturi</span>
           </div>
         </div>
       </header>
@@ -805,6 +805,16 @@
           document.getElementById('modal-add-unit-title').textContent = `ADD UNITS TO >> ${propName.toUpperCase()}`;
           document.getElementById('new-unit-no').value = generatePropertyUnitNo();
           document.getElementById('new-unit-name').value = '';
+          
+          // Auto-fill default bills from property defaults if available
+          document.getElementById('new-unit-rent').value = currentPropertyData.default_rent || '';
+          document.getElementById('new-unit-deposit').value = currentPropertyData.default_deposit || '';
+          document.getElementById('new-unit-garbage').value = currentPropertyData.default_garbage_fee || '';
+          document.getElementById('new-unit-security').value = currentPropertyData.default_security_fee || '';
+          document.getElementById('new-unit-electricity').value = currentPropertyData.default_electricity_fee || '';
+          document.getElementById('new-unit-water').value = currentPropertyData.default_water_rate || '';
+          document.getElementById('new-unit-internet').value = currentPropertyData.default_internet_fee || '';
+
           addUnitModal.classList.add('active');
         });
       }

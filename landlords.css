@@ -375,11 +375,7 @@ body {
   cursor: default;
 }
 
-
-/* ==========================================================================
-   5. NEW LANDLORD MODAL POPUP STYLES (MATCHING REFERENCE UI)
-   ========================================================================== */
-
+/* Modal Popup Styles */
 .modal-overlay {
   position: fixed;
   top: 0;

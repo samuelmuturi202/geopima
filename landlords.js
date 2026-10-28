@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-
-  // Global cache for loaded landlords
   let cachedLandlords = [];
 
-  // --- 1. Top Bar Menu Toggle Event ---
   const sidebarToggle = document.getElementById('toggle-sidebar');
   const sidebar = document.getElementById('sidebar');
 
@@ -13,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- 2. Action Buttons Dropdowns Handler ---
   const setupDropdown = (buttonId, menuId) => {
     const btn = document.getElementById(buttonId);
     const menu = document.getElementById(menuId);
@@ -40,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 3. Backend Table Load & Filtering ---
   const tableBody = document.querySelector('#landlords-table tbody');
   const searchInput = document.getElementById('table-search');
   const tableInfo = document.getElementById('table-info');
@@ -57,13 +52,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     landlords.forEach((item, index) => {
       const row = document.createElement('tr');
-      
-      // Primary Key ID used for backend API queries
       const primaryId = item.id;
-      // Formatted Landlord String (e.g., LL-1001) used for UI display
       const displayId = item.landlord_id || item.landlord_number || item.id || 'N/A';
-      
-      // Target redirect URL built with specific landlord identifier
       const targetUrl = `landlord-details.html?id=${primaryId}&landlord_id=${encodeURIComponent(displayId)}`;
 
       row.innerHTML = `
@@ -91,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Handle redirect via Event Delegation to prevent event cancellation issues
   if (tableBody) {
     tableBody.addEventListener('click', (e) => {
       const link = e.target.closest('.landlord-detail-link');
@@ -120,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Automatic Landlord Number Generation logic (e.g. LL-1001)
   function generateNextLandlordId() {
     if (cachedLandlords && cachedLandlords.length > 0) {
       const numericIds = cachedLandlords
@@ -145,7 +133,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // --- 4. New Landlord Modal Popup Controls ---
   const newLandlordBtn = document.getElementById('new-landlord-btn');
   const modalOverlay = document.getElementById('landlord-modal');
   const closeModalBtn = document.getElementById('close-modal-btn');
@@ -154,14 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const openModal = () => {
     if (modalOverlay) {
       modalOverlay.classList.add('active');
-
-      // Set current date
       const regDateInput = document.getElementById('registration_date');
       if (regDateInput && !regDateInput.value) {
         regDateInput.value = new Date().toISOString().split('T')[0];
       }
-
-      // Auto-generate Landlord ID
       const landlordIdInput = document.getElementById('landlord_id');
       if (landlordIdInput) {
         landlordIdInput.value = generateNextLandlordId();
@@ -187,11 +170,9 @@ document.addEventListener('DOMContentLoaded', () => {
   if (createForm) {
     createForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-
       const rawData = new FormData(createForm);
       const payload = {};
 
-      // Filter empty inputs
       for (let [key, value] of rawData.entries()) {
         if (value instanceof File) {
           if (value.size > 0) payload[key] = value;
@@ -200,7 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       }
 
-      // Format gender value to DRF choice key ('MALE', 'FEMALE', 'OTHER')
       if (payload.gender) {
         const val = payload.gender.toUpperCase();
         if (val.startsWith('F')) {

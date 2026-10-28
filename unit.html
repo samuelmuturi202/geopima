@@ -15,7 +15,6 @@
 </head>
 <body>
 
-  <!-- Sidebar Nav (Included for Layout Continuity) -->
   <aside id="sidebar">
     <div class="brand">
       <i class="fa-solid fa-building-user"></i>
@@ -26,7 +25,6 @@
       <li><a href="collect-rent.html"><i class="fa-regular fa-credit-card"></i> Collect Rent <i class="fa-solid fa-chevron-right chevron"></i></a></li>
       <li><a href="invoices.html"><i class="fa-solid fa-file-invoice-dollar"></i> Invoices <i class="fa-solid fa-chevron-right chevron"></i></a></li>
       
-      <!-- Finance Dropdown -->
       <li class="nav-dropdown">
         <button class="dropdown-btn" id="finance-dropdown-toggle">
           <i class="fa-solid fa-chart-column"></i>
@@ -41,7 +39,6 @@
         </ul>
       </li>
 
-      <!-- Fees Setup Dropdown -->
       <li class="nav-dropdown">
         <button class="dropdown-btn" id="fees-dropdown-toggle">
           <i class="fa-solid fa-wrench"></i>
@@ -66,7 +63,6 @@
     </ul>
   </aside>
 
-  <!-- Main Content Area -->
   <div class="main-wrapper">
     <header>
       <div class="header-left">
@@ -83,10 +79,8 @@
     <div class="container">
       <h2 class="page-title">Units</h2>
 
-      <!-- Main Units Card Section -->
       <div class="units-card">
         
-        <!-- Top Toolbar Header -->
         <div class="units-toolbar">
           <div class="toolbar-title">
             <i class="fa-solid fa-sitemap"></i>
@@ -94,7 +88,6 @@
           </div>
 
           <div class="toolbar-actions">
-            <!-- Export Dropdown Button -->
             <div class="dropdown-action">
               <button class="btn btn-info" id="export-btn">
                 <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i>
@@ -106,7 +99,6 @@
               </div>
             </div>
 
-            <!-- Property Filter (Populated dynamically) -->
             <div class="filter-group">
               <i class="fa-solid fa-house filter-icon"></i>
               <select id="filter-property" class="filter-select">
@@ -114,7 +106,6 @@
               </select>
             </div>
 
-            <!-- Landlord Filter (Populated dynamically) -->
             <div class="filter-group">
               <i class="fa-solid fa-user-group filter-icon"></i>
               <select id="filter-landlord" class="filter-select">
@@ -122,7 +113,6 @@
               </select>
             </div>
 
-            <!-- Vacancy Filter -->
             <div class="filter-group">
               <i class="fa-solid fa-filter filter-icon"></i>
               <select id="filter-vacancy" class="filter-select">
@@ -132,7 +122,6 @@
               </select>
             </div>
 
-            <!-- Status Filter -->
             <div class="filter-group">
               <i class="fa-regular fa-eye filter-icon"></i>
               <select id="filter-status" class="filter-select">
@@ -144,7 +133,6 @@
           </div>
         </div>
 
-        <!-- Table Control Options Row -->
         <div class="table-controls">
           <div class="entries-selector">
             <label>
@@ -165,7 +153,6 @@
           </div>
         </div>
 
-        <!-- Scrollable Table Container -->
         <div class="table-responsive">
           <table class="units-table" id="unitsTable">
             <thead>
@@ -188,7 +175,6 @@
           </table>
         </div>
 
-        <!-- Table Footer / Pagination -->
         <div class="table-footer">
           <div class="footer-info" id="table-info">
             Showing 1 to 10 of 10 entries
@@ -206,7 +192,6 @@
     </div>
   </div>
 
-  <!-- JavaScript Scripts -->
   <script src="js/api.js"></script>
   <script src="script.js"></script>
   <script src="unit.js"></script>

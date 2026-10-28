@@ -221,7 +221,6 @@ class PropertySerializer(serializers.ModelSerializer):
 class UnitSerializer(serializers.ModelSerializer):
     property_name = serializers.ReadOnlyField(source='property.name', default='')
     
-    # Expect and process string property_id values as primary lookup reference
     property = serializers.SlugRelatedField(
         queryset=Property.objects.all(),
         slug_field='property_id',

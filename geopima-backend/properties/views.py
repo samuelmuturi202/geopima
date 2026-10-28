@@ -1,15 +1,12 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 
 from properties.models import Landlord, Property, Unit
 from .serializers import LandlordSerializer, PropertySerializer, UnitSerializer
 
 
 class LandlordViewSet(viewsets.ModelViewSet):
-    """
-    API ViewSet for managing Landlord records.
-    """
     queryset = Landlord.objects.all()
     serializer_class = LandlordSerializer
     permission_classes = [AllowAny]
@@ -22,10 +19,6 @@ class LandlordViewSet(viewsets.ModelViewSet):
 
 
 class PropertyViewSet(viewsets.ModelViewSet):
-    """
-    API ViewSet for managing Property records. Includes validation error logging for POST/PUT debugging.
-    Supports filtering properties by landlord primary key via ?landlord=<id>.
-    """
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
     permission_classes = [AllowAny]
@@ -33,28 +26,20 @@ class PropertyViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'property_id', 'location', 'landlord__name']
     
-    # Tells Django REST Framework to query properties by property_id instead of integer pk
     lookup_field = 'property_id' 
     lookup_url_kwarg = 'property_id'
 
     def get_queryset(self):
         queryset = Property.objects.select_related('landlord').all().order_by('-id')
-        
-        # Filter by landlord parameter if passed in request URL (e.g., ?landlord=7)
         landlord_param = self.request.query_params.get('landlord')
         if landlord_param:
             queryset = queryset.filter(landlord_id=landlord_param)
-            
         return queryset
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         if not serializer.is_valid():
-            print("--- POST /api/v1/properties/ VALIDATION ERRORS ---")
-            print(serializer.errors)
-            print("--------------------------------------------------")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
@@ -64,20 +49,12 @@ class PropertyViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         if not serializer.is_valid():
-            print(f"--- PUT/PATCH /api/v1/properties/{instance.property_id}/ VALIDATION ERRORS ---")
-            print(serializer.errors)
-            print("--------------------------------------------------")
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
         self.perform_update(serializer)
         return Response(serializer.data)
 
 
 class UnitViewSet(viewsets.ModelViewSet):
-    """
-    API ViewSet for managing Property Unit records.
-    Supports filtering units by string property_id, property name, or landlord via query parameters.
-    """
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
     permission_classes = [AllowAny]
@@ -88,7 +65,6 @@ class UnitViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         queryset = Unit.objects.select_related('property').all().order_by('-id')
         
-        # Check for string property_id, property name, or landlord parameters
         property_id_param = self.request.query_params.get('property_id')
         property_param = self.request.query_params.get('property')
         landlord_param = self.request.query_params.get('landlord')
@@ -96,7 +72,6 @@ class UnitViewSet(viewsets.ModelViewSet):
         if property_id_param:
             queryset = queryset.filter(property__property_id=property_id_param)
         elif property_param and property_param != 'All':
-            # Handle both numeric primary keys (sent from frontend dataset) and text names seamlessly
             if property_param.isdigit():
                 queryset = queryset.filter(property_id=property_param)
             else:
@@ -109,7 +84,6 @@ class UnitViewSet(viewsets.ModelViewSet):
         if landlord_param and landlord_param != 'All':
             queryset = queryset.filter(property__landlord_id=landlord_param)
             
-        # Optional filters for vacancy and status if passed from frontend
         vacancy_param = self.request.query_params.get('vacancy')
         if vacancy_param and vacancy_param != 'All':
             is_vacant = (vacancy_param.lower() == 'vacant')

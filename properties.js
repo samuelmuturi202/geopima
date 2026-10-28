@@ -2,7 +2,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
 
   async function fetchAPI(endpoint, options = {}) {
-    // Check multiple fallback keys for stored JWT tokens
     const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
     
     const headers = {
@@ -22,7 +21,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      
       let message = errorData.detail;
       if (!message && typeof errorData === 'object') {
         message = Object.entries(errorData)
@@ -70,15 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('table-search');
 
   function renderTable(data) {
-    console.log("RAW API DATA RECEIVED:", data);
-
-    if (!tableBody) {
-      console.error("CRITICAL ERROR: document.querySelector('#properties-table tbody') returned null! Check your HTML table ID.");
-      return;
-    }
+    if (!tableBody) return;
     tableBody.innerHTML = '';
 
-    // Bulletproof array extraction supporting various DRF response structures
     let propertiesList = [];
     if (Array.isArray(data)) {
       propertiesList = data;
@@ -90,8 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
       propertiesList = [];
     }
 
-    console.log("PARSED PROPERTIES LIST ARRAY:", propertiesList);
-
     if (propertiesList.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:15px;">No properties found</td></tr>`;
       return;
@@ -101,7 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!item || typeof item !== 'object') return;
 
       const row = document.createElement('tr');
-      
       const propId = item.property_id || item.propertyId || item.code || `PRO-${item.id}` || '-';
       const propName = item.name || item.propertyName || '-';
       
@@ -123,8 +112,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const statusText = item.status || (item.is_active ? 'active' : 'inactive');
       const badgeClass = statusText.toLowerCase() === 'active' ? 'bg-success' : 'bg-secondary';
-
-      // Strictly utilize the string property_id for lookups matching Django's lookup_field
       const stringLookupId = item.property_id || item.propertyId || item.code || item.id;
 
       row.innerHTML = `
@@ -146,13 +133,12 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadProperties(searchQuery = '') {
     try {
       const queryParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
-      // Updated endpoint path to prevent path duplication
       const response = await fetchAPI(`/properties/${queryParam}`);
       renderTable(response);
     } catch (err) {
       console.error('Failed to load properties:', err);
       if (tableBody) {
-        tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red; padding:15px;">Error loading properties from server: ${err.message}</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red; padding:15px;">Error loading properties: ${err.message}</td></tr>`;
       }
     }
   }
@@ -189,8 +175,6 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       
       const rawLandlordVal = document.getElementById('landlord-id')?.value || document.getElementById('landlord-name')?.value || '';
-      
-      // Correctly handle either numeric ID strings or raw text names
       let landlordValue = null;
       if (rawLandlordVal.trim() !== '') {
         const parsedId = parseInt(rawLandlordVal, 10);
@@ -210,7 +194,6 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       try {
-        // Updated POST endpoint to target the correct base resource path
         await fetchAPI('/properties/', {
           method: 'POST',
           body: payload
@@ -304,7 +287,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Unit Type Setup
   setupTagModal({
     openBtnId: 'open-unit-type-btn',
     modalId: 'unitTypeModal',
@@ -314,12 +296,11 @@ document.addEventListener('DOMContentLoaded', () => {
     gridId: 'unitTypeGrid',
     inputId: 'newTypeName',
     addBtnId: 'addTypeBtn',
-    initialItems: ['Residential', 'Commercial', 'Industrial', 'Mixed Use', 'Bedsitter'],
+    initialItems: ['Residential', 'Commercial', 'Industrial', 'Mixed Use', 'Bedsitter', 'Single Room'],
     defaultSelected: ['Residential'],
     apiEndpoint: '/properties/unit-types/'
   });
 
-  // Unit Category Setup
   setupTagModal({
     openBtnId: 'open-unit-cat-btn',
     modalId: 'unitCatModal',
@@ -329,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
     gridId: 'unitCatGrid',
     inputId: 'newCatName',
     addBtnId: 'addCatBtn',
-    initialItems: ['Standard', 'Executive', 'Deluxe', 'Economy'],
+    initialItems: ['Standard', 'Executive', 'Deluxe', 'Economy', 'Residential'],
     defaultSelected: ['Standard'],
     apiEndpoint: '/properties/unit-categories/'
   });
