@@ -472,7 +472,7 @@
     </div>
   </div>
 
-  <!-- Edit Property Modal (Updated with extra bill fields) -->
+  <!-- Edit Property Modal -->
   <div class="modal-overlay" id="edit-property-modal">
     <div class="modal-card">
       <h3>Edit Property Details</h3>
@@ -546,7 +546,6 @@
 
       <form id="add-unit-form">
         <div class="add-units-body-box">
-          <!-- Row 1: Unit No., Unit Name, Category, Unit Type -->
           <div class="unit-grid-row-1">
             <div class="form-group">
               <input type="text" id="new-unit-no" readonly style="background-color: #edf2f7; cursor: not-allowed;" placeholder="Auto-generated">
@@ -583,7 +582,6 @@
             </div>
           </div>
 
-          <!-- Row 2: All Charges -->
           <div class="unit-grid-row-2">
             <div class="form-group">
               <input type="number" step="0.01" id="new-unit-rent" placeholder="Rent">
@@ -625,7 +623,7 @@
     </div>
   </div>
 
-  <!-- JavaScript Imports -->
+  <!-- JavaScript Implementation -->
   <script src="js/api.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', async () => {
@@ -638,10 +636,10 @@
         return;
       }
 
-      const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+      const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
       async function fetchAPI(endpoint, options = {}) {
-        const token = localStorage.getItem('access_token');
+        const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
         const headers = {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -806,7 +804,6 @@
           document.getElementById('new-unit-no').value = generatePropertyUnitNo();
           document.getElementById('new-unit-name').value = '';
           
-          // Auto-fill default bills from property defaults if available
           document.getElementById('new-unit-rent').value = currentPropertyData.default_rent || '';
           document.getElementById('new-unit-deposit').value = currentPropertyData.default_deposit || '';
           document.getElementById('new-unit-garbage').value = currentPropertyData.default_garbage_fee || '';
@@ -882,7 +879,7 @@
         });
       }
 
-      // Edit Property Modal & Actions (Populates and sends bill fields)
+      // Edit Property Modal & Actions
       const editModal = document.getElementById('edit-property-modal');
       const editBtn = document.getElementById('edit-property-btn');
       const closeEditModalBtn = document.getElementById('close-edit-modal');
@@ -896,7 +893,6 @@
           document.getElementById('edit-commission').value = currentPropertyData.commission_percentage || '';
           document.getElementById('edit-description').value = currentPropertyData.description || '';
           
-          // Populate bill fields
           document.getElementById('edit-default-deposit').value = currentPropertyData.default_deposit || '';
           document.getElementById('edit-default-security').value = currentPropertyData.default_security_fee || '';
           document.getElementById('edit-default-electricity').value = currentPropertyData.default_electricity_fee || '';
@@ -924,7 +920,6 @@
             commission_percentage: parseFloat(document.getElementById('edit-commission').value) || 0,
             description: document.getElementById('edit-description').value,
             
-            // Include bill fields in payload
             default_deposit: parseFloat(document.getElementById('edit-default-deposit').value) || 0,
             default_security_fee: parseFloat(document.getElementById('edit-default-security').value) || 0,
             default_electricity_fee: parseFloat(document.getElementById('edit-default-electricity').value) || 0,
