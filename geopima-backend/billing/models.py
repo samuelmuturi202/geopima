@@ -37,7 +37,7 @@ class Deposit(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     deposit_code = models.CharField(max_length=50, unique=True)
     reference_no = models.CharField(max_length=50, blank=True, null=True)
-    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.PROTECT, related_name='deposits')
+    tenant = models.ForeignKey('tenants.Tenant', to_field='tenant_id', on_delete=models.PROTECT, related_name='deposits')
     unit = models.ForeignKey('properties.Unit', on_delete=models.PROTECT, related_name='deposits')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     status = models.CharField(max_length=20, default='held')
@@ -51,7 +51,7 @@ class SmartAliasTransaction(models.Model):
     """Logs incoming webhook payloads from Credit Bank Smart Alias collection service (Paybill 4045619)."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaction_reference = models.CharField(max_length=100, unique=True)
-    account_alias = models.CharField(max_length=100)  # e.g., "House No. 1"
+    account_alias = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     sender_name = models.CharField(max_length=255, blank=True, null=True)
@@ -74,7 +74,7 @@ class Invoice(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     invoice_number = models.CharField(max_length=30, unique=True, editable=False)
-    tenant = models.ForeignKey('tenants.Tenant', on_delete=models.PROTECT, related_name='invoices')
+    tenant = models.ForeignKey('tenants.Tenant', to_field='tenant_id', on_delete=models.PROTECT, related_name='invoices')
     unit = models.ForeignKey('properties.Unit', on_delete=models.PROTECT, related_name='invoices')
     
     billing_period = models.DateField()

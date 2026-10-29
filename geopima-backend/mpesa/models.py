@@ -8,7 +8,7 @@ class MpesaTransaction(models.Model):
     trans_time = models.CharField(max_length=50)
     trans_amount = models.DecimalField(max_digits=12, decimal_places=2)
     business_short_code = models.CharField(max_length=20)
-    bill_ref_number = models.CharField(max_length=100)  # Contains Unit Code or Tenant ID
+    bill_ref_number = models.CharField(max_length=100)
     msisdn = models.CharField(max_length=20)
     first_name = models.CharField(max_length=100, blank=True)
     last_name = models.CharField(max_length=100, blank=True)
@@ -21,7 +21,7 @@ class MpesaTransaction(models.Model):
 
 class PaymentSettlement(models.Model):
     transaction = models.OneToOneField(MpesaTransaction, on_delete=models.CASCADE)
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='payments')
+    tenant = models.ForeignKey(Tenant, to_field='tenant_id', on_delete=models.CASCADE, related_name='payments')
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, null=True, blank=True, related_name='settlements')
     amount_applied = models.DecimalField(max_digits=12, decimal_places=2)
     settled_at = models.DateTimeField(auto_now_add=True)

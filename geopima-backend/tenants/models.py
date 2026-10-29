@@ -3,14 +3,14 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 
-from config_core.models import AgreementTemplate, UserRole
 from properties.models import Unit
 from .utils import normalize_phone_number
 
 
 class User(AbstractUser):
     phone = models.CharField(max_length=17, blank=True, null=True)
-    roles = models.ManyToManyField(UserRole, related_name='users', blank=True)
+    # Use string reference for cross-app ManyToManyField
+    roles = models.ManyToManyField('config_core.UserRole', related_name='users', blank=True)
     is_active = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
@@ -32,7 +32,7 @@ class Tenant(models.Model):
     user = models.OneToOneField(
         User, on_delete=models.SET_NULL, null=True, blank=True, related_name='tenant_profile'
     )
-    tenant_id = models.CharField(max_length=20, unique=True, blank=True)
+    tenant_id = models.CharField(max_length=20, primary_key=True, unique=True, blank=True)
     name = models.CharField(max_length=255)
     phone_number = models.CharField(max_length=20)
     email = models.EmailField(blank=True, null=True)
@@ -53,10 +53,11 @@ class Tenant(models.Model):
 
 
 class LeaseAgreement(models.Model):
-    tenant = models.ForeignKey(Tenant, on_delete=models.CASCADE, related_name='agreements')
+    tenant = models.ForeignKey(Tenant, to_field='tenant_id', on_delete=models.CASCADE, related_name='agreements')
     unit = models.ForeignKey(Unit, on_delete=models.CASCADE, related_name='agreements')
+    # Use string reference for cross-app ForeignKey
     template = models.ForeignKey(
-        AgreementTemplate, on_delete=models.SET_NULL, null=True, blank=True, related_name='leases'
+        'config_core.AgreementTemplate', on_delete=models.SET_NULL, null=True, blank=True, related_name='leases'
     )
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
