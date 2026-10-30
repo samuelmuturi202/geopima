@@ -168,7 +168,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (selectedProp !== 'ALL') params.append('property', selectedProp);
       if (selectedMethod !== 'ALL') params.append('payment_method', selectedMethod);
 
-      const response = await fetchAPI(`/billing/rent-collections/?${params.toString()}`);
+      // ENSURE TRAILING SLASH IS PRESENT BEFORE QUERY PARAMS
+      const queryString = params.toString() ? `?${params.toString()}` : '';
+      const response = await fetchAPI(`/billing/rent-collections/${queryString}`);
+      
       renderTable(response.results || response);
     } catch (err) {
       console.error('Failed to load rent collections:', err);
