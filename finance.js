@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       recordCountEl.textContent = `Showing ${data.length} transaction${data.length > 1 ? 's' : ''}`;
     }
 
-    // Attach receipt popup triggers to open modal and display details
+    // Attach receipt popup triggers to open centered pop-up modal and display details
     document.querySelectorAll('.receipt-link').forEach(link => {
       link.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -130,22 +130,33 @@ document.addEventListener('DOMContentLoaded', () => {
           modalTenantInfo.innerHTML = `
             <i class="fa-solid fa-user-circle" style="font-size:3.5rem; color:#a0aec0;"></i>
             <div>
-              <h3 style="margin:0; font-size:1.1rem; color:#2d3748;">${detail.tenant || detail.tenant_name || 'Agnes Nyamboke Omosa'}</h3>
+              <h3 style="margin:0; font-size:1.1rem; color:#2d3748;">${detail.tenant || detail.tenant_name || 'Glen'}</h3>
               <p style="margin:4px 0 0; font-size:0.82rem; color:#4a5568;">
-                TNTNO: ${detail.tenantNo || detail.tenant_no || 'W4794'} / Landlord: ${detail.landlord || 'SAMMY GACHARI'} / Property: ${detail.property || detail.property_name || 'sammy gachari'} / Unit: ${detail.unit || detail.unit_name || 'B18'}
+                TNTNO: ${detail.tenantNo || detail.tenant_no || 'W2570'} / Landlord: ${detail.landlord || 'Nancy Onduko'} / Property: ${detail.property || detail.property_name || 'Onduko Plot'} / Unit: ${detail.unit || detail.unit_name || 'B13'}
               </p>
-              <p style="margin:2px 0 0; font-size:0.8rem; color:#718096;"><i class="fa-solid fa-phone"></i> Phone #: ${detail.phone || '254748193224'} &nbsp;&nbsp; Status: <span style="color:#28a745; font-weight:600;">active</span></p>
+              <p style="margin:2px 0 0; font-size:0.8rem; color:#718096;"><i class="fa-solid fa-phone"></i> Phone #: ${detail.phone || '254791472363'} &nbsp;&nbsp; Status: <span style="color:#28a745; font-weight:600;">active</span></p>
             </div>
           `;
 
           modalPaymentDetails.innerHTML = `
-            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
-              <div><label style="font-size:0.75rem; color:#718096; display:block;">Receipt Number</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.receiptNo || detail.receipt_number || '2022063566'}</span></div>
-              <div><label style="font-size:0.75rem; color:#718096; display:block;">Amount Paid</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">KES ${Number(detail.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-              <div><label style="font-size:0.75rem; color:#718096; display:block;">Balance</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">KES ${Number(detail.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
-              <div><label style="font-size:0.75rem; color:#718096; display:block;">Bank</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.bank || 'Lipa Na M-Pesa'}</span></div>
-              <div><label style="font-size:0.75rem; color:#718096; display:block;">Reference Number</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.refCode || detail.reference_code || detail.trans_id || 'UJUP0042SK'}</span></div>
-              <div><label style="font-size:0.75rem; color:#718096; display:block;">Slip Date</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.slipDate || detail.created_at?.split('T')[0] || '2026-10-30'}</span></div>
+            <div style="font-size:0.8rem; font-weight:600; color:#4a5568; margin-bottom:10px;">Payment Details</div>
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; margin-bottom:15px;">
+              <div><label style="font-size:0.72rem; color:#718096; display:block; margin-bottom:4px;">Receipt Number</label><div style="border-bottom:1px solid #cbd5e0; padding-bottom:4px; font-weight:600; color:#2d3748;">${detail.receiptNo || detail.receipt_number || '2022061247'}</div></div>
+              <div><label style="font-size:0.72rem; color:#718096; display:block; margin-bottom:4px;">Amount Paid</label><div style="border-bottom:1px solid #cbd5e0; padding-bottom:4px; font-weight:600; color:#2d3748;">${Number(detail.amount || 1000).toLocaleString(undefined, {minimumFractionDigits: 2})}</div></div>
+              <div><label style="font-size:0.72rem; color:#718096; display:block; margin-bottom:4px;">Balance</label><div style="border-bottom:1px solid #cbd5e0; padding-bottom:4px; font-weight:600; color:#2d3748;">${Number(detail.balance || 4300).toLocaleString(undefined, {minimumFractionDigits: 2})}</div></div>
+              <div><label style="font-size:0.72rem; color:#718096; display:block; margin-bottom:4px;">Bank</label><div style="border-bottom:1px solid #cbd5e0; padding-bottom:4px; font-weight:600; color:#2d3748;">${detail.bank || 'Lipa Na M-Pesa'}</div></div>
+              <div><label style="font-size:0.72rem; color:#718096; display:block; margin-bottom:4px;">Reference Number</label><div style="border-bottom:1px solid #cbd5e0; padding-bottom:4px; font-weight:600; color:#2d3748;">${detail.refCode || detail.reference_code || detail.trans_id || 'UJ1OL8KTZO'}</div></div>
+              <div><label style="font-size:0.72rem; color:#718096; display:block; margin-bottom:4px;">Slip Date</label><div style="border-bottom:1px solid #cbd5e0; padding-bottom:4px; font-weight:600; color:#2d3748;">${detail.slipDate || detail.created_at?.split('T')[0] || '2026-10-01'}</div></div>
+            </div>
+            <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:15px; margin-top:15px;">
+              <div>
+                <label style="font-size:0.78rem; font-weight:600; color:#2d3748; display:block; margin-bottom:4px;">Tenant Note</label>
+                <textarea style="width:100%; border:1px solid #cbd5e0; border-radius:4px; padding:6px; font-size:0.8rem; resize:vertical;" rows="2" placeholder="Visible on tenant's receipt">${detail.tenant_note || ''}</textarea>
+              </div>
+              <div>
+                <label style="font-size:0.78rem; font-weight:600; color:#2d3748; display:block; margin-bottom:4px;">Admin Note</label>
+                <textarea style="width:100%; border:1px solid #cbd5e0; border-radius:4px; padding:6px; font-size:0.8rem; resize:vertical;" rows="2" placeholder="Not visible on tenant's receipt">${detail.admin_note || ''}</textarea>
+              </div>
             </div>
           `;
 
@@ -168,7 +179,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (selectedProp !== 'ALL') params.append('property', selectedProp);
       if (selectedMethod !== 'ALL') params.append('payment_method', selectedMethod);
 
-      // ENSURE TRAILING SLASH IS PRESENT BEFORE QUERY PARAMS
       const queryString = params.toString() ? `?${params.toString()}` : '';
       const response = await fetchAPI(`/billing/rent-collections/${queryString}`);
       
