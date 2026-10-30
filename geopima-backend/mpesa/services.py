@@ -1,3 +1,4 @@
+import datetime
 from decimal import Decimal
 from django.db import transaction
 from tenants.models import Tenant
@@ -6,6 +7,23 @@ from .models import MpesaTransaction, PaymentSettlement
 
 
 class MpesaSettlementEngine:
+
+    @classmethod
+    def generate_monthly_receipt_number(cls) -> str:
+        """
+        Generates a unique monthly sequential receipt number (e.g., 2022063566).
+        """
+        now = datetime.datetime.now()
+        prefix = now.strftime('%Y%m')
+        last_settlement = PaymentSettlement.objects.filter(receipt_number__startswith=prefix).order_by('-id').first()
+        if last_settlement and last_settlement.receipt_number:
+            try:
+                seq = int(last_settlement.receipt_number[-4:]) + 1
+            except ValueError:
+                seq = 1001
+        else:
+            seq = 3556  # Base starting sequence
+        return f"{prefix}{seq:04d}"
 
     @classmethod
     @transaction.atomic
@@ -44,14 +62,29 @@ class MpesaSettlementEngine:
     @classmethod
     def settle_transaction(cls, mpesa_tx: MpesaTransaction) -> bool:
         """
-        Matches transaction against tenants and applies payment towards open invoices.
+        Matches transaction against tenants using Smart Alias [PropertyCode]-[UnitName],
+        Tenant ID, or Phone Number, and applies payment towards open invoices.
         """
-        ref_code = mpesa_tx.bill_ref_number
-        tenant = Tenant.objects.filter(unit__unit_name__iexact=ref_code).first()
+        ref_code = mpesa_tx.bill_ref_number.strip()
+        tenant = None
 
+        # 1. Try matching by Smart Alias format: [PropertyCode]-[UnitName] (e.g. WP068-H1)
+        if "-" in ref_code:
+            prop_code, unit_name = ref_code.split("-", 1)
+            tenant = Tenant.objects.filter(
+                unit__property__property_id__iexact=prop_code,
+                unit__unit_name__iexact=unit_name
+            ).first()
+
+        # 2. Fallback: Match by unit name alone (e.g. H1)
+        if not tenant:
+            tenant = Tenant.objects.filter(unit__unit_name__iexact=ref_code).first()
+
+        # 3. Fallback: Match by direct Tenant ID (e.g. W3668)
         if not tenant:
             tenant = Tenant.objects.filter(tenant_id__iexact=ref_code).first()
 
+        # 4. Fallback: Match by MSISDN / Phone Number
         if not tenant:
             tenant = Tenant.objects.filter(phone_number=mpesa_tx.msisdn).first()
 
@@ -82,6 +115,7 @@ class MpesaSettlementEngine:
                 transaction=mpesa_tx,
                 tenant=tenant,
                 invoice=invoice,
+                receipt_number=cls.generate_monthly_receipt_number(),
                 amount_applied=payment_amount
             )
 

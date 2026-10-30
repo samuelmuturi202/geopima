@@ -173,19 +173,19 @@
 
     <div class="container">
       <div class="dashboard-title-row">
-        <h2>Finance - Collected Rent</h2>
-        <div class="breadcrumb">Home / Finance / COLLECTED RENT</div>
+        <h2>OCTOBER-2026 COLLECTION LIST</h2>
+        <div class="breadcrumb" style="color: #007bff; cursor: pointer;">all / manual / auto</div>
       </div>
 
       <!-- Collected Rent Metric Cards -->
       <div class="stats-matrix">
         <div class="stat-card green">
-          <div class="val">KES 1,053,027</div>
-          <div class="label">Total Rent Collected (August)</div>
+          <div class="val">KES 7,785,003.00</div>
+          <div class="label">Total Rent Collected (October)</div>
           <i class="fa-solid fa-hand-holding-dollar watermark"></i>
         </div>
         <div class="stat-card blue">
-          <div class="val">KES 725,660</div>
+          <div class="val">KES 6,865,103.00</div>
           <div class="label">M-Pesa Collection</div>
           <i class="fa-solid fa-mobile-retro watermark"></i>
         </div>
@@ -195,7 +195,7 @@
           <i class="fa-solid fa-money-bill-wave watermark"></i>
         </div>
         <div class="stat-card green">
-          <div class="val">KES 227,467</div>
+          <div class="val">KES 820,000</div>
           <div class="label">Bank Direct Deposit (Co-op)</div>
           <i class="fa-solid fa-building-columns watermark"></i>
         </div>
@@ -230,12 +230,11 @@
           </div>
           <div class="input-field">
             <label for="month-filter"><i class="fa-regular fa-calendar"></i> Month</label>
-            <input type="month" id="month-filter" value="2026-08">
+            <input type="month" id="month-filter" value="2026-10">
           </div>
         </div>
 
         <div class="export-actions">
-          <!-- General Export Dropdown -->
           <div class="export-dropdown" id="export-dropdown">
             <button class="btn btn-outline export-toggle-btn" id="export-toggle-btn">
               <i class="fa-solid fa-file-export"></i> Export <i class="fa-solid fa-chevron-down dropdown-chevron"></i>
@@ -249,7 +248,6 @@
               </button>
             </div>
           </div>
-
           <button class="btn btn-primary" id="print-btn"><i class="fa-solid fa-print"></i> Print Statement</button>
         </div>
       </div>
@@ -257,22 +255,26 @@
       <!-- Collected Rent Table -->
       <div class="table-card">
         <div class="table-header">
-          <h3><i class="fa-solid fa-receipt"></i> Rent Collection Transactions</h3>
-          <span class="record-count" id="record-count">Showing 6 transactions</span>
+          <h3><i class="fa-solid fa-receipt"></i> RENT COLLECTED LIST [ <span class="amount-highlight">KES. 7,785,003.00</span> ]</h3>
+          <span class="record-count" id="record-count">Showing transactions</span>
         </div>
         <div class="table-wrapper">
           <table id="rent-table">
             <thead>
               <tr>
-                <th>Receipt #</th>
-                <th>Date & Time</th>
-                <th>Tenant Name</th>
-                <th>Property & Unit</th>
-                <th>Method</th>
-                <th>Ref / Txn Code</th>
-                <th>Amount (KES)</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>#</th>
+                <th>RECEIPT</th>
+                <th>TNT NO</th>
+                <th>TENANT NAME</th>
+                <th>PROPERTY</th>
+                <th>UNIT</th>
+                <th>BANK</th>
+                <th>REF NO</th>
+                <th>TYPE</th>
+                <th>SLIP DATE</th>
+                <th>ENTRY DATE</th>
+                <th>MODE</th>
+                <th>AMOUNT</th>
               </tr>
             </thead>
             <tbody id="rent-table-body">
@@ -295,11 +297,54 @@
     </div>
   </div>
 
-  <!-- Shared Main Script (Sidebar toggle & dark mode) -->
-   <!-- 1. Load the shared API script first -->
-  <script src="js/api.js"></script>
+  <!-- VIEW PAYMENT MODAL (Matches Image 3) -->
+  <div class="modal-overlay" id="receipt-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 style="margin:0; font-size:1.15rem; color:#2d3748;">VIEW PAYMENT</h3>
+        <span style="font-size:0.85rem; color:#718096;">Home / Fees Collection</span>
+      </div>
+
+      <div class="tenant-profile-box" id="modal-tenant-info">
+        <!-- Rendered via finance.js -->
+      </div>
+
+      <div class="modal-action-bar">
+        <button class="btn" style="background:#ffc107; color:#333; font-weight:700;">OCTOBER-2026</button>
+        <div class="right-btn-group">
+          <button class="btn" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;"><i class="fa-solid fa-paper-plane"></i> resend notification</button>
+          <button class="btn" style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb;"><i class="fa-solid fa-trash"></i> delete</button>
+          <button class="btn" style="background:#d4edda; color:#155724; border:1px solid #c3e6cb;"><i class="fa-solid fa-pen"></i> edit</button>
+          <button class="btn" style="background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb;"><i class="fa-solid fa-credit-card"></i> collect payment</button>
+          <button class="btn" style="background:#e2e3e5; color:#383d41; border:1px solid #d6d8db;"><i class="fa-solid fa-file-invoice"></i> invoice</button>
+          <button class="btn btn-primary" id="modal-print-btn"><i class="fa-solid fa-print"></i> print receipt</button>
+        </div>
+      </div>
+
+      <div class="payment-details-card" id="modal-payment-details">
+        <!-- Rendered via finance.js -->
+      </div>
+
+      <div class="modal-footer-info">
+        <div>
+          <label style="font-weight:600; color:#4a5568;">Payment Made To:</label><br>
+          <input type="radio" checked disabled> Agency &nbsp;&nbsp;
+          <input type="radio" disabled> Landlord
+        </div>
+        <div>
+          <label style="font-weight:600; color:#4a5568;">Notification Sent Via:</label><br>
+          <input type="checkbox" checked disabled> SMS &nbsp;&nbsp;
+          <input type="checkbox" disabled> Email
+        </div>
+      </div>
+
+      <div class="modal-close-row">
+        <button class="btn" id="close-modal-btn" style="background:#6c757d; color:#fff;">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="script.js"></script>
-  <!-- Finance Specific Logic -->
   <script src="finance.js"></script>
 </body>
 </html>

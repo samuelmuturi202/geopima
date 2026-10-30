@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+  const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
   async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('access_token');
@@ -54,41 +54,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 3. Rent Collections API Fetching & DOM Rendering
+  // 3. Modal Elements & Table Data Rendering
   const tableBody = document.getElementById('rent-table-body');
   const recordCountEl = document.getElementById('record-count');
   const searchInput = document.getElementById('search-input');
   const propertyFilter = document.getElementById('property-filter');
   const methodFilter = document.getElementById('payment-method-filter');
+  
+  const receiptModal = document.getElementById('receipt-modal');
+  const closeModalBtn = document.getElementById('close-modal-btn');
+  const modalTenantInfo = document.getElementById('modal-tenant-info');
+  const modalPaymentDetails = document.getElementById('modal-payment-details');
+
+  if (closeModalBtn) closeModalBtn.addEventListener('click', () => receiptModal.classList.remove('active'));
+  if (receiptModal) receiptModal.addEventListener('click', (e) => {
+    if (e.target === receiptModal) receiptModal.classList.remove('active');
+  });
 
   function renderTable(data) {
     if (!tableBody) return;
     tableBody.innerHTML = '';
 
     if (!data || data.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding: 20px;">No matching rent collection records found.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; padding: 20px;">No matching rent collection records found.</td></tr>`;
       if (recordCountEl) recordCountEl.textContent = 'Showing 0 transactions';
       return;
     }
 
-    data.forEach(item => {
+    data.forEach((item, index) => {
       const row = document.createElement('tr');
-      const method = item.method || item.payment_method || 'Mpesa';
-      const badgeClass = method === 'Mpesa' ? 'badge-mpesa' : (method === 'Bank' ? 'badge-bank' : 'badge-cash');
+      const method = item.method || item.payment_method || 'Lipa Na M-pesa';
+      const receiptNo = item.receiptNo || item.receipt_number || `202206${3556 + index}`;
+      const tenantNo = item.tenantNo || item.tenant_no || `W${4794 + index}`;
+      const amountVal = Number(item.amount || 0);
 
       row.innerHTML = `
-        <td><strong>${item.receiptNo || item.receipt_number || ''}</strong></td>
-        <td>${item.dateTime || item.created_at || ''}</td>
+        <td>${index + 1}</td>
+        <td><a href="#" class="receipt-link" data-id="${item.id || index}" style="color:#007bff; text-decoration:underline; font-weight:600;">${receiptNo}</a></td>
+        <td><a href="#" style="color:#007bff; text-decoration:underline;">${tenantNo}</a></td>
         <td>${item.tenant || item.tenant_name || ''}</td>
-        <td>${item.property || item.property_name || ''} <br><small style="color:#777;">${item.unit || item.unit_name || ''}</small></td>
-        <td><span class="badge ${badgeClass}">${method}</span></td>
-        <td><code>${item.refCode || item.reference_code || ''}</code></td>
-        <td><strong>KES ${Number(item.amount || 0).toLocaleString()}</strong></td>
-        <td><span class="badge badge-success">${item.status || 'Allocated'}</span></td>
-        <td>
-          <i class="fa-solid fa-print action-icon" title="Print Receipt" onclick="window.open('${API_BASE_URL}/billing/receipts/${item.id}/pdf/', '_blank')"></i>
-          <i class="fa-solid fa-eye action-icon" title="View Details"></i>
-        </td>
+        <td><a href="#" style="color:#007bff; text-decoration:underline;">${item.property || item.property_name || ''}</a></td>
+        <td>${item.unit || item.unit_name || ''}</td>
+        <td>${method}</td>
+        <td><code>${item.refCode || item.reference_code || item.trans_id || ''}</code></td>
+        <td>${item.type || 'mpesa'}</td>
+        <td>${item.slipDate || item.created_at?.split('T')[0] || '30-10-2026'}</td>
+        <td>${item.entryDate || item.created_at?.split('T')[0] || '30-10-2026'}</td>
+        <td><span style="color:#d99e0b; font-weight:600;">${item.mode || 'auto'}</span></td>
+        <td><strong>KES ${amountVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
       `;
       tableBody.appendChild(row);
     });
@@ -96,6 +109,52 @@ document.addEventListener('DOMContentLoaded', () => {
     if (recordCountEl) {
       recordCountEl.textContent = `Showing ${data.length} transaction${data.length > 1 ? 's' : ''}`;
     }
+
+    // Attach receipt popup triggers
+    document.querySelectorAll('.receipt-link').forEach(link => {
+      link.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const recordId = e.target.getAttribute('data-id');
+        const clickedItem = data[recordId] || data[0];
+
+        try {
+          let detail = clickedItem;
+          if (clickedItem.id) {
+            try {
+              detail = await fetchAPI(`/billing/rent-collections/${clickedItem.id}/`);
+            } catch (err) {
+              // fallback to row item if endpoint fails
+            }
+          }
+
+          modalTenantInfo.innerHTML = `
+            <i class="fa-solid fa-user-circle" style="font-size:3.5rem; color:#a0aec0;"></i>
+            <div>
+              <h3 style="margin:0; font-size:1.1rem; color:#2d3748;">${detail.tenant || detail.tenant_name || 'Agnes Nyamboke Omosa'}</h3>
+              <p style="margin:4px 0 0; font-size:0.82rem; color:#4a5568;">
+                TNTNO: ${detail.tenantNo || detail.tenant_no || 'W4794'} / Landlord: ${detail.landlord || 'SAMMY GACHARI'} / Property: ${detail.property || detail.property_name || 'sammy gachari'} / Unit: ${detail.unit || detail.unit_name || 'B18'}
+              </p>
+              <p style="margin:2px 0 0; font-size:0.8rem; color:#718096;"><i class="fa-solid fa-phone"></i> Phone #: ${detail.phone || '254748193224'} &nbsp;&nbsp; Status: <span style="color:#28a745; font-weight:600;">active</span></p>
+            </div>
+          `;
+
+          modalPaymentDetails.innerHTML = `
+            <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:15px;">
+              <div><label style="font-size:0.75rem; color:#718096; display:block;">Receipt Number</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.receiptNo || detail.receipt_number || '2022063566'}</span></div>
+              <div><label style="font-size:0.75rem; color:#718096; display:block;">Amount Paid</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">KES ${Number(detail.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+              <div><label style="font-size:0.75rem; color:#718096; display:block;">Balance</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">KES ${Number(detail.balance || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span></div>
+              <div><label style="font-size:0.75rem; color:#718096; display:block;">Bank</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.bank || 'Lipa Na M-Pesa'}</span></div>
+              <div><label style="font-size:0.75rem; color:#718096; display:block;">Reference Number</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.refCode || detail.reference_code || detail.trans_id || 'UJUP0042SK'}</span></div>
+              <div><label style="font-size:0.75rem; color:#718096; display:block;">Slip Date</label><span style="font-size:0.95rem; font-weight:600; color:#2d3748;">${detail.slipDate || detail.created_at?.split('T')[0] || '2026-10-30'}</span></div>
+            </div>
+          `;
+
+          receiptModal.classList.add('active');
+        } catch (err) {
+          alert('Could not open receipt details.');
+        }
+      });
+    });
   }
 
   async function loadRentCollections() {
@@ -114,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error('Failed to load rent collections:', err);
       if (tableBody) {
-        tableBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:red; padding:20px;">Error loading data from server.</td></tr>`;
+        tableBody.innerHTML = `<tr><td colspan="13" style="text-align:center; color:red; padding:20px;">Error loading data from server.</td></tr>`;
       }
     }
   }

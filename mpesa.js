@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+  const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
   // Helper for authenticated requests
   async function fetchAPI(endpoint, options = {}) {
@@ -47,8 +47,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Fetch Transactions from Django Backend
+  // 2. Fetch Transactions from Django Backend & Render Table
   const tableBody = document.getElementById('mpesa-table-body');
+  const totalSummaryEl = document.getElementById('total-mpesa-summary');
 
   function renderTable(data) {
     if (!tableBody) return;
@@ -59,24 +60,36 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    let runningTotal = 0;
+
     data.forEach((item, index) => {
-      const badgeClass = item.status === 'successful' || item.status === 'SUCCESS' ? 'badge-successful' : 'badge-unsuccessful';
+      const amountVal = Number(item.amount || item.trans_amount || 0);
+      runningTotal += amountVal;
+
+      // Status logic: successful if smart alias matches a unit correctly, unsuccessful if unmapped/incorrect
+      const isSuccessful = item.status === 'successful' || item.status === 'SUCCESS' || item.is_settled === true;
+      const badgeClass = isSuccessful ? 'badge-successful' : 'badge-unsuccessful';
+      const statusText = isSuccessful ? 'successful' : 'unsuccessful';
 
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${item.id || index + 1}</td>
         <td>${item.dateTime || item.created_at || ''}</td>
-        <td><a href="#" class="trans-link">${item.transId || item.transaction_id || ''}</a></td>
-        <td>${item.accountNo || item.account_number || ''}</td>
+        <td><a href="#" class="trans-link">${item.transId || item.trans_id || ''}</a></td>
+        <td>${item.accountNo || item.bill_ref_number || ''}</td>
         <td>${item.tenant || item.tenant_name || ''}</td>
         <td>${item.property || item.property_name || ''}</td>
         <td>${item.unit || item.unit_name || ''}</td>
-        <td>${item.payer || item.payer_name || ''}</td>
-        <td><strong>KES ${Number(item.amount).toLocaleString()}</strong></td>
-        <td><span class="badge ${badgeClass}">${item.status}</span></td>
+        <td>${item.payer || item.first_name || ''}</td>
+        <td><strong>KES ${amountVal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+        <td><span class="badge ${badgeClass}">${statusText}</span></td>
       `;
       tableBody.appendChild(row);
     });
+
+    if (totalSummaryEl) {
+      totalSummaryEl.textContent = `KES. ${runningTotal.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    }
   }
 
   async function loadMpesaTransactions() {
