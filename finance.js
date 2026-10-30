@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
       recordCountEl.textContent = `Showing ${data.length} transaction${data.length > 1 ? 's' : ''}`;
     }
 
-    // Attach receipt popup triggers
+    // Attach receipt popup triggers to open modal and display details
     document.querySelectorAll('.receipt-link').forEach(link => {
       link.addEventListener('click', async (e) => {
         e.preventDefault();
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
               detail = await fetchAPI(`/billing/rent-collections/${clickedItem.id}/`);
             } catch (err) {
-              // fallback to row item if endpoint fails
+              // Fallback to row object if item endpoint fails
             }
           }
 

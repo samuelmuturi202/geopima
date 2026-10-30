@@ -22,6 +22,6 @@ urlpatterns = [
     path('paybill-transactions/<int:pk>/reprocess/', ManualSettlementAPIView.as_view(), name='manual_settlement'),
 
     # REST JSON API Endpoints for Collected Rent & Modal View (finance.js)
-    path('../billing/rent-collections/', RentCollectionListAPIView.as_view(), name='rent_collection_list'),
-    path('../billing/rent-collections/<int:pk>/', RentCollectionDetailAPIView.as_view(), name='rent_collection_detail'),
+    path('billing/rent-collections/', RentCollectionListAPIView.as_view(), name='rent_collection_list'),
+    path('billing/rent-collections/<int:pk>/', RentCollectionDetailAPIView.as_view(), name='rent_collection_detail'),
 ]
