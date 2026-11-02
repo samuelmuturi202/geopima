@@ -8,6 +8,7 @@ from .views import (
     PaymentSummariesView,
     CreditBankSmartAliasWebhookView
 )
+from mpesa.views import RentCollectionListAPIView, RentCollectionDetailAPIView
 
 app_name = 'billing'
 
@@ -22,5 +23,7 @@ urlpatterns = [
     path('webhooks/credit-bank/smart-alias/', CreditBankSmartAliasWebhookView.as_view(), name='smart-alias-webhook'),
     path('dashboard/metrics/', DashboardMetricsView.as_view(), name='dashboard-metrics'),
     path('dashboard/payment-summaries/', PaymentSummariesView.as_view(), name='payment-summaries'),
+    path('rent-collections/', RentCollectionListAPIView.as_view(), name='rent_collection_list'),
+    path('rent-collections/<int:pk>/', RentCollectionDetailAPIView.as_view(), name='rent_collection_detail'),
     path('', include(router.urls)),
 ]
