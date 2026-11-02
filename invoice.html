@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Geopima Agencies - Invoice #INV038950</title>
+  <title>Geopima Agencies - Tenant Invoice</title>
 
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -38,7 +38,7 @@
         </a>
       </li>
       <li class="active">
-        <a href="invoices.html">
+        <a href="invoice_details.html">
           <i class="fa-solid fa-file-invoice-dollar"></i> 
           <span>Invoices</span> 
           <i class="fa-solid fa-chevron-right chevron"></i>
@@ -105,7 +105,7 @@
       <div class="page-title-row">
         <h1 class="page-title">Tenant Invoice</h1>
         <nav class="breadcrumb">
-          <a href="index.html">Home</a> / <a href="invoices.html">Invoices</a> / <span>INV038950</span>
+          <a href="index.html">Home</a> / <a href="invoice_details.html">Invoices</a> / <span id="breadcrumb-inv-no">INV000001</span>
         </nav>
       </div>
 
@@ -128,7 +128,7 @@
             </div>
             <div class="inv-meta">
               <h1>INVOICE</h1>
-              <p><strong>#:</strong> <span id="inv-num">INV038950</span></p>
+              <p><strong>#:</strong> <span id="inv-num">INV000001</span></p>
               <p><strong>PERIOD:</strong> <span id="inv-period">AUGUST-2026</span></p>
               <p><strong>DATE:</strong> <span id="inv-date">5-Aug-2026</span></p>
             </div>
@@ -139,10 +139,9 @@
           <!-- Tenant Details -->
           <div class="tenant-details-block">
             <h3>Invoice To:</h3>
-            <p class="tenant-name"><strong>ABIGAEL (W4617)</strong></p>
-            <p><strong>Property:</strong> Dorothy</p>
-            <p><strong>Unit No:</strong> B13</p>
-            <p><strong>Contact:</strong> 254798967207</p>
+            <p class="tenant-name"><strong>Loading...</strong></p>
+            <p><strong>Property:</strong> Loading...</p>
+            <p><strong>Unit No:</strong> Loading...</p>
           </div>
 
           <!-- Line Items Table -->
@@ -157,14 +156,7 @@
                 </tr>
               </thead>
               <tbody id="line-items-body">
-                <tr>
-                  <td>Rent</td>
-                  <td>House Rent</td>
-                  <td class="text-right">4,000.00</td>
-                  <td class="text-center no-print">
-                    <button class="btn-icon-cog" title="Item Options"><i class="fa-solid fa-gear"></i> <i class="fa-solid fa-caret-down"></i></button>
-                  </td>
-                </tr>
+                <!-- Populated via JS -->
               </tbody>
             </table>
           </div>
@@ -173,19 +165,19 @@
           <div class="totals-block">
             <div class="totals-row">
               <span>SubTotal:</span>
-              <strong id="summary-subtotal">4,000.00</strong>
+              <strong id="summary-subtotal">0.00</strong>
             </div>
             <div class="totals-row">
               <span>Net Total:</span>
-              <strong id="summary-nettotal">4,000.00</strong>
+              <strong id="summary-nettotal">0.00</strong>
             </div>
             <div class="totals-row">
               <span>Less Paid:</span>
-              <strong id="summary-lesspaid">5,000.00</strong>
+              <strong id="summary-lesspaid">0.00</strong>
             </div>
             <div class="totals-row balance-row">
               <span>Balance:</span>
-              <strong id="summary-balance" class="text-credit">-1,000.00</strong>
+              <strong id="summary-balance">0.00</strong>
             </div>
           </div>
 
@@ -206,20 +198,12 @@
                   </tr>
                 </thead>
                 <tbody id="payment-details-body">
-                  <tr>
-                    <td>1</td>
-                    <td><a href="#" class="receipt-link">2022057894</a></td>
-                    <td>Lipa Na M-pesa<br><small class="text-muted">REF#: UHABP26JAE</small></td>
-                    <td>Mpesa</td>
-                    <td>10-08-2026</td>
-                    <td>Auto</td>
-                    <td class="text-right">5,000.00</td>
-                  </tr>
+                  <!-- Populated via JS -->
                 </tbody>
                 <tfoot>
                   <tr>
                     <td colspan="6" class="text-right"><strong>TOTAL (KES):</strong></td>
-                    <td class="text-right"><strong id="total-paid-footer">5,000.00</strong></td>
+                    <td class="text-right"><strong id="total-paid-footer">0.00</strong></td>
                   </tr>
                 </tfoot>
               </table>
@@ -310,9 +294,7 @@
     </div>
   </div>
 
-  <!-- Shared Global Script -->
   <script src="script.js"></script>
-  <!-- Invoice Logic Script -->
   <script src="invoice.js"></script>
 </body>
 </html>

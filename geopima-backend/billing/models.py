@@ -103,17 +103,44 @@ class Invoice(models.Model):
 
     @property
     def rent_paid(self) -> Decimal:
-        return sum(payment.amount_allocated for payment in self.allocations.all())
+        allocations = getattr(self, 'allocations', None)
+        if allocations:
+            return sum(payment.amount_allocated for payment in allocations.all())
+        return Decimal('0.00')
 
     @property
     def balance(self) -> Decimal:
         return self.net_total - self.rent_paid
 
+    @property
+    def is_cleared(self) -> bool:
+        return self.balance <= 0
+
     def save(self, *args, **kwargs):
         if not self.invoice_number:
-            count = Invoice.objects.filter(billing_period=self.billing_period).count() + 1
-            self.invoice_number = f"INV{count:06d}"
+            last_invoice = Invoice.objects.all().order_by('-created_at').first()
+            if last_invoice and last_invoice.invoice_number.startswith('INV'):
+                try:
+                    last_num = int(last_invoice.invoice_number.replace('INV', ''))
+                    next_num = last_num + 1
+                except ValueError:
+                    next_num = 1
+            else:
+                next_num = 1  # Resets the sequence to start at INV000001 if no prior invoice exists
+            
+            self.invoice_number = f"INV{next_num:06d}"
+
+        if self.rent_paid >= self.net_total and self.net_total > 0:
+            self.status = 'paid'
+        elif self.rent_paid > 0:
+            self.status = 'partially_paid'
+        else:
+            self.status = 'unpaid'
+
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.invoice_number} - {self.tenant} ({self.period_formatted})"
 
 
 class InvoiceItem(models.Model):

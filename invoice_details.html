@@ -12,11 +12,11 @@
   <link rel="stylesheet" href="styles.css">
   
   <!-- Invoices Page Specific Styles -->
-  <link rel="stylesheet" href="invoices.css">
+  <link rel="stylesheet" href="invoice_details.css">
 </head>
 <body>
 
-  <!-- Collapsible Sidebar Nav (Main shared sidebar layout) -->
+  <!-- Collapsible Sidebar Nav -->
   <aside id="sidebar" class="collapsed">
     <div class="brand">
       <i class="fa-solid fa-building-user"></i>
@@ -38,7 +38,7 @@
         </a>
       </li>
       <li class="active">
-        <a href="invoices.html">
+        <a href="invoice_details.html">
           <i class="fa-solid fa-file-invoice-dollar"></i> 
           <span>Invoices</span> 
           <i class="fa-solid fa-chevron-right chevron"></i>
@@ -247,11 +247,8 @@
     </div>
   </div>
 
-  <!-- Shared Main Script (Sidebar toggle & dark mode) -->
-   <!-- 1. Load the shared API script first -->
   <script src="js/api.js"></script>
   <script src="script.js"></script>
-  <!-- Page Specific Logic -->
-  <script src="invoices.js"></script>
+  <script src="invoice_details.js"></script>
 </body>
 </html>

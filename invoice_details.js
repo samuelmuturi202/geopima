@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE_URL = 'http://127.0.0.1:8000/api/v1';
+  const API_BASE_URL = 'https://geopima.onrender.com/api/v1'; // Update to http://127.0.0.1:8000/api/v1 for local testing
 
   async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('access_token');
@@ -26,13 +26,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     data.forEach((item, index) => {
       const tr = document.createElement('tr');
-      const isCleared = item.status === 'cleared' || item.is_cleared;
-      const statusLabel = isCleared ? 'cleared' : 'not_cleared';
+      const isCleared = item.status === 'paid' || item.is_cleared || (item.balance !== undefined && Number(item.balance) <= 0);
+      const statusLabel = isCleared ? 'cleared' : 'not-cleared';
       const statusText = isCleared ? 'cleared' : 'not cleared';
+
+      const invoiceNo = item.invoice_no || item.invoiceNo || item.invoice_number || 'INV000001';
+      const invoiceId = item.id || index + 1;
 
       tr.innerHTML = `
         <td>${index + 1}</td>
-        <td><a href="#">${item.invoiceNo || item.invoice_number || ''}</a></td>
+        <td><a href="invoice.html?id=${invoiceId}">${invoiceNo}</a></td>
         <td><a href="#">${item.tnt || item.tenant_number || ''}</a></td>
         <td>${item.tenant || item.tenant_name || ''}</td>
         <td>${item.property || item.property_name || ''}</td>
@@ -42,8 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <td class="text-right">${Number(item.prepaid || 0).toLocaleString()}</td>
         <td class="text-right">${Number(item.discount || 0).toLocaleString()}</td>
         <td class="text-right">${Number(item.arrears || 0).toLocaleString()}</td>
-        <td class="text-right">${Number(item.current || item.current_amount || 0).toLocaleString()}</td>
-        <td class="text-right">${Number(item.paid || item.paid_amount || 0).toLocaleString()}</td>
+        <td class="text-right">${Number(item.current || item.net_total || 0).toLocaleString()}</td>
+        <td class="text-right">${Number(item.paid || item.rent_paid || 0).toLocaleString()}</td>
         <td class="text-right">${Number(item.balance || 0).toLocaleString()}</td>
         <td><span class="status-pill ${statusLabel}">${statusText}</span></td>
       `;

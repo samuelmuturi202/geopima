@@ -1,16 +1,18 @@
-from datetime import date
+import datetime
 from django.core.management.base import BaseCommand
 from django.db import transaction
+from django.utils import timezone
 from tenants.models import LeaseAgreement
 from billing.models import Invoice, InvoiceItem
 
 
 class Command(BaseCommand):
-    help = 'Generates monthly invoices with dynamic deposits, rent, water, and garbage fees.'
+    help = 'Generates monthly invoices with dynamic rent, water, garbage, and deposits matching the Invoice model schema.'
 
     def handle(self, *args, **options):
-        today = date.today()
-        period_str = today.strftime("%B-%Y").upper()
+        today = timezone.now().date()
+        billing_period = datetime.date(today.year, today.month, 1)
+        due_date = datetime.date(today.year, today.month, 5)
 
         active_agreements = LeaseAgreement.objects.filter(
             is_active=True
@@ -25,64 +27,55 @@ class Command(BaseCommand):
             if not unit:
                 continue
 
-            # Prevent duplicate billing for the current month
-            if Invoice.objects.filter(tenant=tenant, period=period_str).exists():
+            # Prevent duplicate billing for the current billing period
+            if Invoice.objects.filter(tenant=tenant, unit=unit, billing_period=billing_period).exists():
                 continue
 
             with transaction.atomic():
-                # Fetch last invoice balance to carry forward as arrears
-                last_invoice = Invoice.objects.filter(tenant=tenant).order_by('-created_at').first()
-                previous_arrears = last_invoice.balance if last_invoice else 0.00
-
-                invoice_no = f"INV-{tenant.id}-{today.strftime('%Y%m%d%H%M')}"
                 invoice = Invoice.objects.create(
-                    invoice_no=invoice_no,
                     tenant=tenant,
-                    period=period_str,
-                    arrears_amount=previous_arrears,
-                    status='UNPAID'
+                    unit=unit,
+                    billing_period=billing_period,
+                    due_date=due_date,
+                    status='unpaid'
                 )
 
-                expected_total = 0.00
-
                 # 1. Base Rent
-                if unit.rent_amount > 0:
+                if getattr(unit, 'rent_amount', 0) > 0:
                     InvoiceItem.objects.create(
                         invoice=invoice,
-                        description="Base Rent",
+                        item_type='Rent',
+                        description='Base Rent',
                         amount=unit.rent_amount
                     )
-                    expected_total += unit.rent_amount
 
                 # 2. Water Utility Fee
-                if unit.water_rate > 0:
+                if getattr(unit, 'water_rate', 0) > 0:
                     InvoiceItem.objects.create(
                         invoice=invoice,
-                        description="Water Utility Fee",
+                        item_type='Utility',
+                        description='Water Utility Fee',
                         amount=unit.water_rate
                     )
-                    expected_total += unit.water_rate
 
                 # 3. Garbage Collection Fee
-                if unit.garbage_fee > 0:
+                if getattr(unit, 'garbage_fee', 0) > 0:
                     InvoiceItem.objects.create(
                         invoice=invoice,
-                        description="Garbage Collection",
+                        item_type='Utility',
+                        description='Garbage Collection',
                         amount=unit.garbage_fee
                     )
-                    expected_total += unit.garbage_fee
 
-                # 4. Deposit (Initial Invoice for Lease Agreement)
-                if agreement.deposit_amount > 0:
+                # 4. Deposit (If applicable on initial creation)
+                if getattr(agreement, 'deposit_amount', 0) > 0:
                     InvoiceItem.objects.create(
                         invoice=invoice,
-                        description="Lease Security Deposit",
+                        item_type='Deposit',
+                        description='Lease Security Deposit',
                         amount=agreement.deposit_amount
                     )
-                    expected_total += agreement.deposit_amount
 
-                invoice.expected_amount = expected_total
-                invoice.save()
                 created_count += 1
 
-        self.stdout.write(self.style.SUCCESS(f"Successfully generated {created_count} monthly invoice(s) for period {period_str}."))
+        self.stdout.write(self.style.SUCCESS(f"Successfully generated {created_count} monthly invoice(s) for billing period {billing_period.strftime('%B-%Y')}."))

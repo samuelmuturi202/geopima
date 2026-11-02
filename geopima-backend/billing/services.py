@@ -7,7 +7,6 @@ class CreditBankService:
         self.client_id = os.getenv('CREDIT_BANK_SANDBOX_ID')
         self.secret_key = os.getenv('CREDIT_BANK_SECRET_KEY')
         self.signing_key = os.getenv('CREDIT_BANK_SIGNING_KEY')
-        # Update with Credit Bank's actual sandbox/production base URL provided in their API docs
         self.base_url = "https://sandbox.creditbank.co.ke/api/v1" 
 
     def get_auth_token(self):

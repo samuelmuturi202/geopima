@@ -70,42 +70,45 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     agency_email = serializers.CharField(default="pemwaagency@yahoo.com")
     agency_contact = serializers.CharField(default="0725768616 | 0101768816")
 
-    invoice_no = serializers.CharField(source='invoice_number')
-    period = serializers.CharField(source='period_formatted')
-    date = serializers.DateField(source='issue_date', format="%d-%b-%Y")
+    invoice_no = serializers.CharField(source='invoice_number', read_only=True)
+    tnt = serializers.CharField(source='tenant.tenant_id', read_only=True)
+    tenant = serializers.CharField(source='tenant.name', read_only=True)
+    property = serializers.CharField(source='unit.property.name', read_only=True)
+    unit = serializers.CharField(source='unit.unit_name', read_only=True)
+    due = serializers.SerializerMethodField()
+    
+    expected = serializers.DecimalField(source='net_total', max_digits=12, decimal_places=2, read_only=True)
+    prepaid = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
+    discount = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
+    arrears = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
+    current = serializers.DecimalField(source='net_total', max_digits=12, decimal_places=2, read_only=True)
+    paid = serializers.DecimalField(source='rent_paid', max_digits=12, decimal_places=2, read_only=True)
+    balance = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+    is_cleared = serializers.BooleanField(read_only=True)
 
-    tenant_name_code = serializers.SerializerMethodField()
-    property_name = serializers.CharField(source='unit.property.name')
-    unit_no = serializers.CharField(source='unit.unit_name')
-    tenant_contact = serializers.SerializerMethodField()
+    period = serializers.CharField(source='period_formatted', read_only=True)
+    date = serializers.DateField(source='issue_date', format="%d-%b-%Y", read_only=True)
 
     items = InvoiceItemSerializer(many=True, read_only=True)
     subtotal = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
     net_total = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
     
     rent_paid = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
-    balance = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
-
     payment_details = serializers.SerializerMethodField()
     total_paid = serializers.DecimalField(source='rent_paid', max_digits=12, decimal_places=2, read_only=True)
 
     class Meta:
         model = Invoice
         fields = [
-            'agency_name', 'agency_address', 'agency_email', 'agency_contact',
-            'invoice_no', 'period', 'date',
-            'tenant_name_code', 'property_name', 'unit_no', 'tenant_contact',
-            'items', 'subtotal', 'net_total', 'rent_paid', 'balance',
-            'payment_details', 'total_paid'
+            'id', 'agency_name', 'agency_address', 'agency_email', 'agency_contact',
+            'invoice_no', 'tnt', 'tenant', 'property', 'unit', 'due',
+            'period', 'date', 'expected', 'prepaid', 'discount', 'arrears',
+            'current', 'paid', 'balance', 'status', 'is_cleared',
+            'items', 'subtotal', 'net_total', 'rent_paid', 'payment_details', 'total_paid'
         ]
 
-    def get_tenant_name_code(self, obj):
-        tenant_name = getattr(obj.tenant, 'name', None) or getattr(obj.tenant, 'full_name', '')
-        tenant_code = getattr(obj.tenant, 'tenant_id', None) or getattr(obj.tenant, 'tenant_code', '')
-        return f"{str(tenant_name).upper()} ({tenant_code})"
-
-    def get_tenant_contact(self, obj):
-        return getattr(obj.tenant, 'phone_number', getattr(obj.tenant, 'phone', '-'))
+    def get_due(self, obj):
+        return obj.due_date.day if obj.due_date else 5
 
     def get_payment_details(self, obj):
         allocations = getattr(obj, 'allocations', None)
