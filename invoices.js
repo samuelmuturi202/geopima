@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE_URL = 'https://geopima.onrender.com/api/v1'; // Update to http://127.0.0.1:8000/api/v1 if testing locally[cite: 5]
+  const API_BASE_URL = 'https://geopima.onrender.com/api/v1'; // Update to http://127.0.0.1:8000/api/v1 if testing locally
 
   async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('access_token');
@@ -17,6 +17,61 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentInvoices = [];
   let currentFilterStatus = 'ALL';
   let currentFilterProperty = 'ALL';
+  let currentFilterCluster = 'ALL';
+  let currentFilterPeriod = 'ALL';
+
+  // Automated Scrollable Period Generator (From August 2025 onwards)
+  function populatePeriodDropdown() {
+    const periodMenu = document.getElementById('dropdown-period-menu');
+    if (!periodMenu) return;
+    
+    periodMenu.innerHTML = '<a href="#" data-period="ALL">ALL PERIODS</a>';
+    
+    const startDate = new Date(2025, 7, 1); // August 2025
+    const currentDate = new Date();
+    const endDate = new Date(currentDate.getFullYear() + 1, currentDate.getMonth(), 1);
+
+    let iterDate = new Date(startDate);
+    while (iterDate <= endDate) {
+      const monthName = iterDate.toLocaleString('default', { month: 'long' }).toUpperCase();
+      const year = iterDate.getFullYear();
+      const periodKey = `${monthName}-${year}`;
+      
+      const a = document.createElement('a');
+      a.href = '#';
+      a.setAttribute('data-period', periodKey);
+      a.textContent = periodKey;
+      periodMenu.appendChild(a);
+
+      iterDate.setMonth(iterDate.getMonth() + 1);
+    }
+  }
+
+  // Populate Property Names from Database API
+  async function populatePropertyDropdown() {
+    try {
+      const response = await fetchAPI('/properties/');
+      const properties = response.results || response;
+      const propertyMenu = document.getElementById('dropdown-property-menu');
+      if (!propertyMenu) return;
+
+      propertyMenu.innerHTML = '<a href="#" data-property="ALL">ALL PROPERTIES</a>';
+      
+      properties.forEach(prop => {
+        const propName = prop.name || prop.property_name;
+        if (propName) {
+          const a = document.createElement('a');
+          a.href = '#';
+          a.setAttribute('data-property', propName);
+          a.textContent = propName;
+          propertyMenu.appendChild(a);
+        }
+      });
+      bindPropertyListeners();
+    } catch (err) {
+      console.error('Failed to load property filter options:', err);
+    }
+  }
 
   function renderRows(data) {
     if (!tbody) return;
@@ -28,13 +83,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     data.forEach((item, index) => {
-      const isCleared = item.status === 'paid' || item.is_cleared || Number(item.balance || 0) <= 0;
-      const statusLabel = isCleared ? 'cleared' : 'not-cleared';
-      const statusText = isCleared ? 'cleared' : 'not cleared';
+      const balance = Number(item.balance || 0);
+      const paid = Number(item.paid || item.rent_paid || 0);
+      const expected = Number(item.expected || item.net_total || 0);
+      const arrears = Number(item.arrears || 0);
+
+      const isCleared = balance <= 0 || item.status === 'paid';
+      const isOverpaid = balance < 0;
+      const hasBalances = balance > 0;
+      const hasArrears = arrears > 0;
+      const isNotPaid = paid === 0;
+
+      // Filter Logic Evaluation
+      if (currentFilterProperty !== 'ALL' && item.property !== currentFilterProperty) return;
+      if (currentFilterCluster !== 'ALL' && item.cluster !== currentFilterCluster) return;
+      if (currentFilterPeriod !== 'ALL' && item.period !== currentFilterPeriod) return;
 
       if (currentFilterStatus === 'cleared' && !isCleared) return;
-      if (currentFilterStatus === 'not-cleared' && isCleared) return;
-      if (currentFilterProperty !== 'ALL' && item.property !== currentFilterProperty) return;
+      if (currentFilterStatus === 'overpaid' && !isOverpaid) return;
+      if (currentFilterStatus === 'with-balances' && !hasBalances) return;
+      if (currentFilterStatus === 'with-arrears' && !hasArrears) return;
+      if (currentFilterStatus === 'not-paid' && !isNotPaid) return;
+
+      const statusLabel = isCleared ? 'cleared' : 'not-cleared';
+      const statusText = isCleared ? 'cleared' : 'not cleared';
 
       const invoiceNo = item.invoice_no || item.invoice_number || 'INV000001';
       const invoiceId = item.id || index + 1;
@@ -48,13 +120,13 @@ document.addEventListener('DOMContentLoaded', () => {
         <td>${item.property || item.property_name || ''}</td>
         <td>${item.unit || item.unit_name || ''}</td>
         <td>${item.due || item.due_day || 5}</td>
-        <td class="text-right">${Number(item.expected || item.expected_amount || 0).toLocaleString()}</td>
+        <td class="text-right">${expected.toLocaleString()}</td>
         <td class="text-right">${Number(item.prepaid || 0).toLocaleString()}</td>
         <td class="text-right">${Number(item.discount || 0).toLocaleString()}</td>
-        <td class="text-right">${Number(item.arrears || 0).toLocaleString()}</td>
+        <td class="text-right">${arrears.toLocaleString()}</td>
         <td class="text-right">${Number(item.current || item.net_total || 0).toLocaleString()}</td>
-        <td class="text-right">${Number(item.paid || item.rent_paid || 0).toLocaleString()}</td>
-        <td class="text-right">${Number(item.balance || 0).toLocaleString()}</td>
+        <td class="text-right">${paid.toLocaleString()}</td>
+        <td class="text-right">${balance.toLocaleString()}</td>
         <td><span class="status-pill ${statusLabel}">${statusText}</span></td>
       `;
       tbody.appendChild(tr);
@@ -75,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Interactive Dropdown Filters
+  // Dropdown Toggles
   document.querySelectorAll('.dropdown-container button').forEach(button => {
     button.addEventListener('click', (e) => {
       e.stopPropagation();
@@ -91,13 +163,14 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
   });
 
-  document.querySelectorAll('#dropdown-period-menu a').forEach(item => {
-    item.addEventListener('click', (e) => {
+  // Filter Click Listeners
+  document.addEventListener('click', (e) => {
+    if (e.target && e.target.matches('#dropdown-period-menu a')) {
       e.preventDefault();
-      const period = e.target.getAttribute('data-period');
-      document.getElementById('panel-title-period').textContent = `${period} INVOICES LIST`;
-      loadInvoices();
-    });
+      currentFilterPeriod = e.target.getAttribute('data-period');
+      document.getElementById('panel-title-period').textContent = `${currentFilterPeriod} INVOICES LIST`;
+      renderRows(currentInvoices);
+    }
   });
 
   document.querySelectorAll('#dropdown-status-menu a').forEach(item => {
@@ -108,13 +181,23 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  document.querySelectorAll('#dropdown-property-menu a').forEach(item => {
+  document.querySelectorAll('#dropdown-cluster-menu a').forEach(item => {
     item.addEventListener('click', (e) => {
       e.preventDefault();
-      currentFilterProperty = e.target.getAttribute('data-property');
+      currentFilterCluster = e.target.getAttribute('data-cluster');
       renderRows(currentInvoices);
     });
   });
+
+  function bindPropertyListeners() {
+    document.querySelectorAll('#dropdown-property-menu a').forEach(item => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        currentFilterProperty = e.target.getAttribute('data-property');
+        renderRows(currentInvoices);
+      });
+    });
+  }
 
   const tenantsWithoutInvoicesBtn = document.getElementById('btn-tenants-without-invoices');
   if (tenantsWithoutInvoicesBtn) {
@@ -167,5 +250,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Initialize Data & Dropdowns
+  populatePeriodDropdown();
+  populatePropertyDropdown();
   loadInvoices();
 });

@@ -121,12 +121,26 @@
   position: absolute;
   right: 0;
   background-color: #ffffff;
-  min-width: 160px;
+  min-width: 180px;
   box-shadow: 0px 8px 16px rgba(0,0,0,0.15);
   z-index: 100;
   border-radius: 4px;
   border: 1px solid #dee2e6;
-  overflow: hidden;
+}
+
+.scrollable-menu {
+  max-height: 240px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.scrollable-menu::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable-menu::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 4px;
 }
 
 .dropdown-menu.show {
@@ -143,6 +157,10 @@
 
 .dropdown-menu a:hover {
   background-color: #f1f1f1;
+}
+
+.dropdown-menu a.text-danger {
+  color: #dc3545;
 }
 
 /* Table Controls */

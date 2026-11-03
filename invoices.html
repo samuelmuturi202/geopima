@@ -108,20 +108,17 @@
             <!-- Period Dropdown Filter -->
             <div class="dropdown-container">
               <button class="btn-filter btn-green" id="dropdown-period-btn"><i class="fa-solid fa-filter"></i> Period <i class="fa-solid fa-caret-down"></i></button>
-              <div class="dropdown-menu" id="dropdown-period-menu">
-                <a href="#" data-period="AUGUST-2026">August 2026</a>
-                <a href="#" data-period="JULY-2026">July 2026</a>
-                <a href="#" data-period="ALL">All Periods</a>
+              <div class="dropdown-menu scrollable-menu" id="dropdown-period-menu">
+                <!-- Dynamically populated via JS -->
               </div>
             </div>
 
             <!-- Property Dropdown Filter -->
             <div class="dropdown-container">
               <button class="btn-filter btn-grey" id="dropdown-property-btn"><i class="fa-solid fa-filter"></i> Property <i class="fa-solid fa-caret-down"></i></button>
-              <div class="dropdown-menu" id="dropdown-property-menu">
-                <a href="#" data-property="ALL">All Properties</a>
-                <a href="#" data-property="Dorothy">Dorothy</a>
-                <a href="#" data-property="Executive">Executive</a>
+              <div class="dropdown-menu scrollable-menu" id="dropdown-property-menu">
+                <a href="#" data-property="ALL">ALL PROPERTIES</a>
+                <!-- Dynamically populated from database API -->
               </div>
             </div>
 
@@ -129,7 +126,10 @@
             <div class="dropdown-container">
               <button class="btn-filter btn-green" id="dropdown-cluster-btn"><i class="fa-solid fa-filter"></i> Cluster <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-menu" id="dropdown-cluster-menu">
-                <a href="#" data-cluster="ALL">All Clusters</a>
+                <a href="#" data-cluster="ALL">ALL CLUSTERS</a>
+                <a href="#" data-cluster="Residential">Residential</a>
+                <a href="#" data-cluster="Commercial">Commercial</a>
+                <a href="#" data-cluster="Mixed">Mixed Use</a>
               </div>
             </div>
 
@@ -137,9 +137,12 @@
             <div class="dropdown-container">
               <button class="btn-filter btn-navy" id="dropdown-status-btn"><i class="fa-solid fa-filter"></i> Status <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-menu" id="dropdown-status-menu">
-                <a href="#" data-status="ALL">All Statuses</a>
-                <a href="#" data-status="cleared">Cleared</a>
-                <a href="#" data-status="not-cleared">Not Cleared</a>
+                <a href="#" data-status="ALL">ALL INVOICES</a>
+                <a href="#" data-status="cleared">CLEARED</a>
+                <a href="#" data-status="overpaid">OVERPAID</a>
+                <a href="#" data-status="with-balances">WITH BALANCES</a>
+                <a href="#" data-status="with-arrears">WITH ARREARS</a>
+                <a href="#" data-status="not-paid" class="text-danger">NOT PAID</a>
               </div>
             </div>
 

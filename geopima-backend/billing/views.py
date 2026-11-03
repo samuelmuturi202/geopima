@@ -147,11 +147,10 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         status_filter = self.request.query_params.get('status')
         cluster = self.request.query_params.get('cluster')
 
-        if property_name and property_name != 'ALL':
+        if property_name and property_name.upper() != 'ALL':
             qs = qs.filter(unit__property__name__iexact=property_name)
         
-        if period and period != 'ALL':
-            # e.g., AUGUST-2026
+        if period and period.upper() != 'ALL':
             try:
                 parts = period.split('-')
                 if len(parts) == 2:
@@ -162,12 +161,9 @@ class InvoiceViewSet(viewsets.ModelViewSet):
             except Exception:
                 pass
 
-        if cluster and cluster != 'ALL':
-            if hasattr(Invoice.unit.related.related_model, 'property'):
+        if cluster and cluster.upper() != 'ALL':
+            if hasattr(Invoice.unit.field.related_model, 'property'):
                 qs = qs.filter(unit__property__cluster__iexact=cluster)
-
-        # Status filtering on queryset level if preferred
-        # (Note: Frontend JS filter handles these seamlessly as well)
 
         return qs
 
