@@ -74,6 +74,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     tnt = serializers.CharField(source='tenant.tenant_id', read_only=True)
     tenant = serializers.CharField(source='tenant.name', read_only=True)
     property = serializers.CharField(source='unit.property.name', read_only=True)
+    cluster = serializers.SerializerMethodField()
     unit = serializers.CharField(source='unit.unit_name', read_only=True)
     due = serializers.SerializerMethodField()
     
@@ -101,11 +102,16 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = [
             'id', 'agency_name', 'agency_address', 'agency_email', 'agency_contact',
-            'invoice_no', 'tnt', 'tenant', 'property', 'unit', 'due',
+            'invoice_no', 'tnt', 'tenant', 'property', 'cluster', 'unit', 'due',
             'period', 'date', 'expected', 'prepaid', 'discount', 'arrears',
             'current', 'paid', 'balance', 'status', 'is_cleared',
             'items', 'subtotal', 'net_total', 'rent_paid', 'payment_details', 'total_paid'
         ]
+
+    def get_cluster(self, obj):
+        if obj.unit and obj.unit.property and hasattr(obj.unit.property, 'cluster'):
+            return getattr(obj.unit.property, 'cluster', 'Residential')
+        return 'Residential'
 
     def get_due(self, obj):
         return obj.due_date.day if obj.due_date else 5

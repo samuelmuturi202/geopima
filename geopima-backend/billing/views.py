@@ -47,10 +47,6 @@ class PaymentSummariesView(APIView):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class CreditBankSmartAliasWebhookView(APIView):
-    """
-    Public webhook endpoint that Credit Bank calls when a tenant makes 
-    a payment via Smart Alias Paybill 4045619 using a unique alias (e.g., House No. 1).
-    """
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
@@ -143,6 +139,37 @@ class InvoiceViewSet(viewsets.ModelViewSet):
         'tenant__tenant_id', 
         'unit__unit_name'
     ]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        property_name = self.request.query_params.get('property')
+        period = self.request.query_params.get('period')
+        status_filter = self.request.query_params.get('status')
+        cluster = self.request.query_params.get('cluster')
+
+        if property_name and property_name != 'ALL':
+            qs = qs.filter(unit__property__name__iexact=property_name)
+        
+        if period and period != 'ALL':
+            # e.g., AUGUST-2026
+            try:
+                parts = period.split('-')
+                if len(parts) == 2:
+                    month_str, year_str = parts
+                    from datetime import datetime
+                    dt = datetime.strptime(f"1-{month_str}-{year_str}", "%d-%B-%Y")
+                    qs = qs.filter(billing_period__year=dt.year, billing_period__month=dt.month)
+            except Exception:
+                pass
+
+        if cluster and cluster != 'ALL':
+            if hasattr(Invoice.unit.related.related_model, 'property'):
+                qs = qs.filter(unit__property__cluster__iexact=cluster)
+
+        # Status filtering on queryset level if preferred
+        # (Note: Frontend JS filter handles these seamlessly as well)
+
+        return qs
 
     @action(detail=False, methods=['post'], url_path='generate-monthly')
     def generate_monthly(self, request):
