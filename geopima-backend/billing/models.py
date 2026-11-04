@@ -82,7 +82,7 @@ class Invoice(models.Model):
     due_date = models.DateField()
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpaid')
-    created_at = models.DateTimeField(auto_auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = 'billing_invoice'
@@ -145,7 +145,7 @@ class Invoice(models.Model):
 
 class InvoiceItem(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
+    invoice = models.ForeignKey(Invoice, on_destroy=models.CASCADE, related_name='items') if hasattr(models, 'on_destroy') else models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items')
     item_type = models.CharField(max_length=50, default="Rent")
     description = models.CharField(max_length=255, default="House Rent")
     amount = models.DecimalField(max_digits=12, decimal_places=2)
