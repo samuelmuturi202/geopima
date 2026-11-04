@@ -1,12 +1,17 @@
 import uuid
 from rest_framework import serializers
-from .models import Landlord, Property, Unit
+from properties.models import Landlord, Property, Unit
 
 
 class LandlordSerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Landlord
         fields = '__all__'
+
+    def get_display_name(self, obj):
+        return getattr(obj, 'name', getattr(obj, 'full_name', f"{getattr(obj, 'first_name', '')} {getattr(obj, 'last_name', '')}".strip()))
 
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else dict(data)
@@ -188,13 +193,6 @@ class PropertySerializer(serializers.ModelSerializer):
         representation['propertyName'] = instance.name
         representation['commissionRate'] = getattr(instance, 'commission_percentage', 0)
         
-        representation['default_deposit'] = getattr(instance, 'default_deposit', 0)
-        representation['default_security_fee'] = getattr(instance, 'default_security_fee', 0)
-        representation['default_electricity_fee'] = getattr(instance, 'default_electricity_fee', 0)
-        representation['default_internet_fee'] = getattr(instance, 'default_internet_fee', 0)
-        representation['default_garbage_fee'] = getattr(instance, 'default_garbage_fee', 0)
-        representation['default_water_rate'] = getattr(instance, 'default_water_rate', 0)
-
         tot_units = instance.units.count() if hasattr(instance, 'units') else 0
         occ_units = self.get_occupied_units(instance)
         representation['occUnits'] = f"{occ_units}/{tot_units}"
@@ -220,10 +218,10 @@ class PropertySerializer(serializers.ModelSerializer):
 
 class UnitSerializer(serializers.ModelSerializer):
     property_name = serializers.ReadOnlyField(source='property.name', default='')
+    propertyName = serializers.ReadOnlyField(source='property.name', default='')
     
-    property = serializers.SlugRelatedField(
+    property = serializers.PrimaryKeyRelatedField(
         queryset=Property.objects.all(),
-        slug_field='property_id',
         required=False,
         allow_null=True
     )
@@ -231,6 +229,7 @@ class UnitSerializer(serializers.ModelSerializer):
     landlord_name = serializers.SerializerMethodField(read_only=True)
     tenant_name = serializers.SerializerMethodField(read_only=True)
     
+    unit_number = serializers.CharField(source='unit_no', required=False, allow_blank=True)
     unitNo = serializers.CharField(source='unit_no', required=False, allow_blank=True)
     unitName = serializers.CharField(source='unit_name', required=False, allow_blank=True)
     unitType = serializers.CharField(source='unit_type', required=False, allow_blank=True, allow_null=True)
@@ -240,17 +239,20 @@ class UnitSerializer(serializers.ModelSerializer):
     status = serializers.SerializerMethodField(read_only=True)
     is_active = serializers.SerializerMethodField(read_only=True)
     tenant = serializers.SerializerMethodField(read_only=True)
+    display_label = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Unit
         fields = [
             'id', 
             'unit_no', 
+            'unit_number',
             'unitNo', 
             'unit_name', 
             'unitName', 
             'property', 
             'property_name', 
+            'propertyName',
             'landlord_name', 
             'rent_amount',
             'deposit',
@@ -269,8 +271,10 @@ class UnitSerializer(serializers.ModelSerializer):
             'vacancy', 
             'status',
             'is_active',
+            'display_label',
         ]
         extra_kwargs = {
+            'unit_no': {'required': False, 'allow_null': True, 'allow_blank': True},
             'unit_name': {'required': False, 'allow_null': True, 'allow_blank': True},
             'rent_amount': {'required': False, 'allow_null': True},
             'deposit': {'required': False, 'allow_null': True},
@@ -291,6 +295,11 @@ class UnitSerializer(serializers.ModelSerializer):
             representation['property'] = '-'
             representation['propertyName'] = '-'
         return representation
+
+    def get_display_label(self, obj):
+        u_no = getattr(obj, 'unit_no', '') or getattr(obj, 'unit_name', '') or 'Unit'
+        t_name = self.get_tenant_name(obj)
+        return f"{u_no} - {t_name}"
 
     def get_landlord_name(self, obj):
         if getattr(obj, 'property', None) and getattr(obj.property, 'landlord', None):

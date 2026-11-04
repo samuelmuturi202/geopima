@@ -1,6 +1,7 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from django.db.models import Q
 
 from properties.models import Landlord, Property, Unit
 from .serializers import LandlordSerializer, PropertySerializer, UnitSerializer
@@ -63,7 +64,7 @@ class UnitViewSet(viewsets.ModelViewSet):
     search_fields = ['unit_no', 'unit_name', 'property__name', 'property__property_id']
 
     def get_queryset(self):
-        queryset = Unit.objects.select_related('property').all().order_by('-id')
+        queryset = Unit.objects.select_related('property', 'property__landlord').all().order_by('-id')
         
         property_id_param = self.request.query_params.get('property_id')
         property_param = self.request.query_params.get('property')
@@ -75,11 +76,10 @@ class UnitViewSet(viewsets.ModelViewSet):
             if property_param.isdigit():
                 queryset = queryset.filter(property_id=property_param)
             else:
-                matched_property_ids = Property.objects.filter(name__iexact=property_param).values_list('id', flat=True)
-                if matched_property_ids.exists():
-                    queryset = queryset.filter(property_id__in=matched_property_ids)
-                else:
-                    queryset = queryset.none()
+                queryset = queryset.filter(
+                    Q(property__property_id__iexact=property_param) |
+                    Q(property__name__iexact=property_param)
+                )
             
         if landlord_param and landlord_param != 'All':
             queryset = queryset.filter(property__landlord_id=landlord_param)
