@@ -175,117 +175,117 @@
     <div class="container">
       <div class="dashboard-title-row">
         <h2>Geopima Agency Dashboard</h2>
-        <div class="breadcrumb">Home / AUGUST-2026</div>
+        <div class="breadcrumb" id="active-period-breadcrumb">Home / NOVEMBER-2026</div>
       </div>
 
       <!-- Status Badges Banner -->
       <div class="banner-row">
-        <button class="badge-btn badge-yellow">Expiring Property Agreements : 0</button>
-        <button class="badge-btn badge-yellow">Expiring Tenant Agreements : 37</button>
-        <button class="badge-btn badge-green">Prepayment: KES -81,310</button>
-        <button class="badge-btn badge-red">41 tenants with invalid contacts</button>
-        <button class="badge-btn badge-navy">SMS Balance: 9345 units</button>
+        <button class="badge-btn badge-yellow" id="badge-expiring-property">Expiring Property Agreements : -</button>
+        <button class="badge-btn badge-yellow" id="badge-expiring-tenant">Expiring Tenant Agreements : -</button>
+        <button class="badge-btn badge-green" id="badge-prepayment">Prepayment: KES 0.00</button>
+        <button class="badge-btn badge-red" id="badge-invalid-contacts">0 tenants with invalid contacts</button>
+        <button class="badge-btn badge-navy" id="badge-sms-balance">SMS Balance: - units</button>
       </div>
 
       <div class="dashboard-grid">
         <!-- Main Stats Grid -->
         <div class="stats-matrix">
           <div class="stat-card blue">
-            <div class="val">7,333,840 <span class="percentage">( 90.3% )</span></div>
+            <div class="val" id="stat-expected-rent">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Expected Rent</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">140,990 <span class="percentage">( 1.7% )</span></div>
+            <div class="val" id="stat-expected-utilities">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Expected Utilities</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">649,100 <span class="percentage">( 8% )</span></div>
-            <div class="label">JULY Arrears</div>
+            <div class="val" id="stat-arrears">0 <span class="percentage">( 0% )</span></div>
+            <div class="label">Arrears</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">8,123,930 <span class="percentage">( 100% )</span></div>
+            <div class="val" id="stat-total-expected">0 <span class="percentage">( 100% )</span></div>
             <div class="label">Total Expected</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
 
           <div class="stat-card green">
-            <div class="val">1,053,027 <span class="percentage">( 14.4% )</span></div>
+            <div class="val" id="stat-collected-rent">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Collected Rent</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card green">
-            <div class="val">17,620 <span class="percentage">( 12.5% )</span></div>
+            <div class="val" id="stat-collected-utilities">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Collected Utilities</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card green">
-            <div class="val">85,100 <span class="percentage">( 13.1% )</span></div>
+            <div class="val" id="stat-collected-arrears">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Collected Arrears</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card green">
-            <div class="val">1,155,747 <span class="percentage">( 14.2% )</span></div>
+            <div class="val" id="stat-collection-prepay">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Collection + PrePay</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
 
           <div class="stat-card red">
-            <div class="val">6,280,813 <span class="percentage">( 85.6% )</span></div>
+            <div class="val" id="stat-rent-due">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Rent Due</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card red">
-            <div class="val">123,370 <span class="percentage">( 87.5% )</span></div>
+            <div class="val" id="stat-utilities-due">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Utilities Due</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card red">
-            <div class="val">564,000 <span class="percentage">( 86.9% )</span></div>
+            <div class="val" id="stat-arrears-due">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Arrears Due</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card red">
-            <div class="val">6,968,183 <span class="percentage">( 85.8% )</span></div>
+            <div class="val" id="stat-total-due">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Total Due</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
 
           <div class="stat-card blue">
-            <div class="val">725,660 <span class="percentage">( 100% )</span></div>
+            <div class="val" id="stat-mpesa-collection">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Mpesa Collection</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">702,410 <span class="percentage">( 96.8% )</span></div>
+            <div class="val" id="stat-allocated-mpesa">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Allocated Mpesa</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">23,250 <span class="percentage">( 3.2% )</span></div>
+            <div class="val" id="stat-unallocated-mpesa">0 <span class="percentage">( 0% )</span></div>
             <div class="label">Unallocated Mpesa</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card green">
-            <div class="val">802,310</div>
-            <div class="label">AUGUST-2026 Collection</div>
+            <div class="val" id="stat-current-period-collection">0</div>
+            <div class="label" id="label-period-collection">Period Collection</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
 
           <div class="stat-card blue">
-            <div class="val">0</div>
+            <div class="val" id="stat-bank-slip">0</div>
             <div class="label">Bank Slip Collection</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">99,900</div>
+            <div class="val" id="stat-cash-collection">0</div>
             <div class="label">Cash Collection</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
           <div class="stat-card blue">
-            <div class="val">0</div>
+            <div class="val" id="stat-cheque-collection">0</div>
             <div class="label">Cheque Collection</div>
             <i class="fa-solid fa-coins watermark"></i>
           </div>
@@ -297,42 +297,42 @@
             <div class="metric-icon bg-green"><i class="fa-solid fa-user-group"></i></div>
             <div class="metric-details">
               <div class="m-label">Landlords</div>
-              <div class="m-val">79</div>
+              <div class="m-val" id="metric-landlords">0</div>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-icon bg-yellow"><i class="fa-solid fa-sitemap"></i></div>
             <div class="metric-details">
               <div class="m-label">Properties</div>
-              <div class="m-val">81</div>
+              <div class="m-val" id="metric-properties">0</div>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-icon bg-navy"><i class="fa-solid fa-house"></i></div>
             <div class="metric-details">
               <div class="m-label">Units</div>
-              <div class="m-val">1,763</div>
+              <div class="m-val" id="metric-units">0</div>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-icon bg-grey"><i class="fa-solid fa-house-user"></i></div>
             <div class="metric-details">
               <div class="m-label">Units Occupied</div>
-              <div class="m-val">1,537 (87%)</div>
+              <div class="m-val" id="metric-occupied">0 (0%)</div>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-icon bg-green"><i class="fa-solid fa-users"></i></div>
             <div class="metric-details">
               <div class="m-label">Tenants</div>
-              <div class="m-val">1,540</div>
+              <div class="m-val" id="metric-tenants">0</div>
             </div>
           </div>
           <div class="metric-card">
             <div class="metric-icon bg-yellow"><i class="fa-solid fa-user-slash"></i></div>
             <div class="metric-details">
               <div class="m-label">Suspend</div>
-              <div class="m-val">90</div>
+              <div class="m-val" id="metric-suspended">0</div>
             </div>
           </div>
         </div>
@@ -340,7 +340,7 @@
 
       <!-- Population Chart Section -->
       <div class="section-card">
-        <h3><i class="fa-solid fa-chart-column"></i> Population Distribution (1763 Units)</h3>
+        <h3><i class="fa-solid fa-chart-column"></i> Population Distribution (<span id="total-units-count">0</span> Units)</h3>
         <div class="chart-wrapper">
           <canvas id="populationChart"></canvas>
         </div>
@@ -354,7 +354,7 @@
 
     </div>
   </div>
-  <!-- 1. Load the shared API script first -->
+  
   <script src="js/api.js"></script>
   <script src="script.js"></script>
 </body>

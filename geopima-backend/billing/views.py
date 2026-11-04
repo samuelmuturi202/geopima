@@ -1,6 +1,7 @@
 import hmac
 import hashlib
 import os
+from decimal import Decimal
 from rest_framework import viewsets, filters, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,6 +10,7 @@ from rest_framework.permissions import AllowAny
 from django.core.management import call_command
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.db.models import Sum, Count, Q
 
 from .models import VoteHead, Deposit, Invoice, SmartAliasTransaction
 from .serializers import (
@@ -17,6 +19,8 @@ from .serializers import (
     InvoiceDetailSerializer,
     SmartAliasTransactionSerializer
 )
+from properties.models import Property, Unit
+from tenants.models import Tenant
 
 
 class DashboardMetricsView(APIView):
@@ -24,12 +28,45 @@ class DashboardMetricsView(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        data = {
-            "properties": ["Block A", "Block B", "Block C", "Block D"],
-            "total_units": [40, 25, 30, 15],
-            "occupied_units": [35, 20, 28, 10]
-        }
-        return Response(data, status=status.HTTP_200_OK)
+        try:
+            properties = Property.objects.all()
+            prop_names = []
+            total_units_list = []
+            occupied_units_list = []
+
+            for prop in properties:
+                prop_names.append(prop.name)
+                t_units = prop.units.count() if hasattr(prop, 'units') else 0
+                o_units = prop.units.filter(is_occupied=True).count() if hasattr(prop, 'units') else 0
+                total_units_list.append(t_units)
+                occupied_units_list.append(o_units)
+
+            # Calculate main financial stats from database
+            total_expected_rent = Invoice.objects.aggregate(total=Sum('items__amount'))['total'] or Decimal('0.00')
+            total_collected_rent = Invoice.objects.aggregate(collected=Sum('allocations__amount_allocated'))['collected'] or Decimal('0.00')
+            rent_due = total_expected_rent - total_collected_rent if total_expected_rent > total_collected_rent else Decimal('0.00')
+
+            data = {
+                "properties": prop_names,
+                "total_units": total_units_list,
+                "occupied_units": occupied_units_list,
+                "summary_counts": {
+                    "landlords": Property.objects.values('landlord').distinct().count() if hasattr(Property, 'landlord') else 0,
+                    "properties": Property.objects.count(),
+                    "units": Unit.objects.count(),
+                    "occupied_units": Unit.objects.filter(is_occupied=True).count(),
+                    "tenants": Tenant.objects.count(),
+                    "suspended": Tenant.objects.filter(status='suspended').count() if hasattr(Tenant, 'status') else 0
+                },
+                "financial_matrix": {
+                    "expected_rent": float(total_expected_rent),
+                    "collected_rent": float(total_collected_rent),
+                    "rent_due": float(rent_due)
+                }
+            }
+            return Response(data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Failed to retrieve dashboard metrics: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PaymentSummariesView(APIView):
@@ -37,12 +74,27 @@ class PaymentSummariesView(APIView):
     permission_classes = (AllowAny,)
 
     def get(self, request):
-        data = [
-            {"name": "Rent Collection", "collected": 450000, "total": 500000, "pct": 90},
-            {"name": "Water Collection", "collected": 18000, "total": 20000, "pct": 90},
-            {"name": "Garbage Collection", "collected": 5000, "total": 10000, "pct": 50}
-        ]
-        return Response(data, status=status.HTTP_200_OK)
+        try:
+            properties = Property.objects.all()
+            payment_summaries = []
+
+            for prop in properties:
+                prop_invoices = Invoice.objects.filter(unit__property=prop)
+                expected = prop_invoices.aggregate(total=Sum('items__amount'))['total'] or Decimal('0.00')
+                collected = prop_invoices.aggregate(total=Sum('allocations__amount_allocated'))['total'] or Decimal('0.00')
+                
+                pct = int((float(collected) / float(expected)) * 100) if expected > 0 else 0
+
+                payment_summaries.append({
+                    "name": prop.name,
+                    "collected": float(collected),
+                    "total": float(expected),
+                    "pct": min(pct, 100)
+                })
+
+            return Response(payment_summaries, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": f"Failed to retrieve payment summaries: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @method_decorator(csrf_exempt, name='dispatch')

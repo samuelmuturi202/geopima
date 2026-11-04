@@ -82,7 +82,7 @@ class Invoice(models.Model):
     due_date = models.DateField()
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='unpaid')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_auto_now_add=True)
 
     class Meta:
         db_table = 'billing_invoice'
@@ -126,7 +126,7 @@ class Invoice(models.Model):
                 except ValueError:
                     next_num = 1
             else:
-                next_num = 1  # Resets the sequence to start at INV000001 if no prior invoice exists
+                next_num = 1
             
             self.invoice_number = f"INV{next_num:06d}"
 

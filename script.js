@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- 5. Dynamic Chart.js Population Distribution Chart ---
+  // --- 5. Dynamic Chart.js Population Distribution Chart & Summary Bindings ---
   const chartCanvas = document.getElementById('populationChart');
   let populationChartInstance = null;
 
@@ -191,6 +191,49 @@ document.addEventListener('DOMContentLoaded', () => {
       const propertyLabels = metrics.properties || [];
       const totalUnits = metrics.total_units || [];
       const occupiedUnits = metrics.occupied_units || [];
+
+      // Dynamic binding for side panel counts
+      if (metrics.summary_counts) {
+        const counts = metrics.summary_counts;
+        const landlordsEl = document.getElementById('metric-landlords');
+        const propertiesEl = document.getElementById('metric-properties');
+        const unitsEl = document.getElementById('metric-units');
+        const occupiedEl = document.getElementById('metric-occupied');
+        const tenantsEl = document.getElementById('metric-tenants');
+        const suspendedEl = document.getElementById('metric-suspended');
+        const totalUnitsTitleEl = document.getElementById('total-units-count');
+
+        if (landlordsEl) landlordsEl.textContent = counts.landlords;
+        if (propertiesEl) propertiesEl.textContent = counts.properties;
+        if (unitsEl) unitsEl.textContent = counts.units.toLocaleString();
+        if (occupiedEl) {
+          const totalU = counts.units || 1;
+          const occU = counts.occupied_units || 0;
+          const pctOcc = Math.round((occU / totalU) * 100);
+          occupiedEl.textContent = `${occU.toLocaleString()} (${pctOcc}%)`;
+        }
+        if (tenantsEl) tenantsEl.textContent = counts.tenants.toLocaleString();
+        if (suspendedEl) suspendedEl.textContent = counts.suspended;
+        if (totalUnitsTitleEl) totalUnitsTitleEl.textContent = counts.units.toLocaleString();
+      }
+
+      // Dynamic binding for financial matrix
+      if (metrics.financial_matrix) {
+        const fin = metrics.financial_matrix;
+        const expRentEl = document.getElementById('stat-expected-rent');
+        const colRentEl = document.getElementById('stat-collected-rent');
+        const dueRentEl = document.getElementById('stat-rent-due');
+
+        if (expRentEl) expRentEl.innerHTML = `${Number(fin.expected_rent).toLocaleString()} <span class="percentage">( 100% )</span>`;
+        if (colRentEl) {
+          const pct = fin.expected_rent > 0 ? ((fin.collected_rent / fin.expected_rent) * 100).toFixed(1) : '0';
+          colRentEl.innerHTML = `${Number(fin.collected_rent).toLocaleString()} <span class="percentage">( ${pct}% )</span>`;
+        }
+        if (dueRentEl) {
+          const pct = fin.expected_rent > 0 ? ((fin.rent_due / fin.expected_rent) * 100).toFixed(1) : '0';
+          dueRentEl.innerHTML = `${Number(fin.rent_due).toLocaleString()} <span class="percentage">( ${pct}% )</span>`;
+        }
+      }
 
       const ctx = chartCanvas.getContext('2d');
       populationChartInstance = new Chart(ctx, {
