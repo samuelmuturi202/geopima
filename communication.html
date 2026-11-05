@@ -7,9 +7,6 @@
   
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Chart.js for SMS Analytics Graph -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  
   <!-- Core Dashboard Stylesheet -->
   <link rel="stylesheet" href="styles.css">
   <!-- Page Specific Stylesheet -->
@@ -82,155 +79,77 @@
       </div>
     </header>
 
-    <div class="container">
-      
-      <!-- Top Header Title & Breadcrumb -->
+    <main class="container communication-page">
       <div class="page-header-row">
-        <h2 class="dashboard-title">BULK SMS DASHBOARD FOR YEAR 2026</h2>
-        <div class="breadcrumb">
-          <a href="#">Home</a> / <span>Communication</span>
-        </div>
+        <h2 class="dashboard-title">COMMUNICATION DRAFTS</h2>
+        <div class="breadcrumb"><a href="index.html">Home</a> / <span>Communication</span></div>
       </div>
 
-      <!-- Dashboard Grid Layout -->
-      <div class="dashboard-layout">
-        
-        <!-- Left Main Panel -->
-        <div class="left-analytics-panel">
-          
-          <!-- SMS Delivery Status Cards Grid -->
-          <div class="status-cards-grid">
-            <div class="stat-card card-dark-blue">
-              <span class="stat-title">Total Messages</span>
-              <span class="stat-count">55983</span>
-            </div>
-            
-            <div class="stat-card card-teal">
-              <span class="stat-title">rendered</span>
-              <span class="stat-count">3</span>
-            </div>
-
-            <div class="stat-card card-teal card-long-text">
-              <span class="stat-title">Failed: Trying to access array offset on value of type null</span>
-              <span class="stat-count">3</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">SAVED</span>
-              <span class="stat-count">467</span>
-            </div>
-
-            <div class="stat-card card-green">
-              <span class="stat-title">DeliveredToTerminal</span>
-              <span class="stat-count">30764</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">DeliveryImpossible</span>
-              <span class="stat-count">98</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">Failed</span>
-              <span class="stat-count">9</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">Queued At MNO</span>
-              <span class="stat-count">26</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">AbsentSubscriber</span>
-              <span class="stat-count">2150</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">Sent To Network</span>
-              <span class="stat-count">885</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">unknown</span>
-              <span class="stat-count">352</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">success</span>
-              <span class="stat-count">21202</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">Network Failure</span>
-              <span class="stat-count">1</span>
-            </div>
-
-            <div class="stat-card card-teal">
-              <span class="stat-title">InvalidNetwork</span>
-              <span class="stat-count">23</span>
-            </div>
-          </div>
-
-          <!-- Chart Box Container -->
-          <div class="chart-card">
-            <div class="chart-header">
-              <i class="fa-solid fa-chart-column"></i>
-              <span>Messages Sent/Received</span>
-            </div>
-            
-            <div class="chart-summary">
-              <div class="total-big-number">55983</div>
-              <div class="total-label">Messages</div>
-            </div>
-
-            <div class="canvas-wrapper">
-              <canvas id="smsAnalyticsChart"></canvas>
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Right Action Sidebar -->
-        <div class="right-actions-panel">
-          
-          <!-- Balance Banner -->
-          <div class="balance-banner">
-            <span>SMS Balance: <strong>7696</strong> units</span>
-          </div>
-
-          <!-- Panel 1: Rent Balances -->
-          <div class="action-card">
-            <h4 class="card-section-title">Messages With Rent Balances</h4>
-            <div class="action-buttons-group">
-              <button class="sms-btn btn-light-blue">Send All With Rent Figures</button>
-              <button class="sms-btn btn-slate-gray">Send To Selected Landlords</button>
-              <button class="sms-btn btn-soft-yellow">Send To Selected Properties</button>
-              <button class="sms-btn btn-soft-green">Send To Selected Tenants</button>
-              <button class="sms-btn btn-sage-green">Send To Tenants With Last Month Arrears</button>
-            </div>
-          </div>
-
-          <!-- Panel 2: General Messages -->
-          <div class="action-card">
-            <h4 class="card-section-title">General Messages Without Balances</h4>
-            <div class="action-buttons-group">
-              <button class="sms-btn btn-soft-yellow">Send To All Tenants</button>
-              <button class="sms-btn btn-light-cyan">Send To Selected Landlords</button>
-              <button class="sms-btn btn-slate-gray">Send To Selected Properties</button>
-              <button class="sms-btn btn-soft-green">Send To Selected Tenants</button>
-              <button class="sms-btn btn-sky-blue">Send To Landlords</button>
-            </div>
-          </div>
-
-        </div>
-
+      <div class="communication-notice" role="note">
+        Drafts are generated for tenant rent due in 5 days, unpaid overdue rent, and monthly
+        landlord collection summaries on the 1st. Staff approval does not send an SMS;
+        connect an SMS gateway before enabling delivery.
       </div>
-    </div>
+
+      <section class="draft-toolbar" aria-label="Draft controls">
+        <div>
+          <h3>Review messages before delivery</h3>
+          <p>Generate today's drafts, then review the recipient and message before approving.</p>
+        </div>
+        <div class="draft-toolbar-actions">
+          <button type="button" class="draft-button draft-button-secondary" id="refresh-drafts">
+            Refresh
+          </button>
+          <button type="button" class="draft-button" id="generate-drafts">
+            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
+            Generate today's drafts
+          </button>
+        </div>
+      </section>
+
+      <p class="draft-feedback" id="draft-feedback" role="status" aria-live="polite"></p>
+
+      <section class="draft-queue" aria-labelledby="draft-queue-title">
+        <div class="draft-queue-header">
+          <div>
+            <h3 id="draft-queue-title">Message queue</h3>
+            <span id="draft-count" class="draft-count"></span>
+          </div>
+          <div class="draft-filters">
+            <label>
+              Status
+              <select id="status-filter">
+                <option value="">All statuses</option>
+                <option value="pending">Awaiting approval</option>
+                <option value="approved">Approved</option>
+              </select>
+            </label>
+            <label>
+              Recipient
+              <select id="recipient-filter">
+                <option value="">All recipients</option>
+                <option value="tenant">Tenants</option>
+                <option value="landlord">Landlords</option>
+              </select>
+            </label>
+          </div>
+        </div>
+        <div id="draft-list" class="draft-list" aria-live="polite">
+          <p class="empty-drafts">Loading message drafts...</p>
+        </div>
+        <div class="draft-pagination">
+          <button type="button" class="draft-button draft-button-secondary" id="previous-page" disabled>
+            Newer
+          </button>
+          <span id="page-label"></span>
+          <button type="button" class="draft-button draft-button-secondary" id="next-page" disabled>
+            Older
+          </button>
+        </div>
+      </section>
+    </main>
   </div>
-  <!-- 1. Load the shared API script first -->
-    
   <script src="js/api.js"></script>
-  <!-- JavaScript Scripts -->
   <script src="script.js"></script>
   <script src="communication.js"></script>
 </body>

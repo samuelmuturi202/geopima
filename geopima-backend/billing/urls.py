@@ -4,6 +4,7 @@ from .views import (
     VoteHeadViewSet, 
     DepositViewSet, 
     InvoiceViewSet,
+    CommunicationDraftViewSet,
     DashboardMetricsView,
     PaymentSummariesView,
     CreditBankSmartAliasWebhookView
@@ -16,6 +17,7 @@ router = DefaultRouter()
 router.register(r'vote-heads', VoteHeadViewSet, basename='vote-head')
 router.register(r'deposits', DepositViewSet, basename='deposit')
 router.register(r'invoices', InvoiceViewSet, basename='invoice')
+router.register(r'communication-drafts', CommunicationDraftViewSet, basename='communication-draft')
 
 urlpatterns = [
     path('webhooks/credit-bank/smart-alias/', CreditBankSmartAliasWebhookView.as_view(), name='smart-alias-webhook'),

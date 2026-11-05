@@ -2,22 +2,25 @@ import hmac
 import hashlib
 import os
 from decimal import Decimal
-from rest_framework import viewsets, filters, status
+from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.management import call_command
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.models import Sum, Count, Q
+from django.utils import timezone
 
-from .models import VoteHead, Deposit, Invoice, SmartAliasTransaction
+from .communication import generate_communication_drafts
+from .models import VoteHead, Deposit, Invoice, SmartAliasTransaction, CommunicationDraft
 from .serializers import (
     VoteHeadSerializer, 
     DepositSerializer, 
     InvoiceDetailSerializer,
-    SmartAliasTransactionSerializer
+    SmartAliasTransactionSerializer,
+    CommunicationDraftSerializer,
 )
 from properties.models import Property, Unit
 from tenants.models import Tenant
@@ -232,3 +235,38 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 {'error': f'Failed to generate invoices: {str(e)}'}, 
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+
+class CommunicationDraftViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    serializer_class = CommunicationDraftSerializer
+    permission_classes = [IsAuthenticated]
+    queryset = CommunicationDraft.objects.select_related(
+        'invoice__unit__property', 'landlord'
+    ).order_by('-created_at')
+
+    def get_queryset(self):
+        queryset = self.queryset
+        draft_status = self.request.query_params.get('status')
+        recipient_type = self.request.query_params.get('recipient_type')
+        if draft_status in {'pending', 'approved'}:
+            queryset = queryset.filter(status=draft_status)
+        if recipient_type in {'tenant', 'landlord'}:
+            queryset = queryset.filter(recipient_type=recipient_type)
+        return queryset
+
+    @action(detail=False, methods=['post'], url_path='generate')
+    def generate(self, request):
+        totals = generate_communication_drafts(created_by=request.user)
+        return Response({
+            **totals,
+            'run_date': timezone.localdate(),
+            'message': 'Draft generation complete. No SMS messages were sent.',
+        }, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'])
+    def approve(self, request, pk=None):
+        draft = self.get_object()
+        if draft.status != 'approved':
+            draft.status = 'approved'
+            draft.save(update_fields=['status', 'updated_at'])
+        return Response(self.get_serializer(draft).data, status=status.HTTP_200_OK)

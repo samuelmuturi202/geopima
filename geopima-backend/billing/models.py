@@ -1,6 +1,8 @@
 import uuid
 from decimal import Decimal
+from django.conf import settings
 from django.db import models
+from django.db.models import Q
 
 
 class Agency(models.Model):
@@ -152,3 +154,58 @@ class InvoiceItem(models.Model):
 
     def __str__(self):
         return f"{self.item_type}: {self.amount}"
+
+
+class CommunicationDraft(models.Model):
+    RECIPIENT_CHOICES = [
+        ('tenant', 'Tenant'),
+        ('landlord', 'Landlord'),
+    ]
+    REMINDER_CHOICES = [
+        ('rent_due', 'Rent due soon'),
+        ('rent_overdue', 'Overdue rent'),
+        ('landlord_monthly', 'Monthly landlord update'),
+    ]
+    STATUS_CHOICES = [
+        ('pending', 'Pending approval'),
+        ('approved', 'Approved'),
+    ]
+
+    recipient_type = models.CharField(max_length=10, choices=RECIPIENT_CHOICES)
+    recipient_name = models.CharField(max_length=255)
+    phone_number = models.CharField(max_length=20)
+    reminder_type = models.CharField(max_length=20, choices=REMINDER_CHOICES)
+    message = models.TextField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    invoice = models.ForeignKey(
+        Invoice, on_delete=models.CASCADE, null=True, blank=True, related_name='communication_drafts'
+    )
+    landlord = models.ForeignKey(
+        'properties.Landlord', on_delete=models.CASCADE, null=True, blank=True,
+        related_name='communication_drafts'
+    )
+    period = models.DateField(null=True, blank=True)
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='created_communication_drafts'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['invoice', 'reminder_type'],
+                condition=Q(invoice__isnull=False),
+                name='uniq_com_draft_invoice_type',
+            ),
+            models.UniqueConstraint(
+                fields=['landlord', 'reminder_type', 'period'],
+                condition=Q(landlord__isnull=False, period__isnull=False),
+                name='uniq_com_draft_landlord_period',
+            ),
+        ]
+
+    def __str__(self):
+        return f"{self.get_reminder_type_display()} for {self.recipient_name}"

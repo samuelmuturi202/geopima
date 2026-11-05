@@ -1,5 +1,8 @@
 from rest_framework import serializers
-from .models import VoteHead, Deposit, Invoice, InvoiceItem, Agency, SmartAliasTransaction
+from .models import (
+    VoteHead, Deposit, Invoice, InvoiceItem, Agency, SmartAliasTransaction,
+    CommunicationDraft,
+)
 
 
 class VoteHeadSerializer(serializers.ModelSerializer):
@@ -121,3 +124,29 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         if allocations is not None:
             return PaymentDetailSerializer(allocations.all(), many=True).data
         return []
+
+
+class CommunicationDraftSerializer(serializers.ModelSerializer):
+    invoice_number = serializers.SerializerMethodField()
+    property_name = serializers.SerializerMethodField()
+    unit_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = CommunicationDraft
+        fields = [
+            'id', 'recipient_type', 'recipient_name', 'phone_number',
+            'reminder_type', 'message', 'status', 'period', 'created_at',
+            'invoice_number', 'property_name', 'unit_name',
+        ]
+        read_only_fields = fields
+
+    def get_invoice_number(self, obj):
+        return obj.invoice.invoice_number if obj.invoice_id else None
+
+    def get_property_name(self, obj):
+        if obj.invoice_id and obj.invoice.unit_id:
+            return obj.invoice.unit.property.name
+        return None
+
+    def get_unit_name(self, obj):
+        return obj.invoice.unit.unit_name if obj.invoice_id and obj.invoice.unit_id else None
