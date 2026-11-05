@@ -79,74 +79,121 @@
       </div>
     </header>
 
-    <main class="container communication-page">
+    <main class="container">
       <div class="page-header-row">
-        <h2 class="dashboard-title">COMMUNICATION DRAFTS</h2>
+        <h2 class="dashboard-title">BULK SMS DASHBOARD FOR YEAR 2026</h2>
         <div class="breadcrumb"><a href="index.html">Home</a> / <span>Communication</span></div>
       </div>
-
-      <div class="communication-notice" role="note">
-        Drafts are generated for tenant rent due in 5 days, unpaid overdue rent, and monthly
-        landlord collection summaries on the 1st. Staff approval does not send an SMS;
-        connect an SMS gateway before enabling delivery.
+      <div class="backend-status status-checking" id="draft-service-status" role="status" aria-live="polite">
+        Checking communication service...
       </div>
 
-      <section class="draft-toolbar" aria-label="Draft controls">
-        <div>
-          <h3>Review messages before delivery</h3>
-          <p>Generate today's drafts, then review the recipient and message before approving.</p>
-        </div>
-        <div class="draft-toolbar-actions">
-          <button type="button" class="draft-button draft-button-secondary" id="refresh-drafts">
-            Refresh
-          </button>
-          <button type="button" class="draft-button" id="generate-drafts">
-            <i class="fa-solid fa-wand-magic-sparkles" aria-hidden="true"></i>
-            Generate today's drafts
-          </button>
-        </div>
-      </section>
+      <div class="dashboard-layout">
+        <section class="left-analytics-panel" aria-label="SMS analytics">
+          <div class="status-cards-grid">
+            <div class="stat-card card-dark-blue"><span class="stat-title">Total Messages</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Rendered</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal card-long-text"><span class="stat-title">Failed</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Saved</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-green"><span class="stat-title">Delivered</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Delivery Impossible</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Queued</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Sent To Network</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Absent Subscriber</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Success</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Network Failure</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Other Status</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Invalid Network</span><span class="stat-count">—</span></div>
+            <div class="stat-card card-teal"><span class="stat-title">Unknown</span><span class="stat-count">—</span></div>
+          </div>
 
-      <p class="draft-feedback" id="draft-feedback" role="status" aria-live="polite"></p>
+          <div class="chart-card">
+            <div class="chart-header">
+              <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+              <span>Messages Sent/Received</span>
+            </div>
+            <div class="chart-summary">
+              <div class="total-big-number">—</div>
+              <div class="total-label">SMS analytics unavailable</div>
+            </div>
+            <div class="analytics-unavailable">
+              <i class="fa-solid fa-chart-column" aria-hidden="true"></i>
+              <span>Connect an SMS gateway to view sent and delivered message analytics.</span>
+            </div>
+          </div>
+        </section>
 
-      <section class="draft-queue" aria-labelledby="draft-queue-title">
-        <div class="draft-queue-header">
+        <aside class="right-actions-panel" aria-label="SMS actions">
+          <div class="balance-banner">SMS Balance: <strong>Unavailable</strong></div>
+
+          <section class="action-card">
+            <h3 class="card-section-title">Messages With Rent Balances</h3>
+            <div class="action-buttons-group">
+              <button class="sms-btn btn-light-blue" type="button">Send All With Rent Figures</button>
+              <button class="sms-btn btn-slate-gray" type="button" data-recipient="landlord">Send To Selected Landlords</button>
+              <button class="sms-btn btn-soft-yellow" type="button">Send To Selected Properties</button>
+              <button class="sms-btn btn-soft-green" type="button" data-recipient="tenant">Send To Selected Tenants</button>
+              <button class="sms-btn btn-sage-green" type="button" data-recipient="tenant">Send To Tenants With Last Month Arrears</button>
+            </div>
+          </section>
+
+          <section class="action-card">
+            <h3 class="card-section-title">General Messages Without Balances</h3>
+            <div class="action-buttons-group">
+              <button class="sms-btn btn-soft-yellow" type="button" data-recipient="tenant">Send To All Tenants</button>
+              <button class="sms-btn btn-light-cyan" type="button" data-recipient="landlord">Send To Selected Landlords</button>
+              <button class="sms-btn btn-slate-gray" type="button">Send To Selected Properties</button>
+              <button class="sms-btn btn-soft-green" type="button" data-recipient="tenant">Send To Selected Tenants</button>
+              <button class="sms-btn btn-sky-blue" type="button" data-recipient="landlord">Send To Landlords</button>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <details class="drafts-panel">
+        <summary>Review automated communication drafts</summary>
+        <p class="drafts-notice">
+          Bulk recipient selection and SMS delivery are not connected to the backend yet. Use
+          the queue to review automated drafts; approval does not send a message. Tenant rent
+          reminders are generated 5 days before due and after overdue. Landlord summaries are
+          generated on the 1st of each month.
+        </p>
+        <div class="draft-toolbar">
           <div>
-            <h3 id="draft-queue-title">Message queue</h3>
+            <h3>Message queue</h3>
             <span id="draft-count" class="draft-count"></span>
           </div>
-          <div class="draft-filters">
-            <label>
-              Status
-              <select id="status-filter">
-                <option value="">All statuses</option>
-                <option value="pending">Awaiting approval</option>
-                <option value="approved">Approved</option>
-              </select>
-            </label>
-            <label>
-              Recipient
-              <select id="recipient-filter">
-                <option value="">All recipients</option>
-                <option value="tenant">Tenants</option>
-                <option value="landlord">Landlords</option>
-              </select>
-            </label>
+          <div class="draft-toolbar-actions">
+            <button type="button" class="draft-button draft-button-secondary" id="refresh-drafts">Refresh</button>
+            <button type="button" class="draft-button" id="generate-drafts">Generate today's drafts</button>
           </div>
         </div>
+        <p class="draft-feedback" id="draft-feedback" role="status" aria-live="polite"></p>
+        <div class="draft-filters">
+          <label>Status
+            <select id="status-filter">
+              <option value="">All statuses</option>
+              <option value="pending">Awaiting approval</option>
+              <option value="approved">Approved</option>
+            </select>
+          </label>
+          <label>Recipient
+            <select id="recipient-filter">
+              <option value="">All recipients</option>
+              <option value="tenant">Tenants</option>
+              <option value="landlord">Landlords</option>
+            </select>
+          </label>
+        </div>
         <div id="draft-list" class="draft-list" aria-live="polite">
-          <p class="empty-drafts">Loading message drafts...</p>
+          <p class="empty-drafts">Open this section to load communication drafts.</p>
         </div>
         <div class="draft-pagination">
-          <button type="button" class="draft-button draft-button-secondary" id="previous-page" disabled>
-            Newer
-          </button>
+          <button type="button" class="draft-button draft-button-secondary" id="previous-page" disabled>Newer</button>
           <span id="page-label"></span>
-          <button type="button" class="draft-button draft-button-secondary" id="next-page" disabled>
-            Older
-          </button>
+          <button type="button" class="draft-button draft-button-secondary" id="next-page" disabled>Older</button>
         </div>
-      </section>
+      </details>
     </main>
   </div>
   <script src="js/api.js"></script>

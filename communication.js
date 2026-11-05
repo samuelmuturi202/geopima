@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const draftList = document.getElementById('draft-list');
+  const serviceStatus = document.getElementById('draft-service-status');
   const feedback = document.getElementById('draft-feedback');
   const countLabel = document.getElementById('draft-count');
   const pageLabel = document.getElementById('page-label');
@@ -14,6 +15,11 @@ document.addEventListener('DOMContentLoaded', () => {
   function setFeedback(message, isError = false) {
     feedback.textContent = message;
     feedback.classList.toggle('is-error', isError);
+  }
+
+  function setServiceStatus(text, state) {
+    serviceStatus.textContent = text;
+    serviceStatus.className = `backend-status status-${state}`;
   }
 
   function createTextElement(tagName, className, text) {
@@ -103,6 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetchAPI(`/billing/communication-drafts/?${params}`);
       const drafts = Array.isArray(response) ? response : (response.results || []);
       draftList.replaceChildren();
+      setServiceStatus('Communication service connected', 'online');
 
       if (!drafts.length) {
         draftList.appendChild(createTextElement(
@@ -115,12 +122,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const total = response.count ?? drafts.length;
-      countLabel.textContent = `${total} draft${total === 1 ? '' : 's'}`;
+      countLabel.textContent = `${total} draft${total === 1 ? '' : 's'} in the backend queue`;
       pageLabel.textContent = drafts.length ? `Page ${page}` : '';
       previousButton.disabled = page <= 1;
       nextButton.disabled = !response.next;
     } catch (error) {
       console.error('Failed to load communication drafts:', error);
+      setServiceStatus('Communication service unavailable', 'error');
       draftList.replaceChildren(createTextElement(
         'p',
         'empty-drafts is-error',
@@ -158,5 +166,26 @@ document.addEventListener('DOMContentLoaded', () => {
   previousButton.addEventListener('click', () => loadDrafts(currentPage - 1));
   nextButton.addEventListener('click', () => loadDrafts(currentPage + 1));
 
+  const draftsPanel = document.querySelector('.drafts-panel');
+  draftsPanel.addEventListener('toggle', () => {
+    if (draftsPanel.open) loadDrafts(1);
+  });
+
+  document.querySelectorAll('.sms-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const selectedRecipient = button.dataset.recipient || '';
+      const wasOpen = draftsPanel.open;
+      recipientFilter.value = selectedRecipient;
+      draftsPanel.open = true;
+      setFeedback(
+        'Bulk SMS sending and recipient selection are not connected to the backend. ' +
+        'The queue below shows automated drafts only; no message was sent.'
+      );
+      draftsPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (wasOpen) loadDrafts(1);
+    });
+  });
+
+  setServiceStatus('Checking communication service...', 'checking');
   loadDrafts();
 });
