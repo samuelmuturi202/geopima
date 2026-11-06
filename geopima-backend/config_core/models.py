@@ -30,7 +30,7 @@ class AgencyProfile(models.Model):
 
 
 class MessengerConfig(models.Model):
-    service_provider = models.CharField(max_length=100, default='WISERENTER')
+    service_provider = models.CharField(max_length=100, default='Celcom Africa')
     sender_id = models.CharField(max_length=100, default='pemwaagency')
     partner_id = models.CharField(max_length=100, blank=True)
     partner_key = models.CharField(max_length=255, blank=True)
@@ -136,9 +136,10 @@ class SMSTemplate(models.Model):
         ('PAYMENT_NOTIF', 'Payment Notification'),
         ('DISCOUNT', 'Discount'),
         ('WELCOME', 'New Tenant Welcome'),
+        ('LANDLORD_UPDATE', 'Monthly Landlord Update'),
     ]
 
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, unique=True)
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, unique=True)
     template_text = models.TextField()
     updated_at = models.DateTimeField(auto_now=True)
 

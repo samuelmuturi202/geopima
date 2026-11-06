@@ -43,10 +43,13 @@
         <div class="breadcrumb">
           <a href="../index.html">Home</a> / <a href="configuration.html">Configuration</a>
         </div>
+        <p class="template-service-status" id="template-service-status" role="status" aria-live="polite">
+          Connecting to the configuration service...
+        </p>
       </div>
 
       <!-- Template 1: Fee Reminder -->
-      <div class="template-card border-red">
+      <div class="template-card border-red" data-category="FEE_REMINDER">
         <h3 class="template-heading heading-red">Fee Reminder SMS Template:</h3>
         
         <div class="instructions-section">
@@ -58,6 +61,7 @@
             <div class="placeholder-item"><span class="p-label">paybill no:</span><span class="p-code">{paybill}</span></div>
             <div class="placeholder-item"><span class="p-label">agency:</span><span class="p-code">{agency}</span></div>
             <div class="placeholder-item"><span class="p-label">month:</span><span class="p-code">{month}</span></div>
+            <div class="placeholder-item"><span class="p-label">due date:</span><span class="p-code">{due_date}</span></div>
           </div>
         </div>
 
@@ -70,7 +74,7 @@
 
         <form class="template-form">
           <div class="form-group">
-            <textarea class="template-input" rows="3">Dear {tenant}, Kindly clear your rent balance of Kes. {balance} for {month}. You can pay via Paybill No: {paybill} Account No: {tnt}</textarea>
+            <textarea class="template-input" rows="3">Dear {tenant}, kindly clear your rent balance of KES {balance} for {month}, due {due_date}. Pay via Paybill {paybill}, account {tnt}.</textarea>
           </div>
           <div class="form-group">
             <textarea class="template-preview" rows="3" readonly>Dear John Smith, Kindly clear your rent balance of Kes. 10,500.00 for AUGUST-2026. You can pay via Paybill No: 123456 Account No: W1234</textarea>
@@ -82,7 +86,7 @@
       </div>
 
       <!-- Template 2: Payment Notification -->
-      <div class="template-card border-green">
+      <div class="template-card border-green" data-category="PAYMENT_NOTIF">
         <h3 class="template-heading heading-green">Payment Notification SMS Template:</h3>
         
         <div class="instructions-section">
@@ -121,7 +125,7 @@
       </div>
 
       <!-- Template 3: Discount SMS -->
-      <div class="template-card border-amber">
+      <div class="template-card border-amber" data-category="DISCOUNT">
         <h3 class="template-heading heading-amber">Discount SMS Template:</h3>
         
         <div class="instructions-section">
@@ -155,7 +159,7 @@
       </div>
 
       <!-- Template 4: New Tenant Welcome -->
-      <div class="template-card border-green">
+      <div class="template-card border-green" data-category="WELCOME">
         <h3 class="template-heading heading-green">New Tenant Welcome SMS Template:</h3>
         
         <div class="instructions-section">
@@ -187,11 +191,47 @@
         </form>
       </div>
 
+      <!-- Monthly landlord update template stays with the other configuration templates. -->
+      <div class="template-card border-green" data-category="LANDLORD_UPDATE">
+        <h3 class="template-heading heading-green">Monthly Landlord Update SMS Template:</h3>
+        <div class="instructions-section">
+          <h4 class="instructions-title">INSTRUCTIONS:</h4>
+          <div class="placeholders-grid">
+            <div class="placeholder-item"><span class="p-label">landlord:</span><span class="p-code">{landlord}</span></div>
+            <div class="placeholder-item"><span class="p-label">agency:</span><span class="p-code">{agency}</span></div>
+            <div class="placeholder-item"><span class="p-label">month:</span><span class="p-code">{month}</span></div>
+            <div class="placeholder-item"><span class="p-label">expected:</span><span class="p-code">{expected}</span></div>
+            <div class="placeholder-item"><span class="p-label">collected:</span><span class="p-code">{collected}</span></div>
+            <div class="placeholder-item"><span class="p-label">outstanding:</span><span class="p-code">{outstanding}</span></div>
+          </div>
+        </div>
+        <div class="sample-message-section">
+          <h4 class="sample-title title-green">SAMPLE MESSAGE:</h4>
+          <p class="sample-text">
+            Hello <span class="p-code">{landlord}</span>, your <span class="p-code">{month}</span>
+            rent summary: KES <span class="p-code">{expected}</span> expected, KES
+            <span class="p-code">{collected}</span> collected, KES
+            <span class="p-code">{outstanding}</span> outstanding.
+          </p>
+        </div>
+        <form class="template-form">
+          <div class="form-group">
+            <textarea class="template-input" rows="3">Hello {landlord}, your {month} rent summary: KES {expected} expected, KES {collected} collected, KES {outstanding} outstanding. {agency}</textarea>
+          </div>
+          <div class="form-group">
+            <textarea class="template-preview" rows="3" readonly></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-save"><i class="fa-solid fa-floppy-disk"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
     </div>
   </main>
 
   <!-- External JavaScript -->
-  <script src="js/api.js"></script>
+  <script src="../js/api.js"></script>
   <script src="sms-templates.js"></script>
 </body>
 </html>

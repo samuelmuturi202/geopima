@@ -137,6 +137,7 @@ class CommunicationDraftSerializer(serializers.ModelSerializer):
             'id', 'recipient_type', 'recipient_name', 'phone_number',
             'reminder_type', 'message', 'status', 'period', 'created_at',
             'invoice_number', 'property_name', 'unit_name',
+            'provider_message_id', 'sent_at',
         ]
         read_only_fields = fields
 

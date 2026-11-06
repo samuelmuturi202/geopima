@@ -152,20 +152,21 @@
           <h2 style="font-size: 1.15rem; font-weight: 700; color: #475569; margin-bottom: 24px;">SMS Configurations</h2>
           <form id="messengerForm" class="form-col" style="gap: 20px;">
             <div class="field-container">
-              <input type="text" id="serviceProvider" class="custom-input" value="WISERENTER" required>
-              <label for="serviceProvider" class="sub-label">Service Provider <span style="color: #dc2626;">required</span></label>
+              <input type="text" id="serviceProvider" class="custom-input" placeholder="Enter your selected SMS gateway" required>
+              <label for="serviceProvider" class="sub-label">SMS Gateway Name <span style="color: #dc2626;">required</span></label>
             </div>
             <div class="field-container">
               <input type="text" id="senderId" class="custom-input" required>
               <label for="senderId" class="sub-label">Sender ID <span style="color: #dc2626;">required</span></label>
             </div>
             <div class="field-container">
-              <input type="password" id="partnerId" class="custom-input" placeholder="••••" required>
-              <label for="partnerId" class="sub-label">Partner ID <span style="color: #dc2626;">required</span></label>
+              <input type="password" id="partnerId" class="custom-input" placeholder="Enter Celcom Partner ID">
+              <label for="partnerId" class="sub-label">Partner ID</label>
             </div>
             <div class="field-container">
-              <input type="password" id="partnerKey" class="custom-input" placeholder="••••••••••••••••••••••••••••" required>
-              <label for="partnerKey" class="sub-label">Partner Key <span style="color: #dc2626;">required</span></label>
+              <input type="password" id="partnerKey" class="custom-input" placeholder="Enter to set or replace the saved API key">
+              <label for="partnerKey" class="sub-label">Celcom API Key</label>
+              <small id="partnerKeyStatus" aria-live="polite"></small>
             </div>
             <div class="field-container">
               <input type="text" id="agencyPhone" class="custom-input">

@@ -22,5 +22,6 @@ class Command(BaseCommand):
         result = generate_communication_drafts(run_date=run_date)
         self.stdout.write(self.style.SUCCESS(
             f"Created {result['created']} draft(s) for {run_date}; "
+            f"refreshed {result['updated']} pending draft(s); "
             f"skipped {result['skipped_no_phone']} recipient(s) without a phone number."
         ))

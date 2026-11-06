@@ -2,8 +2,10 @@ django>=5.2
 gunicorn
 whitenoise
 dj-database-url
+python-dotenv
 psycopg2-binary
 djangorestframework
 djangorestframework-simplejwt
 django-cors-headers
 Pillow
+requests

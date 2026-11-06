@@ -11,10 +11,19 @@ from django.core.management import call_command
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.models import Sum, Count, Q
+from django.db import transaction
+from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from .communication import generate_communication_drafts
 from .models import VoteHead, Deposit, Invoice, SmartAliasTransaction, CommunicationDraft
+from config_core.models import MessengerConfig
+from config_core.sms_gateway import (
+    SMSDeliveryRejected,
+    SMSDeliveryUncertain,
+    SMSGatewayConfigurationError,
+    send_sms,
+)
 from .serializers import (
     VoteHeadSerializer, 
     DepositSerializer, 
@@ -248,7 +257,7 @@ class CommunicationDraftViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         queryset = self.queryset
         draft_status = self.request.query_params.get('status')
         recipient_type = self.request.query_params.get('recipient_type')
-        if draft_status in {'pending', 'approved'}:
+        if draft_status in {'pending', 'approved', 'sent', 'failed', 'unknown'}:
             queryset = queryset.filter(status=draft_status)
         if recipient_type in {'tenant', 'landlord'}:
             queryset = queryset.filter(recipient_type=recipient_type)
@@ -256,17 +265,67 @@ class CommunicationDraftViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
     @action(detail=False, methods=['post'], url_path='generate')
     def generate(self, request):
-        totals = generate_communication_drafts(created_by=request.user)
+        totals = generate_communication_drafts(
+            created_by=request.user,
+            include_landlord_summaries=True,
+        )
         return Response({
             **totals,
             'run_date': timezone.localdate(),
-            'message': 'Draft generation complete. No SMS messages were sent.',
+            'message': (
+                'Draft generation complete, including the previous-month landlord '
+                'summary. No SMS messages were sent.'
+            ),
         }, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=['post'])
     def approve(self, request, pk=None):
         draft = self.get_object()
-        if draft.status != 'approved':
-            draft.status = 'approved'
-            draft.save(update_fields=['status', 'updated_at'])
+        if draft.status != 'pending':
+            return Response(
+                {'error': 'Only pending drafts can be approved.'},
+                status=status.HTTP_409_CONFLICT,
+            )
+        draft.status = 'approved'
+        draft.save(update_fields=['status', 'updated_at'])
+        return Response(self.get_serializer(draft).data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=['post'], url_path='send')
+    def send(self, request, pk=None):
+        with transaction.atomic():
+            draft = get_object_or_404(
+                self.get_queryset().select_for_update(),
+                pk=pk,
+            )
+            if draft.status not in {'approved', 'failed'}:
+                return Response(
+                    {'error': 'Only approved drafts or provider-rejected drafts can be sent.'},
+                    status=status.HTTP_409_CONFLICT,
+                )
+
+            messenger_config, _ = MessengerConfig.objects.get_or_create(id=1)
+            try:
+                delivery = send_sms(
+                    messenger_config,
+                    draft.phone_number,
+                    draft.message,
+                )
+            except SMSGatewayConfigurationError as error:
+                return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+            except SMSDeliveryRejected as error:
+                draft.status = 'failed'
+                draft.save(update_fields=['status', 'updated_at'])
+                return Response({'error': str(error)}, status=status.HTTP_502_BAD_GATEWAY)
+            except SMSDeliveryUncertain as error:
+                draft.status = 'unknown'
+                draft.save(update_fields=['status', 'updated_at'])
+                return Response({'error': str(error)}, status=status.HTTP_502_BAD_GATEWAY)
+
+            draft.status = 'sent'
+            draft.provider_message_id = delivery.message_id
+            draft.sent_at = timezone.now()
+            draft.save(update_fields=[
+                'status', 'provider_message_id', 'sent_at', 'updated_at'
+            ])
+
         return Response(self.get_serializer(draft).data, status=status.HTTP_200_OK)

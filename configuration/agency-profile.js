@@ -125,7 +125,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('serviceProvider').value = data.service_provider || '';
         document.getElementById('senderId').value = data.sender_id || '';
         document.getElementById('partnerId').value = data.partner_id || '';
-        document.getElementById('partnerKey').value = data.partner_key || '';
+        document.getElementById('partnerKey').value = '';
+        document.getElementById('partnerKeyStatus').textContent = data.credentials_configured
+          ? 'An API key is saved. Leave blank to keep it, or enter a new key to replace it.'
+          : 'No API key is saved yet.';
         document.getElementById('agencyPhone').value = data.agency_phone || '';
         document.getElementById('notifyTenant').checked = data.notify_tenant ?? true;
       }
@@ -139,12 +142,20 @@ document.addEventListener('DOMContentLoaded', () => {
         service_provider: document.getElementById('serviceProvider').value,
         sender_id: document.getElementById('senderId').value,
         partner_id: document.getElementById('partnerId').value,
-        partner_key: document.getElementById('partnerKey').value,
         agency_phone: document.getElementById('agencyPhone').value,
         notify_tenant: document.getElementById('notifyTenant').checked
       };
+      const partnerKey = document.getElementById('partnerKey').value;
+      if (partnerKey) payload.partner_key = partnerKey;
       try {
-        await fetchAPI('/messenger-configs/1/', { method: 'PUT', body: JSON.stringify(payload) });
+        const data = await fetchAPI('/messenger-configs/1/', {
+          method: 'PATCH',
+          body: JSON.stringify(payload)
+        });
+        document.getElementById('partnerKey').value = '';
+        document.getElementById('partnerKeyStatus').textContent = data.credentials_configured
+          ? 'Celcom credentials saved. The API key remains hidden.'
+          : 'Gateway settings saved. Add the Celcom Partner ID and API key before sending.';
         alert('Messenger Configurations saved successfully!');
       } catch (err) { alert('Error saving configurations: ' + err.message); }
     });

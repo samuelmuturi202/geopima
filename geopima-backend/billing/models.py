@@ -169,6 +169,9 @@ class CommunicationDraft(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending approval'),
         ('approved', 'Approved'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
+        ('unknown', 'Delivery uncertain'),
     ]
 
     recipient_type = models.CharField(max_length=10, choices=RECIPIENT_CHOICES)
@@ -177,6 +180,8 @@ class CommunicationDraft(models.Model):
     reminder_type = models.CharField(max_length=20, choices=REMINDER_CHOICES)
     message = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    provider_message_id = models.CharField(max_length=100, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
     invoice = models.ForeignKey(
         Invoice, on_delete=models.CASCADE, null=True, blank=True, related_name='communication_drafts'
     )

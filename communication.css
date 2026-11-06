@@ -441,6 +441,21 @@
   color: #166534;
 }
 
+.status-sent {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.status-failed {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-unknown {
+  background: #fef3c7;
+  color: #92400e;
+}
+
 .draft-type,
 .draft-details {
   margin: 7px 0 0;
@@ -638,6 +653,11 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 700;
+}
+
+.drafts-notice a {
+  color: #0b5cab;
+  font-weight: 600;
 }
 
 .drafts-notice {

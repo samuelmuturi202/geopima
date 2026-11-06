@@ -8,9 +8,11 @@ import os
 from datetime import timedelta
 from pathlib import Path
 import dj_database_url
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
 
 # Quick-start development settings - unsuitable for production
@@ -88,11 +90,17 @@ WSGI_APPLICATION = 'geopima_core.wsgi.application'
 
 
 # Database Configuration
+DATABASE_URL = os.environ.get('DATABASE_URL')
+if not DATABASE_URL:
+    raise RuntimeError('DATABASE_URL must be set to a PostgreSQL connection URL.')
+if not DATABASE_URL.startswith(('postgres://', 'postgresql://')):
+    raise RuntimeError('DATABASE_URL must use PostgreSQL; SQLite is not supported.')
+
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL', 'postgres://postgres:1234@localhost:5432/geopima_db'),
+        default=DATABASE_URL,
         conn_max_age=600,
-        ssl_require=True
+        ssl_require=True,
     )
 }
 

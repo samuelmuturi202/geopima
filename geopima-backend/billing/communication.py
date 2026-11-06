@@ -98,38 +98,53 @@ def _draft_tenant_reminders(run_date, created_by, totals):
         else:
             continue
 
-        if CommunicationDraft.objects.filter(
-            invoice=invoice, reminder_type=reminder_type
-        ).exists():
-            continue
         if not invoice.tenant.phone_number:
             totals['skipped_no_phone'] += 1
             continue
 
-        _, created = CommunicationDraft.objects.get_or_create(
+        message = _tenant_message(
+            invoice, reminder_type, agency_name, paybill, fee_template
+        )
+        draft, created = CommunicationDraft.objects.get_or_create(
             invoice=invoice,
             reminder_type=reminder_type,
             defaults={
                 'recipient_type': 'tenant',
                 'recipient_name': invoice.tenant.name,
                 'phone_number': invoice.tenant.phone_number,
-                'message': _tenant_message(
-                    invoice, reminder_type, agency_name, paybill, fee_template
-                ),
+                'message': message,
                 'created_by': created_by,
             },
         )
         totals['created'] += int(created)
+        if not created and draft.status == 'pending':
+            changed_fields = []
+            for field, value in (
+                ('recipient_name', invoice.tenant.name),
+                ('phone_number', invoice.tenant.phone_number),
+                ('message', message),
+            ):
+                if getattr(draft, field) != value:
+                    setattr(draft, field, value)
+                    changed_fields.append(field)
+            if changed_fields:
+                draft.save(update_fields=[*changed_fields, 'updated_at'])
+                totals['updated'] += 1
 
 
-def _draft_landlord_summaries(run_date, created_by, totals):
-    if run_date.day != 1:
+def _draft_landlord_summaries(run_date, created_by, totals, force=False):
+    if run_date.day != 1 and not force:
         return
 
+    from config_core.models import AgencyProfile, SMSTemplate
     from properties.models import Landlord
 
     period = _previous_month_start(run_date)
     last_day = calendar.monthrange(period.year, period.month)[1]
+    agency_name = AgencyProfile.objects.values_list('company_name', flat=True).first() or 'the management office'
+    template = SMSTemplate.objects.filter(
+        category='LANDLORD_UPDATE'
+    ).values_list('template_text', flat=True).first()
     invoices = Invoice.objects.filter(
         billing_period__range=(period, date(period.year, period.month, last_day)),
         unit__property__landlord__is_active=True,
@@ -152,21 +167,27 @@ def _draft_landlord_summaries(run_date, created_by, totals):
     landlords = Landlord.objects.in_bulk(summaries.keys())
     for landlord_id, summary in summaries.items():
         landlord = landlords[landlord_id]
-        if CommunicationDraft.objects.filter(
-            landlord=landlord, reminder_type='landlord_monthly', period=period
-        ).exists():
-            continue
         if not landlord.phone_number:
             totals['skipped_no_phone'] += 1
             continue
 
-        message = (
-            f"Hello {landlord.name}, your {period.strftime('%B %Y')} rent summary: "
-            f"KES {summary['expected']:,.2f} expected, "
-            f"KES {summary['collected']:,.2f} collected, "
-            f"KES {summary['outstanding']:,.2f} outstanding."
+        values = {
+            'landlord': landlord.name,
+            'agency': agency_name,
+            'month': period.strftime('%B %Y'),
+            'expected': f"{summary['expected']:,.2f}",
+            'collected': f"{summary['collected']:,.2f}",
+            'outstanding': f"{summary['outstanding']:,.2f}",
+        }
+        message = _render_template(
+            template or (
+                'Hello {landlord}, your {month} rent summary: '
+                'KES {expected} expected, KES {collected} collected, '
+                'KES {outstanding} outstanding.'
+            ),
+            values,
         )
-        _, created = CommunicationDraft.objects.get_or_create(
+        draft, created = CommunicationDraft.objects.get_or_create(
             landlord=landlord,
             reminder_type='landlord_monthly',
             period=period,
@@ -179,12 +200,27 @@ def _draft_landlord_summaries(run_date, created_by, totals):
             },
         )
         totals['created'] += int(created)
+        if not created and draft.status == 'pending':
+            changed_fields = []
+            for field, value in (
+                ('recipient_name', landlord.name),
+                ('phone_number', landlord.phone_number),
+                ('message', message),
+            ):
+                if getattr(draft, field) != value:
+                    setattr(draft, field, value)
+                    changed_fields.append(field)
+            if changed_fields:
+                draft.save(update_fields=[*changed_fields, 'updated_at'])
+                totals['updated'] += 1
 
 
 @transaction.atomic
-def generate_communication_drafts(run_date=None, created_by=None):
+def generate_communication_drafts(run_date=None, created_by=None, include_landlord_summaries=False):
     run_date = run_date or timezone.localdate()
-    totals = {'created': 0, 'skipped_no_phone': 0}
+    totals = {'created': 0, 'updated': 0, 'skipped_no_phone': 0}
     _draft_tenant_reminders(run_date, created_by, totals)
-    _draft_landlord_summaries(run_date, created_by, totals)
+    _draft_landlord_summaries(
+        run_date, created_by, totals, force=include_landlord_summaries
+    )
     return totals

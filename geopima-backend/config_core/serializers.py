@@ -151,9 +151,21 @@ class AgencyProfileSerializer(serializers.ModelSerializer):
 
 
 class MessengerConfigSerializer(serializers.ModelSerializer):
+    partner_key = serializers.CharField(
+        write_only=True,
+        required=False,
+        allow_blank=True,
+        trim_whitespace=False,
+    )
+    credentials_configured = serializers.SerializerMethodField()
+
     class Meta:
         model = MessengerConfig
         fields = '__all__'
+        read_only_fields = ['id']
+
+    def get_credentials_configured(self, obj):
+        return bool(obj.partner_id and obj.partner_key)
 
 
 class MailerConfigSerializer(serializers.ModelSerializer):

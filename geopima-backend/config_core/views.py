@@ -194,6 +194,7 @@ class SMSTemplateViewSet(viewsets.ModelViewSet):
     queryset = SMSTemplate.objects.all().order_by('-id')
     serializer_class = SMSTemplateSerializer
     permission_classes = [IsAuthenticated, CanManageTemplates]
+    pagination_class = None
 
     @action(detail=False, methods=['post'], url_path='bulk-save')
     def bulk_save(self, request):
@@ -204,16 +205,35 @@ class SMSTemplateViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
+        valid_categories = {category for category, _ in SMSTemplate.CATEGORY_CHOICES}
+        for index, item in enumerate(data):
+            if not isinstance(item, dict):
+                return Response(
+                    {"error": f"Template at index {index} must be an object."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            category = item.get('category')
+            text = item.get('template_text')
+            if category not in valid_categories:
+                return Response(
+                    {"error": f"Invalid SMS template category at index {index}."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if not isinstance(text, str) or not text.strip():
+                return Response(
+                    {"error": f"Template text at index {index} cannot be empty."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
         updated_objects = []
         for item in data:
             category = item.get('category')
             text = item.get('template_text')
-            if category and text:
-                obj, _ = SMSTemplate.objects.update_or_create(
-                    category=category,
-                    defaults={'template_text': text}
-                )
-                updated_objects.append(obj)
+            obj, _ = SMSTemplate.objects.update_or_create(
+                category=category,
+                defaults={'template_text': text.strip()}
+            )
+            updated_objects.append(obj)
 
         serializer = self.get_serializer(updated_objects, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)

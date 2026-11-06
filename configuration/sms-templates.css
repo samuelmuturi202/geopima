@@ -117,6 +117,28 @@ body {
   text-decoration: none;
 }
 
+.template-service-status {
+  color: #166534;
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.template-service-status.is-error,
+.template-save-status.is-error {
+  color: #b91c1c;
+}
+
+.template-save-status {
+  margin-right: auto;
+  color: #166534;
+  font-size: 0.82rem;
+}
+
+.btn-save:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
 /* ==========================================
    2. TEMPLATE CARD STYLES
    ========================================== */

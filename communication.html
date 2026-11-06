@@ -157,6 +157,7 @@
           the queue to review automated drafts; approval does not send a message. Tenant rent
           reminders are generated 5 days before due and after overdue. Landlord summaries are
           generated on the 1st of each month.
+          <a href="configuration/sms-templates.html">Manage SMS templates in Configuration</a>.
         </p>
         <div class="draft-toolbar">
           <div>
@@ -175,6 +176,9 @@
               <option value="">All statuses</option>
               <option value="pending">Awaiting approval</option>
               <option value="approved">Approved</option>
+              <option value="sent">Sent</option>
+              <option value="failed">Provider rejected</option>
+              <option value="unknown">Delivery uncertain</option>
             </select>
           </label>
           <label>Recipient
@@ -186,7 +190,7 @@
           </label>
         </div>
         <div id="draft-list" class="draft-list" aria-live="polite">
-          <p class="empty-drafts">Open this section to load communication drafts.</p>
+          <p class="empty-drafts">Loading communication drafts...</p>
         </div>
         <div class="draft-pagination">
           <button type="button" class="draft-button draft-button-secondary" id="previous-page" disabled>Newer</button>

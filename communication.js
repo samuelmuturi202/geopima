@@ -38,6 +38,17 @@ document.addEventListener('DOMContentLoaded', () => {
     return labels[type] || 'SMS draft';
   }
 
+  function labelForStatus(status) {
+    const labels = {
+      pending: 'Awaiting approval',
+      approved: 'Approved',
+      sent: 'Sent',
+      failed: 'Provider rejected',
+      unknown: 'Delivery uncertain'
+    };
+    return labels[status] || status;
+  }
+
   function renderDraft(draft) {
     const card = document.createElement('article');
     card.className = 'draft-card';
@@ -49,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const status = createTextElement(
       'span',
       `draft-status status-${draft.status}`,
-      draft.status === 'approved' ? 'Approved' : 'Awaiting approval'
+      labelForStatus(draft.status)
     );
     heading.append(title, status);
     card.appendChild(heading);
@@ -73,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     card.appendChild(createTextElement('p', 'draft-message', draft.message));
 
-    if (draft.status !== 'approved') {
+    if (draft.status === 'pending') {
       const actions = document.createElement('div');
       actions.className = 'draft-card-actions';
       const approveButton = createTextElement('button', 'draft-button', 'Approve draft');
@@ -93,6 +104,52 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       actions.appendChild(approveButton);
       card.appendChild(actions);
+    }
+
+    if (draft.status === 'approved' || draft.status === 'failed') {
+      const actions = document.createElement('div');
+      actions.className = 'draft-card-actions';
+      const sendButton = createTextElement(
+        'button',
+        'draft-button',
+        draft.status === 'failed' ? 'Retry rejected SMS' : 'Send SMS'
+      );
+      sendButton.type = 'button';
+      sendButton.addEventListener('click', async () => {
+        const confirmed = window.confirm(
+          `Send this SMS to ${draft.recipient_name} (${draft.phone_number})?\n\n${draft.message}`
+        );
+        if (!confirmed) return;
+
+        sendButton.disabled = true;
+        try {
+          await fetchAPI(`/billing/communication-drafts/${draft.id}/send/`, {
+            method: 'POST'
+          });
+          setFeedback(`SMS sent to ${draft.recipient_name}.`);
+          await loadDrafts(currentPage);
+        } catch (error) {
+          setFeedback(`SMS was not confirmed as sent: ${error.message}`, true);
+          await loadDrafts(currentPage);
+        }
+      });
+      actions.appendChild(sendButton);
+      card.appendChild(actions);
+    }
+
+    if (draft.status === 'unknown') {
+      card.appendChild(createTextElement(
+        'p',
+        'draft-details',
+        'Do not retry automatically. Check the Celcom dashboard to confirm whether it was accepted.'
+      ));
+    }
+    if (draft.provider_message_id) {
+      card.appendChild(createTextElement(
+        'p',
+        'draft-details',
+        `Celcom message ID: ${draft.provider_message_id}`
+      ));
     }
 
     return card;
@@ -151,7 +208,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const skipped = result.skipped_no_phone
         ? ` ${result.skipped_no_phone} recipient(s) had no phone number and were skipped.`
         : '';
-      setFeedback(`${result.created} new draft(s) generated. No SMS was sent.${skipped}`);
+      const updated = result.updated
+        ? ` ${result.updated} pending draft(s) refreshed from the latest Configuration templates.`
+        : '';
+      const noDrafts = result.created === 0 && result.updated === 0
+        ? ' No invoices were due for a reminder and no landlord summary was available for this period. Check invoice dates, balances, active recipients and phone numbers.'
+        : '';
+      setFeedback(
+        `${result.created} new draft(s) generated.${updated}${noDrafts} No SMS was sent.${skipped}`
+      );
       await loadDrafts(1);
     } catch (error) {
       setFeedback(`Could not generate drafts: ${error.message}`, true);
