@@ -150,14 +150,17 @@
       <div id="messengerTab" class="config-tab-content" style="display: none;">
         <div class="profile-card" style="padding: 30px 40px;">
           <h2 style="font-size: 1.15rem; font-weight: 700; color: #475569; margin-bottom: 24px;">SMS Configurations</h2>
+          <p role="note">SMS sending uses Celcom Africa. Get your Partner ID, API key, and approved Sender ID from Celcom. The API key is stored on the server and is never displayed after saving.</p>
           <form id="messengerForm" class="form-col" style="gap: 20px;">
             <div class="field-container">
-              <input type="text" id="serviceProvider" class="custom-input" placeholder="Enter your selected SMS gateway" required>
-              <label for="serviceProvider" class="sub-label">SMS Gateway Name <span style="color: #dc2626;">required</span></label>
+              <select id="serviceProvider" class="custom-input select-input" required>
+                <option value="Celcom Africa">Celcom Africa</option>
+              </select>
+              <label for="serviceProvider" class="sub-label">SMS Gateway</label>
             </div>
             <div class="field-container">
-              <input type="text" id="senderId" class="custom-input" required>
-              <label for="senderId" class="sub-label">Sender ID <span style="color: #dc2626;">required</span></label>
+              <input type="text" id="senderId" class="custom-input" placeholder="Celcom-approved Sender ID" required>
+              <label for="senderId" class="sub-label">Celcom-approved Sender ID <span style="color: #dc2626;">required</span></label>
             </div>
             <div class="field-container">
               <input type="password" id="partnerId" class="custom-input" placeholder="Enter Celcom Partner ID">

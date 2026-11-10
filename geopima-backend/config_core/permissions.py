@@ -1,43 +1,139 @@
 from rest_framework.permissions import BasePermission
 
-class IsSuperAdminOrAdmin(BasePermission):
-    """Allows access only to Super Admins and Admins."""
+PERMISSION_MODULES = {
+    'email',
+    'expense',
+    'exports',
+    'fee',
+    'landlord',
+    'message',
+    'payment',
+    'property',
+    'reports',
+    'settings',
+    'tenant',
+    'unit',
+    'user',
+    'votehead',
+}
+PERMISSION_ACTIONS = {
+    'access',
+    'create',
+    'update',
+    'delete',
+    'restore',
+    'destroy',
+}
+
+
+def normalize_role_permissions(value):
+    if not isinstance(value, list):
+        return []
+    return {
+        permission.strip().lower()
+        for permission in value
+        if isinstance(permission, str) and permission.strip()
+    }
+
+
+def get_user_role_permissions(user):
+    if not user or not user.is_authenticated:
+        return set()
+    if user.is_superuser:
+        return {
+            f'{module}_{action}'
+            for module in PERMISSION_MODULES
+            for action in PERMISSION_ACTIONS
+        }
+
+    role_ids = set()
+    profile = getattr(user, 'profile', None)
+    if profile and profile.role_id:
+        role_ids.add(profile.role_id)
+    role_ids.update(user.roles.values_list('id', flat=True))
+    if not role_ids:
+        return set()
+
+    from .models import UserRole
+
+    permissions = set()
+    for role_permissions in UserRole.objects.filter(
+        pk__in=role_ids
+    ).values_list('permissions', flat=True):
+        permissions.update(normalize_role_permissions(role_permissions))
+    return permissions
+
+
+class RolePermission(BasePermission):
+    """Enforce the persisted role permission matrix on application APIs."""
+
+    message = 'Your assigned role does not grant this action.'
+
     def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
+        user = request.user
+        if not user or not user.is_authenticated or not user.is_active:
             return False
-        if request.user.is_superuser:
+        if user.is_superuser:
             return True
-        
-        role_name = getattr(request.user, 'role', None)
-        if role_name and role_name.name in ['Super Admin', 'Admin']:
-            return True
-        
-        return request.user.groups.filter(name__in=['Super Admin', 'Admin']).exists()
 
-class CanManageFinances(BasePermission):
-    """Allows access for financial roles (Accountants, Admins, Super Admins)."""
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
+        action = self._get_action(request, view)
+        if not action:
             return False
-        if request.user.is_superuser:
-            return True
 
-        role_name = getattr(request.user, 'role', None)
-        if role_name and role_name.name in ['Super Admin', 'Admin', 'Accountant']:
-            return True
-
-        return request.user.groups.filter(name__in=['Super Admin', 'Admin', 'Accountant']).exists()
-
-class CanManageTemplates(BasePermission):
-    """Grants access for managing SMS and agreement templates."""
-    def has_permission(self, request, view):
-        if not request.user or not request.user.is_authenticated:
+        action_modules = getattr(view, 'role_permission_action_modules', {})
+        module = action_modules.get(
+            getattr(view, 'action', None),
+            getattr(view, 'role_permission_module', None),
+        )
+        if not module:
             return False
-        if request.user.is_superuser:
-            return True
+        module = module.strip().lower()
+        if module not in PERMISSION_MODULES:
+            return False
 
-        role_name = getattr(request.user, 'role', None)
-        if role_name and role_name.name in ['Super Admin', 'Admin', 'Secretary', 'Accountant']:
-            return True
+        granted = get_user_role_permissions(user)
+        if action in {'delete', 'destroy'}:
+            return (
+                f'{module}_delete' in granted
+                or f'{module}_destroy' in granted
+            )
+        return f'{module}_{action}' in granted
 
-        return request.user.groups.filter(name__in=['Super Admin', 'Admin', 'Secretary', 'Accountant']).exists()
+    @staticmethod
+    def _get_action(request, view):
+        action = getattr(view, 'action', None)
+        custom_actions = getattr(view, 'role_permission_actions', {})
+        if action in custom_actions:
+            return custom_actions[action]
+        if request.method.lower() in custom_actions:
+            return custom_actions[request.method.lower()]
+        if action in {'list', 'retrieve'}:
+            return 'access'
+        if action in {'create'}:
+            return 'create'
+        if action in {'update', 'partial_update'}:
+            return 'update'
+        if action == 'destroy':
+            return 'delete'
+
+        return {
+            'GET': 'access',
+            'HEAD': 'access',
+            'OPTIONS': 'access',
+            'POST': 'create',
+            'PUT': 'update',
+            'PATCH': 'update',
+            'DELETE': 'delete',
+        }.get(request.method.upper())
+
+
+class IsSuperAdminOrAdmin(RolePermission):
+    role_permission_module = 'user'
+
+
+class CanManageFinances(RolePermission):
+    role_permission_module = 'payment'
+
+
+class CanManageTemplates(RolePermission):
+    role_permission_module = 'message'

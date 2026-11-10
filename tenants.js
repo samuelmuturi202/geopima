@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderPagination(totalEntriesCount);
     } catch (err) {
       console.error('Failed to load tenants:', err);
-      tableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; color:red; padding:20px;">Error loading tenants from server: ${err.message}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; color:red; padding:20px;">Error loading tenants from server: ${err.message}</td></tr>`;
     }
   }
 
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     tableBody.innerHTML = '';
 
     if (!items || items.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="11" style="text-align:center; padding: 20px;">No tenants found matching criteria.</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="12" style="text-align:center; padding: 20px;">No tenants found matching criteria.</td></tr>`;
       if (tableInfo) tableInfo.textContent = 'Showing 0 to 0 of 0 entries';
       return;
     }
@@ -125,6 +125,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <td><a href="#" class="link-text">${landlordName}</a></td>
         <td><a href="#" class="link-text">${propertyName}</a></td>
         <td>${row.unit_name || row.unit || '-'}</td>
+        <td>${row.smart_alias || '-'}</td>
         <td>${row.contact || row.phone_number || '-'}</td>
         <td>${entryDate}</td>
         <td>${row.dueDate || row.due_date || 5}</td>
@@ -228,7 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,Tenant ID,Name,Cluster,Landlord,Property,Unit,Contact,Entry Date,Due Date,Status\n";
+    let csvContent = "data:text/csv;charset=utf-8,Tenant ID,Name,Cluster,Landlord,Property,Unit,Smart Alias,Contact,Entry Date,Due Date,Status\n";
     
     currentTenantsCache.forEach(row => {
       const tId = row.tenantId || row.tenant_number || '';
@@ -237,12 +238,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const landlord = `"${(row.landlord_name || row.landlord || '-').replace(/"/g, '""')}"`;
       const property = `"${(row.property_name || row.property || '-').replace(/"/g, '""')}"`;
       const unit = `"${(row.unit_name || row.unit || '-').replace(/"/g, '""')}"`;
+      const smartAlias = `"${(row.smart_alias || '-').replace(/"/g, '""')}"`;
       const contact = `"${(row.contact || row.phone_number || '-').replace(/"/g, '""')}"`;
       const entryDate = row.entry_date || row.entryDate || row.created_at || '-';
       const dueDate = row.dueDate || row.due_date || 5;
       const status = row.status || 'active';
 
-      csvContent += [tId, tName, cluster, landlord, property, unit, contact, entryDate, dueDate, status].join(",") + "\n";
+      csvContent += [tId, tName, cluster, landlord, property, unit, smartAlias, contact, entryDate, dueDate, status].join(",") + "\n";
     });
 
     const encodedUri = encodeURI(csvContent);

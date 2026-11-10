@@ -15,9 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentUsersList = [];
 
   const PERMISSION_MODULES = [
-    'EMAIL', 'EXPENSE', 'EXPORTS', 'FEE', 
-    'PROPERTY', 'REPORTS', 'SETTINGS', 
-    'TENANT', 'UNIT', 'USER', 'VOTEHEAD'
+    'EMAIL', 'EXPENSE', 'EXPORTS', 'FEE', 'LANDLORD',
+    'MESSAGE', 'PAYMENT', 'PROPERTY', 'REPORTS',
+    'SETTINGS', 'TENANT', 'UNIT', 'USER', 'VOTEHEAD'
   ];
   const PERMISSION_ACTIONS = ['access', 'create', 'update', 'delete', 'restore', 'destroy'];
 
@@ -274,8 +274,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         gridDiv.style.paddingLeft = '12px';
 
         PERMISSION_ACTIONS.forEach(action => {
-          const permKey = `${module.toLowerCase()}.${action}`;
-          const hasPerm = user.is_superuser || userPermissions.includes(permKey) || userPermissions.includes(action);
+          const permKey = `${module.toLowerCase()}_${action}`;
+          const hasPerm = user.is_superuser || userPermissions.includes(permKey);
 
           const label = document.createElement('label');
           label.style.display = 'flex';

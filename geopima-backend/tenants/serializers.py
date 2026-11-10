@@ -4,7 +4,9 @@ from .models import Tenant, LeaseAgreement
 
 class TenantSerializer(serializers.ModelSerializer):
     tenant_id = serializers.CharField(required=False, allow_blank=True)
+    id = serializers.CharField(source='tenant_id', read_only=True)
     tenantId = serializers.CharField(source='tenant_id', read_only=True)
+    smart_alias = serializers.ReadOnlyField()
     contact = serializers.CharField(source='phone_number', read_only=True)
     property_name = serializers.ReadOnlyField(source='unit.property.name', default=None)
     unit_name = serializers.ReadOnlyField(source='unit.unit_name', default=None)
@@ -16,6 +18,7 @@ class TenantSerializer(serializers.ModelSerializer):
             'id',
             'tenant_id',
             'tenantId',
+            'smart_alias',
             'name',
             'email',
             'phone_number',

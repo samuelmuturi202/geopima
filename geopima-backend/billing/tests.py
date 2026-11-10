@@ -1,22 +1,28 @@
+import hashlib
+import hmac
+import json
 from datetime import date, timedelta
 from decimal import Decimal
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.db import DatabaseError, IntegrityError, transaction
 from django.test import TestCase
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, APIRequestFactory
 
 from billing.communication import generate_communication_drafts
 from billing.models import CommunicationDraft, Invoice, InvoiceItem
-from config_core.models import MessengerConfig, SMSTemplate
+from config_core.models import CreditBankConfig, MessengerConfig, SMSTemplate
 from config_core.sms_gateway import (
     SMSDelivery,
     SMSDeliveryUncertain,
     SMSGatewayConfigurationError,
     send_sms,
 )
+from mpesa.models import MpesaTransaction as PaymentTransaction, PaymentSettlement
 from properties.models import Landlord, MpesaTransaction, PaymentAllocation, Property, Unit
 from tenants.models import Tenant
+from billing.views import CreditBankSmartAliasWebhookView, InvoiceViewSet
 
 
 class CommunicationDraftGenerationTests(TestCase):
@@ -188,6 +194,24 @@ class CommunicationDraftApiTests(TestCase):
             message='Please review this rent reminder.',
         )
 
+    def test_service_status_reports_missing_gateway_credentials_without_exposing_them(self):
+        config, _ = MessengerConfig.objects.get_or_create(pk=1)
+        config.service_provider = 'Celcom Africa'
+        config.sender_id = 'GEOPIMA'
+        config.partner_id = 'partner'
+        config.partner_key = ''
+        config.save()
+
+        response = self.client.get(
+            '/api/v1/billing/communication-drafts/service-status/'
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.data['ready'])
+        self.assertTrue(response.data['templates_ready'])
+        self.assertIn('Celcom API key', response.data['missing'])
+        self.assertNotIn('partner_key', response.data)
+
     def test_staff_can_approve_a_draft_without_sending(self):
         response = self.client.post(
             f'/api/v1/billing/communication-drafts/{self.draft.pk}/approve/'
@@ -304,3 +328,255 @@ class CelcomGatewayTests(TestCase):
 
         with self.assertRaises(SMSDeliveryUncertain):
             send_sms(self.config, '0712345678', 'Test message')
+
+
+class CreditBankSmartAliasWebhookTests(TestCase):
+    def setUp(self):
+        landlord = Landlord.objects.create(
+            landlord_id='LL-CREDIT-BANK',
+            name='Credit Bank Landlord',
+        )
+        property_obj = Property.objects.create(
+            property_id='PROP-CREDIT',
+            name='Credit Bank Property',
+            landlord=landlord,
+        )
+        unit = Unit.objects.create(
+            property=property_obj,
+            unit_no='H-01',
+            unit_name='House One',
+        )
+        self.tenant = Tenant.objects.create(
+            tenant_id='TNT-CREDIT',
+            name='Credit Bank Tenant',
+            phone_number='0712345678',
+            unit=unit,
+        )
+        self.invoice = Invoice.objects.create(
+            tenant=self.tenant,
+            unit=unit,
+            billing_period=date(2026, 11, 1),
+            due_date=date(2026, 11, 5),
+        )
+        InvoiceItem.objects.create(invoice=self.invoice, amount=Decimal('1000.00'))
+        CreditBankConfig.objects.create(
+            id=1,
+            paybill_number='6775',
+            signing_key='test-credit-bank-signing-key',
+        )
+        self.factory = APIRequestFactory()
+
+    def post_signed_payment(self, payload):
+        body = json.dumps(payload).encode('utf-8')
+        signature = hmac.new(
+            b'test-credit-bank-signing-key',
+            body,
+            hashlib.sha256,
+        ).hexdigest()
+        request = self.factory.generic(
+            'POST',
+            '/api/v1/billing/webhooks/credit-bank/smart-alias/',
+            body,
+            content_type='application/json',
+            HTTP_X_SIGNATURE=signature,
+        )
+        return CreditBankSmartAliasWebhookView.as_view()(request)
+
+    def test_signed_payment_for_paybill_6775_is_allocated_once(self):
+        payload = {
+            'transaction_id': 'CB-WEBHOOK-001',
+            'paybill_number': '6775',
+            'account_alias': self.tenant.smart_alias,
+            'amount': '600.00',
+            'phone_number': '254712345678',
+        }
+
+        response = self.post_signed_payment(payload)
+
+        self.invoice.refresh_from_db()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data['status'], 'success')
+        self.assertEqual(self.invoice.balance, Decimal('400.00'))
+        self.assertTrue(
+            SmartAliasTransaction.objects.get(
+                transaction_reference='CB-WEBHOOK-001'
+            ).is_processed
+        )
+
+        duplicate_response = self.post_signed_payment(payload)
+        self.assertEqual(duplicate_response.status_code, 200)
+        self.assertEqual(duplicate_response.data['status'], 'already_processed')
+
+        conflicting_payload = {**payload, 'amount': '700.00'}
+        conflicting_response = self.post_signed_payment(conflicting_payload)
+        self.assertEqual(conflicting_response.status_code, 409)
+        self.assertEqual(PaymentAllocation.objects.count(), 1)
+
+    def test_webhook_rejects_wrong_paybill(self):
+        response = self.post_signed_payment({
+            'transaction_id': 'CB-WEBHOOK-002',
+            'paybill_number': '4045619',
+            'account_alias': self.tenant.smart_alias,
+            'amount': '600.00',
+        })
+
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(SmartAliasTransaction.objects.exists())
+        self.assertFalse(PaymentAllocation.objects.exists())
+
+
+class InvoiceManualPaymentTests(TestCase):
+    def setUp(self):
+        landlord = Landlord.objects.create(
+            landlord_id='LL-MANUAL-PAYMENT',
+            name='Manual Payment Landlord',
+        )
+        property_obj = Property.objects.create(
+            property_id='PROP-MANUAL',
+            name='Manual Payment Property',
+            landlord=landlord,
+        )
+        unit = Unit.objects.create(
+            property=property_obj,
+            unit_no='H-01',
+            unit_name='House One',
+        )
+        tenant = Tenant.objects.create(
+            tenant_id='TNT-MANUAL',
+            name='Manual Payment Tenant',
+            phone_number='0712345678',
+            unit=unit,
+        )
+        self.invoice = Invoice.objects.create(
+            tenant=tenant,
+            unit=unit,
+            billing_period=date(2026, 11, 1),
+            due_date=date(2026, 11, 5),
+        )
+        InvoiceItem.objects.create(invoice=self.invoice, amount=Decimal('1000.00'))
+        self.factory = APIRequestFactory()
+
+    def post_payment(self, payload):
+        request = self.factory.post(
+            f'/api/v1/billing/invoices/{self.invoice.pk}/add-payment/',
+            payload,
+            format='json',
+        )
+        return InvoiceViewSet.as_view({'post': 'add_payment'})(
+            request,
+            pk=str(self.invoice.pk),
+        )
+
+    def test_records_manual_payment_against_requested_invoice(self):
+        response = self.post_payment({
+            'reference': 'BANK-RECEIPT-001',
+            'channel': 'Coop Bank',
+            'amount': '400.00',
+        })
+
+        self.invoice.refresh_from_db()
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.invoice.balance, Decimal('600.00'))
+        self.assertEqual(PaymentAllocation.objects.count(), 1)
+        self.assertEqual(PaymentTransaction.objects.get(
+            trans_id='BANK-RECEIPT-001'
+        ).source, 'manual')
+        self.assertEqual(PaymentSettlement.objects.count(), 1)
+
+    def test_rejects_duplicate_reference_and_overpayment(self):
+        payload = {
+            'reference': 'CASH-RECEIPT-001',
+            'channel': 'Cash',
+            'amount': '400.00',
+        }
+        self.assertEqual(self.post_payment(payload).status_code, 201)
+        duplicate_response = self.post_payment(payload)
+        excess_response = self.post_payment({
+            'reference': 'CASH-RECEIPT-002',
+            'channel': 'Cash',
+            'amount': '700.00',
+        })
+
+        self.assertEqual(duplicate_response.status_code, 409)
+        self.assertEqual(excess_response.status_code, 400)
+        self.assertEqual(PaymentAllocation.objects.count(), 1)
+
+    def test_invoice_cannot_pair_a_tenant_with_another_unit(self):
+        other_unit = Unit.objects.create(
+            property=self.invoice.unit.property,
+            unit_no='H-02',
+            unit_name='Other House',
+        )
+
+        with self.assertRaises(ValueError):
+            Invoice.objects.create(
+                tenant=self.invoice.tenant,
+                unit=other_unit,
+                billing_period=date(2026, 12, 1),
+                due_date=date(2026, 12, 5),
+            )
+
+    def test_database_rejects_payment_overallocation(self):
+        ledger_transaction = MpesaTransaction.objects.create(
+            mpesa_receipt_number='ALLOCATION-INTEGRITY-001',
+            amount=Decimal('800.00'),
+            phone_number='',
+        )
+        PaymentAllocation.objects.create(
+            invoice=self.invoice,
+            mpesa_transaction=ledger_transaction,
+            amount_allocated=Decimal('600.00'),
+        )
+
+        with self.assertRaises(DatabaseError):
+            with transaction.atomic():
+                PaymentAllocation.objects.create(
+                    invoice=self.invoice,
+                    mpesa_transaction=ledger_transaction,
+                    amount_allocated=Decimal('300.00'),
+                )
+
+    def test_database_rejects_reducing_invoice_below_payments(self):
+        ledger_transaction = MpesaTransaction.objects.create(
+            mpesa_receipt_number='ALLOCATION-INTEGRITY-002',
+            amount=Decimal('800.00'),
+            phone_number='',
+        )
+        PaymentAllocation.objects.create(
+            invoice=self.invoice,
+            mpesa_transaction=ledger_transaction,
+            amount_allocated=Decimal('800.00'),
+        )
+
+        with self.assertRaises(DatabaseError):
+            with transaction.atomic():
+                InvoiceItem.objects.filter(invoice=self.invoice).update(
+                    amount=Decimal('700.00')
+                )
+
+    def test_invoice_status_tracks_items_and_allocations(self):
+        self.invoice.due_date = date(2026, 12, 5)
+        self.invoice.save(update_fields=['due_date'])
+        self.assertEqual(self.invoice.status, 'unpaid')
+
+        payment = MpesaTransaction.objects.create(
+            mpesa_receipt_number='STATUS-INTEGRITY-001',
+            amount=Decimal('1000.00'),
+            phone_number='',
+        )
+        allocation = PaymentAllocation.objects.create(
+            invoice=self.invoice,
+            mpesa_transaction=payment,
+            amount_allocated=Decimal('400.00'),
+        )
+        self.invoice.refresh_from_db()
+        self.assertEqual(self.invoice.status, 'partially_paid')
+
+        allocation.amount_allocated = Decimal('1000.00')
+        allocation.save(update_fields=['amount_allocated'])
+        self.invoice.refresh_from_db()
+        self.assertEqual(self.invoice.status, 'paid')
+
+        allocation.delete()
+        self.invoice.refresh_from_db()
+        self.assertEqual(self.invoice.status, 'unpaid')

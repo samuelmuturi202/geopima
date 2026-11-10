@@ -125,18 +125,27 @@
                 const data = await response.json();
 
                 if (response.ok) {
+                    if (
+                        typeof data.access !== 'string' ||
+                        !data.access ||
+                        !data.user ||
+                        typeof data.user !== 'object' ||
+                        !Array.isArray(data.user.permissions) ||
+                        typeof data.user.is_superuser !== 'boolean'
+                    ) {
+                        localStorage.removeItem('access_token');
+                        localStorage.removeItem('refresh_token');
+                        localStorage.removeItem('user_data');
+                        throw new Error('The server returned an incomplete user authorization profile.');
+                    }
+
                     // Save JWT credentials and user object into localStorage
                     localStorage.setItem('access_token', data.access);
                     if (data.refresh) {
                         localStorage.setItem('refresh_token', data.refresh);
                     }
                     
-                    const userObj = data.user || {
-                        username: usernameInput,
-                        full_name: usernameInput,
-                        is_superuser: true
-                    };
-                    localStorage.setItem('user_data', JSON.stringify(userObj));
+                    localStorage.setItem('user_data', JSON.stringify(data.user));
 
                     // Redirect to dashboard page
                     window.location.href = 'index.html';
@@ -146,7 +155,7 @@
                 }
             } catch (err) {
                 console.error('Login error:', err);
-                errorBox.textContent = 'Backend server unreachable. If Render was asleep, please wait 30 seconds and try again.';
+                errorBox.textContent = err.message || 'Backend server unreachable. If Render was asleep, please wait 30 seconds and try again.';
                 errorBox.style.display = 'block';
             } finally {
                 submitBtn.textContent = 'Sign In';

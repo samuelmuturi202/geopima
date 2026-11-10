@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from config_core.models import CreditBankConfig
 from .models import (
     VoteHead, Deposit, Invoice, InvoiceItem, Agency, SmartAliasTransaction,
     CommunicationDraft,
@@ -47,12 +48,26 @@ class PaymentDetailSerializer(serializers.Serializer):
         return getattr(obj, 'mpesa_receipt_number', getattr(obj, 'receipt_no', '-'))
 
     def get_bank(self, obj):
+        transaction = getattr(obj, 'mpesa_transaction', None)
+        if transaction and getattr(transaction, 'transaction_type', '') == 'credit_bank':
+            return 'Credit Bank Paybill'
+        if transaction and getattr(transaction, 'transaction_type', '') == 'bank':
+            return 'Co-op Bank'
+        if transaction and getattr(transaction, 'transaction_type', '') == 'cash':
+            return 'Cash'
         ref = self.get_receipt_no(obj)
         return f"Lipa Na M-pesa REF#: {ref}"
 
     def get_type(self, obj):
         if hasattr(obj, 'mpesa_transaction') and obj.mpesa_transaction:
-            return getattr(obj.mpesa_transaction, 'transaction_type', 'C2B')
+            transaction_type = getattr(obj.mpesa_transaction, 'transaction_type', 'c2b')
+            return {
+                'c2b': 'M-Pesa',
+                'credit_bank': 'Credit Bank',
+                'manual': 'Manual',
+                'bank': 'Co-op Bank',
+                'cash': 'Cash',
+            }.get(transaction_type, transaction_type)
         return getattr(obj, 'transaction_type', 'C2B')
 
     def get_date_paid(self, obj):
@@ -61,7 +76,7 @@ class PaymentDetailSerializer(serializers.Serializer):
 
     def get_via(self, obj):
         tx_type = self.get_type(obj)
-        return "Auto" if str(tx_type).lower() == 'c2b' else "Manual"
+        return "Manual" if str(tx_type).lower() in {'manual', 'co-op bank', 'cash'} else "Auto"
 
     def get_amount(self, obj):
         return getattr(obj, 'amount_allocated', None) or getattr(obj, 'amount', 0.00)
@@ -80,6 +95,8 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     cluster = serializers.SerializerMethodField()
     unit = serializers.CharField(source='unit.unit_name', read_only=True)
     due = serializers.SerializerMethodField()
+    smart_alias = serializers.CharField(source='tenant.smart_alias', read_only=True)
+    credit_bank_paybill = serializers.SerializerMethodField()
     
     expected = serializers.DecimalField(source='net_total', max_digits=12, decimal_places=2, read_only=True)
     prepaid = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
@@ -106,6 +123,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'agency_name', 'agency_address', 'agency_email', 'agency_contact',
             'invoice_no', 'tnt', 'tenant', 'property', 'cluster', 'unit', 'due',
+            'smart_alias', 'credit_bank_paybill',
             'period', 'date', 'expected', 'prepaid', 'discount', 'arrears',
             'current', 'paid', 'balance', 'status', 'is_cleared',
             'items', 'subtotal', 'net_total', 'rent_paid', 'payment_details', 'total_paid'
@@ -118,6 +136,14 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
 
     def get_due(self, obj):
         return obj.due_date.day if obj.due_date else 5
+
+    def get_credit_bank_paybill(self, obj):
+        return (
+            CreditBankConfig.objects.filter(pk=1)
+            .values_list('paybill_number', flat=True)
+            .first()
+            or '6775'
+        )
 
     def get_payment_details(self, obj):
         allocations = getattr(obj, 'allocations', None)

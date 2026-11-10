@@ -1,8 +1,8 @@
 from rest_framework import viewsets, filters, status
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
 from django.db.models import Q
 
+from config_core.permissions import RolePermission
 from properties.models import Landlord, Property, Unit
 from .serializers import LandlordSerializer, PropertySerializer, UnitSerializer
 
@@ -10,7 +10,8 @@ from .serializers import LandlordSerializer, PropertySerializer, UnitSerializer
 class LandlordViewSet(viewsets.ModelViewSet):
     queryset = Landlord.objects.all()
     serializer_class = LandlordSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [RolePermission]
+    role_permission_module = 'landlord'
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'landlord_id', 'phone_number', 'address']
@@ -22,7 +23,8 @@ class LandlordViewSet(viewsets.ModelViewSet):
 class PropertyViewSet(viewsets.ModelViewSet):
     queryset = Property.objects.all()
     serializer_class = PropertySerializer
-    permission_classes = [AllowAny]
+    permission_classes = [RolePermission]
+    role_permission_module = 'property'
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [filters.SearchFilter]
     search_fields = ['name', 'property_id', 'location', 'landlord__name']
@@ -58,7 +60,9 @@ class PropertyViewSet(viewsets.ModelViewSet):
 class UnitViewSet(viewsets.ModelViewSet):
     queryset = Unit.objects.all()
     serializer_class = UnitSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [RolePermission]
+    role_permission_module = 'unit'
+    role_permission_actions = {'tenants': 'access'}
     http_method_names = ['get', 'post', 'put', 'patch', 'delete', 'head', 'options']
     filter_backends = [filters.SearchFilter]
     search_fields = ['unit_no', 'unit_name', 'property__name', 'property__property_id']

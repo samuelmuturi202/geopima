@@ -1,5 +1,5 @@
 from rest_framework import viewsets, filters
-from rest_framework.permissions import IsAuthenticated
+from config_core.permissions import RolePermission
 from .models import Tenant, LeaseAgreement
 from .serializers import TenantSerializer, LeaseAgreementSerializer
 
@@ -11,10 +11,12 @@ class TenantViewSet(viewsets.ModelViewSet):
     Includes full-text search across tenant details.
     """
     serializer_class = TenantSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [RolePermission]
+    role_permission_module = 'tenant'
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'tenant_id', 
+        'smart_alias',
         'name', 
         'email', 
         'phone_number', 
@@ -44,7 +46,8 @@ class LeaseAgreementViewSet(viewsets.ModelViewSet):
     """
     queryset = LeaseAgreement.objects.select_related('tenant', 'unit', 'template').all().order_by('-id')
     serializer_class = LeaseAgreementSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [RolePermission]
+    role_permission_module = 'tenant'
     filter_backends = [filters.SearchFilter]
     search_fields = [
         'tenant__name', 

@@ -7,6 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.exceptions import NotFound
 from django.contrib.auth import get_user_model
+from django.db import transaction as db_transaction
 
 from properties.models import Property
 from billing.models import VoteHead
@@ -21,7 +22,7 @@ from .models import (
     SMSTemplate, 
     AgreementTemplate
 )
-from .permissions import IsSuperAdminOrAdmin, CanManageFinances, CanManageTemplates
+from .permissions import RolePermission, get_user_role_permissions
 from .serializers import (
     CustomTokenObtainPairSerializer,
     AgencyProfileSerializer, 
@@ -48,23 +49,23 @@ class CurrentUserView(APIView):
 
     def get(self, request):
         user = request.user
-        role_name = "Field Agent"
-        role_permissions = []
-        
-        if hasattr(user, 'profile') and user.profile and user.profile.role:
-            role_name = user.profile.role.name
-            role_permissions = user.profile.role.permissions
-        elif user.groups.exists():
-            role_name = user.groups.first().name
-
-        user_permissions = list(set(list(user.get_all_permissions()) + role_permissions))
+        profile = getattr(user, 'profile', None)
+        roles = []
+        if profile and profile.role:
+            roles.append(profile.role)
+        roles.extend(
+            role for role in user.roles.all()
+            if all(role.pk != assigned.pk for assigned in roles)
+        )
+        user_permissions = sorted(get_user_role_permissions(user))
 
         data = {
             "id": user.id,
             "username": user.username,
             "email": user.email,
             "full_name": f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip() or user.username,
-            "role": role_name,
+            "role": roles[0].name if roles else "No role",
+            "roles": [role.name for role in roles],
             "permissions": user_permissions,
             "is_superuser": user.is_superuser
         }
@@ -72,7 +73,8 @@ class CurrentUserView(APIView):
 
 
 class DashboardMetricsView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [RolePermission]
+    role_permission_module = 'reports'
 
     def get(self, request):
         properties = Property.objects.all()
@@ -88,7 +90,8 @@ class DashboardMetricsView(APIView):
 
 
 class PaymentSummariesView(APIView):
-    permission_classes = [IsAuthenticated, CanManageFinances]
+    permission_classes = [RolePermission]
+    role_permission_module = 'payment'
 
     def get(self, request):
         vote_heads = VoteHead.objects.all()
@@ -107,7 +110,8 @@ class PaymentSummariesView(APIView):
 
 
 class AgencyProfileViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'settings'
     serializer_class = AgencyProfileSerializer
 
     def get_object(self):
@@ -116,7 +120,8 @@ class AgencyProfileViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, m
 
 
 class MessengerConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'settings'
     serializer_class = MessengerConfigSerializer
 
     def get_object(self):
@@ -125,7 +130,8 @@ class MessengerConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin,
 
 
 class MailerConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'settings'
     serializer_class = MailerConfigSerializer
 
     def get_object(self):
@@ -134,7 +140,8 @@ class MailerConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mi
 
 
 class MpesaConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'settings'
     serializer_class = MpesaConfigSerializer
 
     def get_object(self):
@@ -143,29 +150,34 @@ class MpesaConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mix
 
 
 class CreditBankConfigViewSet(viewsets.GenericViewSet, mixins.RetrieveModelMixin, mixins.UpdateModelMixin):
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'settings'
     serializer_class = CreditBankConfigSerializer
 
     def get_object(self):
-        obj, created = CreditBankConfig.objects.get_or_create(id=1)
-        if created or not obj.client_id:
-            obj.client_id = os.getenv('CREDIT_BANK_SANDBOX_ID', '')
-            obj.secret_key = os.getenv('CREDIT_BANK_SECRET_KEY', '')
-            obj.signing_key = os.getenv('CREDIT_BANK_SIGNING_KEY', '')
-            obj.paybill_number = '4045619'
-            obj.save()
+        obj, _ = CreditBankConfig.objects.get_or_create(
+            id=1,
+            defaults={
+                'paybill_number': os.getenv('CREDIT_BANK_PAYBILL_NUMBER', '6775'),
+                'client_id': os.getenv('CREDIT_BANK_SANDBOX_ID', ''),
+                'secret_key': os.getenv('CREDIT_BANK_SECRET_KEY', ''),
+                'signing_key': os.getenv('CREDIT_BANK_SIGNING_KEY', ''),
+            },
+        )
         return obj
 
 
 class UserRoleViewSet(viewsets.ModelViewSet):
     queryset = UserRole.objects.all().order_by('-id')
     serializer_class = UserRoleSerializer
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'user'
 
 
 class UserAccountViewSet(viewsets.ModelViewSet):
     serializer_class = UserAccountSerializer
-    permission_classes = [IsAuthenticated, IsSuperAdminOrAdmin]
+    permission_classes = [RolePermission]
+    role_permission_module = 'user'
 
     def get_queryset(self):
         return User.objects.all().order_by('-id')
@@ -186,14 +198,25 @@ class UserAccountViewSet(viewsets.ModelViewSet):
 class PaymentBankViewSet(viewsets.ModelViewSet):
     queryset = PaymentBank.objects.all().order_by('-id')
     serializer_class = PaymentBankSerializer
-    permission_classes = [IsAuthenticated, CanManageFinances]
+    permission_classes = [RolePermission]
+    role_permission_module = 'payment'
     pagination_class = None  # Returns a plain JSON list directly
+
+    def destroy(self, request, *args, **kwargs):
+        payment_bank = self.get_object()
+        if payment_bank.bank_type == 'smart_alias':
+            return Response(
+                {'error': 'The Credit Bank Smart Alias channel cannot be deleted.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        return super().destroy(request, *args, **kwargs)
 
 
 class SMSTemplateViewSet(viewsets.ModelViewSet):
     queryset = SMSTemplate.objects.all().order_by('-id')
     serializer_class = SMSTemplateSerializer
-    permission_classes = [IsAuthenticated, CanManageTemplates]
+    permission_classes = [RolePermission]
+    role_permission_module = 'message'
     pagination_class = None
 
     @action(detail=False, methods=['post'], url_path='bulk-save')
@@ -246,4 +269,5 @@ class SMSTemplateViewSet(viewsets.ModelViewSet):
 class AgreementTemplateViewSet(viewsets.ModelViewSet):
     queryset = AgreementTemplate.objects.all().order_by('-id')
     serializer_class = AgreementTemplateSerializer
-    permission_classes = [IsAuthenticated, CanManageTemplates]
+    permission_classes = [RolePermission]
+    role_permission_module = 'settings'

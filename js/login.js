@@ -25,23 +25,28 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         const data = await response.json();
 
         if (response.ok) {
+            if (
+                typeof data.access !== 'string' ||
+                !data.access ||
+                !data.user ||
+                typeof data.user !== 'object' ||
+                !Array.isArray(data.user.permissions) ||
+                typeof data.user.is_superuser !== 'boolean'
+            ) {
+                localStorage.removeItem('access_token');
+                localStorage.removeItem('refresh_token');
+                localStorage.removeItem('user_data');
+                throw new Error('The server returned an incomplete user authorization profile.');
+            }
+
             // Save JWT Tokens
             localStorage.setItem('access_token', data.access);
             if (data.refresh) {
                 localStorage.setItem('refresh_token', data.refresh);
             }
 
-            // Fallback: If backend returns data.user, use it; otherwise build a valid user object
-            const userObj = data.user || {
-                username: username,
-                full_name: username,
-                is_superuser: true,
-                permissions: [],
-                roles: []
-            };
-
             // Save user data safely as a JSON string
-            localStorage.setItem('user_data', JSON.stringify(userObj));
+            localStorage.setItem('user_data', JSON.stringify(data.user));
 
             // Redirect to dashboard page
             window.location.href = 'dashboard.html';
@@ -50,7 +55,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         }
     } catch (err) {
         console.error('Login error:', err);
-        alert('Could not connect to the server. If Render was asleep, please wait 30 seconds and try clicking Sign In again.');
+        alert(err.message || 'Could not connect to the server. If Render was asleep, please wait 30 seconds and try clicking Sign In again.');
     } finally {
         // Restore button state
         if (submitBtn) {

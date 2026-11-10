@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import get_user_model
-from django.contrib.auth.models import Group
+from django.db import transaction
 from .models import (
     AgencyProfile, 
     MessengerConfig, 
@@ -14,6 +14,11 @@ from .models import (
     SMSTemplate, 
     AgreementTemplate
 )
+from .permissions import (
+    PERMISSION_ACTIONS,
+    PERMISSION_MODULES,
+    get_user_role_permissions,
+)
 
 User = get_user_model()
 
@@ -23,20 +28,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         data = super().validate(attrs)
         user = self.user
         
-        role_permissions = []
-        role_name = "Field Agent"
-        
         profile_obj = UserProfile.objects.filter(user=user).first()
+        roles = []
         if profile_obj and profile_obj.role:
-            role_name = profile_obj.role.name
-            role_permissions = profile_obj.role.permissions
-        elif user.groups.exists():
-            role_name = user.groups.first().name
-
-        user_permissions = list(set(list(user.get_all_permissions()) + role_permissions))
-        groups = list(user.groups.values_list('name', flat=True))
-        if role_name not in groups:
-            groups.append(role_name)
+            roles.append(profile_obj.role)
+        roles.extend(
+            role for role in user.roles.all()
+            if all(role.pk != assigned.pk for assigned in roles)
+        )
 
         data['user'] = {
             'id': user.id,
@@ -45,9 +44,9 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'full_name': f"{getattr(user, 'first_name', '')} {getattr(user, 'last_name', '')}".strip() or user.username,
             'is_superuser': user.is_superuser,
             'is_staff': user.is_staff,
-            'roles': groups,
-            'role': role_name,
-            'permissions': user_permissions,
+            'roles': [role.name for role in roles],
+            'role': roles[0].name if roles else 'No role',
+            'permissions': sorted(get_user_role_permissions(user)),
         }
         return data
 
@@ -81,7 +80,8 @@ class UserAccountSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {
             'email': {'required': True},
-            'username': {'required': True}
+            'username': {'required': True},
+            'is_superuser': {'read_only': True},
         }
 
     def get_name(self, obj):
@@ -90,7 +90,7 @@ class UserAccountSerializer(serializers.ModelSerializer):
 
     def get_role(self, obj):
         profile = UserProfile.objects.filter(user=obj).first()
-        return profile.role.name if profile and profile.role else "super admin"
+        return profile.role.name if profile and profile.role else "No role"
 
     def get_user_phone(self, obj):
         profile = UserProfile.objects.filter(user=obj).first()
@@ -101,11 +101,9 @@ class UserAccountSerializer(serializers.ModelSerializer):
         return profile.position if profile else ''
 
     def get_permissions(self, obj):
-        profile = UserProfile.objects.filter(user=obj).first()
-        if profile and profile.role and hasattr(profile.role, 'permissions'):
-            return profile.role.permissions
-        return []
+        return sorted(get_user_role_permissions(obj))
 
+    @transaction.atomic
     def create(self, validated_data):
         profile_data = validated_data.pop('profile', {})
         role = profile_data.get('role', None)
@@ -119,27 +117,53 @@ class UserAccountSerializer(serializers.ModelSerializer):
         last_name = name_parts[1] if len(name_parts) > 1 else ''
 
         user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
             password=password,
             first_name=first_name,
-            last_name=last_name
+            last_name=last_name,
+            **validated_data,
         )
 
         profile, _ = UserProfile.objects.get_or_create(user=user)
-        if role:
-            profile.role = role
+        profile.role = role
         if phone:
             profile.phone = phone
         if position:
             profile.position = position
         profile.save()
-
-        if role:
-            group, _ = Group.objects.get_or_create(name=role.name)
-            user.groups.add(group)
+        user.roles.set([role] if role else [])
 
         return user
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        profile_data = validated_data.pop('profile', {})
+        role_was_provided = 'role' in profile_data
+        role = profile_data.get('role')
+        full_name = validated_data.pop('full_name', None)
+        phone = validated_data.pop('phone', None)
+        position = validated_data.pop('position', None)
+        password = validated_data.pop('password', None)
+
+        if full_name is not None:
+            first_name, _, last_name = full_name.strip().partition(' ')
+            instance.first_name = first_name
+            instance.last_name = last_name.strip()
+        for field, value in validated_data.items():
+            setattr(instance, field, value)
+        if password:
+            instance.set_password(password)
+        instance.save()
+
+        profile, _ = UserProfile.objects.get_or_create(user=instance)
+        if role_was_provided:
+            profile.role = role
+            instance.roles.set([role] if role else [])
+        if phone is not None:
+            profile.phone = phone
+        if position is not None:
+            profile.position = position
+        profile.save()
+        return instance
 
 
 class AgencyProfileSerializer(serializers.ModelSerializer):
@@ -185,17 +209,93 @@ class CreditBankConfigSerializer(serializers.ModelSerializer):
         model = CreditBankConfig
         fields = '__all__'
 
+    def validate_paybill_number(self, value):
+        value = value.strip()
+        if not value.isdigit():
+            raise serializers.ValidationError('Paybill number must contain digits only.')
+        return value
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        instance = super().update(instance, validated_data)
+        PaymentBank.objects.filter(bank_type='smart_alias').update(
+            business_no=instance.paybill_number
+        )
+        PaymentBank.objects.get_or_create(
+            bank_type='smart_alias',
+            defaults={
+                'short_name': 'Credit Bank',
+                'long_name': 'Credit Bank Smart Alias',
+                'acc_name': 'Tenant Payments',
+                'business_no': instance.paybill_number,
+                'acc_number': 'Tenant Smart Alias',
+                'is_active': True,
+                'on_invoice': True,
+            },
+        )
+        return instance
+
 
 class UserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserRole
         fields = ['id', 'name', 'permissions']
 
+    def validate_permissions(self, permissions):
+        if not isinstance(permissions, list):
+            raise serializers.ValidationError('Permissions must be a list.')
+        valid = {
+            f'{module}_{action}'
+            for module in PERMISSION_MODULES
+            for action in PERMISSION_ACTIONS
+        }
+        invalid = [
+            permission for permission in permissions
+            if not isinstance(permission, str)
+            or permission.strip().lower() not in valid
+        ]
+        if invalid:
+            raise serializers.ValidationError(
+                'Unknown role permission(s): '
+                + ', '.join(str(permission) for permission in invalid)
+            )
+        return sorted({permission.strip().lower() for permission in permissions})
+
 
 class PaymentBankSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentBank
         fields = '__all__'
+
+    def validate(self, attrs):
+        bank_type = attrs.get(
+            'bank_type',
+            self.instance.bank_type if self.instance else 'bank',
+        )
+        if (
+            self.instance
+            and self.instance.bank_type == 'smart_alias'
+            and bank_type != 'smart_alias'
+        ):
+            raise serializers.ValidationError({
+                'bank_type': 'The Credit Bank Smart Alias channel cannot be converted.'
+            })
+        if bank_type == 'smart_alias':
+            credit_bank = CreditBankConfig.objects.filter(pk=1).first()
+            paybill = credit_bank.paybill_number if credit_bank else '6775'
+            supplied_paybill = attrs.get(
+                'business_no',
+                self.instance.business_no if self.instance else paybill,
+            )
+            if supplied_paybill != paybill:
+                raise serializers.ValidationError({
+                    'business_no': (
+                        'Credit Bank Paybill must match the Credit Bank configuration '
+                        f'({paybill}).'
+                    )
+                })
+            attrs['business_no'] = paybill
+        return attrs
 
 
 class SMSTemplateSerializer(serializers.ModelSerializer):

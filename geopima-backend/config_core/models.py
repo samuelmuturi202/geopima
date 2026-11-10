@@ -31,7 +31,7 @@ class AgencyProfile(models.Model):
 
 class MessengerConfig(models.Model):
     service_provider = models.CharField(max_length=100, default='Celcom Africa')
-    sender_id = models.CharField(max_length=100, default='pemwaagency')
+    sender_id = models.CharField(max_length=100, blank=True, default='')
     partner_id = models.CharField(max_length=100, blank=True)
     partner_key = models.CharField(max_length=255, blank=True)
     agency_phone = models.CharField(max_length=50, blank=True)
@@ -71,7 +71,7 @@ class MpesaConfig(models.Model):
 
 class CreditBankConfig(models.Model):
     """Stores Credit Bank Smart Alias API integration parameters and Paybill details."""
-    paybill_number = models.CharField(max_length=50, default='4045619')
+    paybill_number = models.CharField(max_length=50, default='6775')
     client_id = models.CharField(max_length=255, blank=True)
     secret_key = models.CharField(max_length=255, blank=True)
     signing_key = models.CharField(max_length=255, blank=True)
@@ -125,6 +125,15 @@ class PaymentBank(models.Model):
     bank_type = models.CharField(max_length=20, choices=BANK_TYPE_CHOICES, default='bank')
     is_active = models.BooleanField(default=True)
     on_invoice = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['bank_type'],
+                condition=models.Q(bank_type='smart_alias'),
+                name='one_credit_bank_smart_alias_channel',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.short_name} - {self.acc_number} ({self.get_bank_type_display()})"

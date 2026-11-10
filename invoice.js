@@ -49,6 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
         <p><strong>Property:</strong> ${inv.property || 'N/A'}</p>
         <p><strong>Unit No:</strong> ${inv.unit || 'N/A'}</p>
         <p><strong>Contact:</strong> ${inv.tenant_contact || 'N/A'}</p>
+        <p><strong>Credit Bank Paybill:</strong> ${inv.credit_bank_paybill || '6775'}</p>
+        <p><strong>Account Number:</strong> ${inv.smart_alias || 'Smart Alias unavailable'}</p>
       `;
     }
 

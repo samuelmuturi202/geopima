@@ -49,6 +49,19 @@ document.addEventListener('DOMContentLoaded', () => {
     return labels[status] || status;
   }
 
+  async function loadServiceStatus() {
+    try {
+      const result = await fetchAPI('/billing/communication-drafts/service-status/');
+      setServiceStatus(
+        result.message,
+        result.ready ? 'online' : 'error'
+      );
+    } catch (error) {
+      console.error('Failed to check SMS readiness:', error);
+      setServiceStatus('Could not verify SMS readiness. Check the service connection.', 'error');
+    }
+  }
+
   function renderDraft(draft) {
     const card = document.createElement('article');
     card.className = 'draft-card';
@@ -166,7 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const response = await fetchAPI(`/billing/communication-drafts/?${params}`);
       const drafts = Array.isArray(response) ? response : (response.results || []);
       draftList.replaceChildren();
-      setServiceStatus('Communication service connected', 'online');
+      await loadServiceStatus();
 
       if (!drafts.length) {
         draftList.appendChild(createTextElement(

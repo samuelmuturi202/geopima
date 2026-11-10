@@ -57,6 +57,18 @@ class Property(models.Model):
 
     class Meta:
         verbose_name_plural = "Properties"
+        constraints = [
+            models.CheckConstraint(
+                condition=~models.Q(property_id=''),
+                name='property_id_not_blank',
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.property_id = (self.property_id or '').strip().upper()
+        if not self.property_id:
+            raise ValueError('Property ID cannot be blank.')
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -82,6 +94,24 @@ class Unit(models.Model):
     is_occupied = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['property', 'unit_no'],
+                name='unique_unit_number_per_property',
+            ),
+            models.CheckConstraint(
+                condition=~models.Q(unit_no=''),
+                name='unit_number_not_blank',
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.unit_no = (self.unit_no or '').strip().upper()
+        if not self.unit_no:
+            raise ValueError('Unit number cannot be blank.')
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.property.name} - Unit {self.unit_name}"
 
@@ -92,9 +122,17 @@ class MpesaTransaction(models.Model):
     transaction_type = models.CharField(max_length=20, default='c2b')
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     phone_number = models.CharField(max_length=20)
-    account_reference = models.CharField(max_length=50, blank=True, null=True)
+    account_reference = models.CharField(max_length=100, blank=True, null=True)
     transaction_date = models.DateTimeField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__gt=0),
+                name='ledger_transaction_amount_positive',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.mpesa_receipt_number} - {self.amount}"
@@ -118,6 +156,12 @@ class PaymentAllocation(models.Model):
 
     class Meta:
         ordering = ['-allocated_at']
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount_allocated__gt=0),
+                name='payment_allocation_amount_positive',
+            ),
+        ]
 
     def __str__(self):
         return f"Allocation: {self.amount_allocated}"

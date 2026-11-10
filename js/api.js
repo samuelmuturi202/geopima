@@ -1,5 +1,24 @@
 // js/api.js
 
+(function loadRoleAccessUi() {
+    const currentScript = document.currentScript;
+    if (!currentScript || window.roleAccessUiLoading || window.roleAccessUiLoaded) {
+        return;
+    }
+    window.roleAccessUiLoading = true;
+    const roleAccessScript = document.createElement('script');
+    roleAccessScript.src = new URL('role-access.js', currentScript.src).href;
+    roleAccessScript.onload = () => {
+        window.roleAccessUiLoaded = true;
+        window.roleAccessUiLoading = false;
+    };
+    roleAccessScript.onerror = () => {
+        window.roleAccessUiLoading = false;
+        console.error('Could not load role-aware navigation.');
+    };
+    document.head.appendChild(roleAccessScript);
+})();
+
 /**
  * Base configuration for API integration (pointing to live Render backend)
  */
@@ -50,11 +69,13 @@ async function fetchAPI(endpoint, options = {}) {
             body
         });
 
-        if (response.status === 401 || response.status === 403) {
-            console.warn(`[401/403] Authorization failed for ${endpoint}. Token may be expired or missing.`);
+        if (response.status === 401) {
+            console.warn(`[401] Authentication failed for ${endpoint}. The session may be expired or missing.`);
             if (!token) {
                 console.error("No access token found in localStorage. Please log in first.");
             }
+        } else if (response.status === 403) {
+            console.warn(`[403] The assigned role does not authorize ${endpoint}.`);
         }
 
         if (!response.ok) {

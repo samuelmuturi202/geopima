@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.conf import settings
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 
 
 class Agency(models.Model):
@@ -50,17 +51,25 @@ class Deposit(models.Model):
 
 
 class SmartAliasTransaction(models.Model):
-    """Logs incoming webhook payloads from Credit Bank Smart Alias collection service (Paybill 4045619)."""
+    """Logs incoming webhook payloads from Credit Bank Smart Alias collection."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     transaction_reference = models.CharField(max_length=100, unique=True)
     account_alias = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=12, decimal_places=2)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     sender_name = models.CharField(max_length=255, blank=True, null=True)
-    paybill_number = models.CharField(max_length=50, default='4045619')
+    paybill_number = models.CharField(max_length=50, default='6775')
     raw_payload = models.JSONField()
     is_processed = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__gt=0),
+                name='smart_alias_tx_amount_positive',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.account_alias} - KES {self.amount} ({self.transaction_reference})"
@@ -88,7 +97,12 @@ class Invoice(models.Model):
 
     class Meta:
         db_table = 'billing_invoice'
-        unique_together = ('tenant', 'unit', 'billing_period')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['tenant', 'unit', 'billing_period'],
+                name='unique_invoice_tenant_unit_period',
+            ),
+        ]
         ordering = ['-billing_period', '-created_at']
 
     @property
@@ -119,6 +133,10 @@ class Invoice(models.Model):
         return self.balance <= 0
 
     def save(self, *args, **kwargs):
+        if self._state.adding or self._relationship_changed('tenant_id', 'unit_id'):
+            if not self.tenant_id or self.tenant.unit_id != self.unit_id:
+                raise ValueError('Invoice tenant must be assigned to the invoice unit.')
+
         if not self.invoice_number:
             last_invoice = Invoice.objects.all().order_by('-created_at').first()
             if last_invoice and last_invoice.invoice_number.startswith('INV'):
@@ -136,10 +154,21 @@ class Invoice(models.Model):
             self.status = 'paid'
         elif self.rent_paid > 0:
             self.status = 'partially_paid'
+        elif self.due_date < timezone.localdate():
+            self.status = 'overdue'
         else:
             self.status = 'unpaid'
 
         super().save(*args, **kwargs)
+
+    def _relationship_changed(self, *field_names):
+        if not self.pk:
+            return True
+        original = type(self).objects.filter(pk=self.pk).values(*field_names).first()
+        return original is not None and any(
+            original[field_name] != getattr(self, field_name)
+            for field_name in field_names
+        )
 
     def __str__(self):
         return f"{self.invoice_number} - {self.tenant} ({self.period_formatted})"
@@ -151,6 +180,14 @@ class InvoiceItem(models.Model):
     item_type = models.CharField(max_length=50, default="Rent")
     description = models.CharField(max_length=255, default="House Rent")
     amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount__gte=0),
+                name='invoice_item_amount_nonnegative',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.item_type}: {self.amount}"

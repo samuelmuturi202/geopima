@@ -10,6 +10,7 @@ from rest_framework_simplejwt.views import (
 
 # Import the dashboard views directly from billing
 from billing.views import DashboardMetricsView, PaymentSummariesView
+from config_core.views import CustomTokenObtainPairView
 
 # Root view function to fix root 404 on Render
 def api_root(request):
@@ -38,7 +39,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # Authentication API
-    path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/v1/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     # Explicit Dashboard Endpoints

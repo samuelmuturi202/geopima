@@ -131,9 +131,12 @@ class PropertySerializer(serializers.ModelSerializer):
 
         raw_prop_id = data.get('property_id') or data.get('propertyId') or data.get('pro_id')
         if not raw_prop_id or not str(raw_prop_id).strip():
-            data['property_id'] = self._generate_property_id()
+            data['property_id'] = (
+                self.instance.property_id
+                if self.instance else self._generate_property_id()
+            )
         else:
-            data['property_id'] = str(raw_prop_id).strip()
+            data['property_id'] = str(raw_prop_id).strip().upper()
 
         raw_name = data.get('name') or data.get('propertyName') or data.get('property_name')
         if raw_name:
@@ -285,6 +288,12 @@ class UnitSerializer(serializers.ModelSerializer):
             'garbage_fee': {'required': False, 'allow_null': True},
             'is_occupied': {'required': False},
         }
+
+    def validate_unit_no(self, value):
+        value = (value or '').strip().upper()
+        if not value:
+            raise serializers.ValidationError('Unit number cannot be blank.')
+        return value
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

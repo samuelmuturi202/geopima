@@ -1,85 +1,103 @@
 import json
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
-from django.views import View
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
+from config_core.permissions import RolePermission
 from .models import MpesaTransaction, PaymentSettlement
 from .services import MpesaSettlementEngine
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class MpesaValidationView(View):
+class MpesaValidationView(APIView):
     """
     Safaricom Validation Endpoint.
     """
-    def post(self, request, *args, **kwargs):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
         try:
             payload = json.loads(request.body.decode('utf-8'))
-            return JsonResponse({"ResultCode": "0", "ResultDesc": "Accepted"})
+            return Response({"ResultCode": "0", "ResultDesc": "Accepted"})
         except Exception as e:
-            return JsonResponse({"ResultCode": "C2B00016", "ResultDesc": f"Rejected: {str(e)}"})
+            return Response({"ResultCode": "C2B00016", "ResultDesc": f"Rejected: {str(e)}"})
 
 
-@method_decorator(csrf_exempt, name='dispatch')
-class MpesaConfirmationView(View):
+class MpesaConfirmationView(APIView):
     """
     Safaricom Confirmation Endpoint.
     """
-    def post(self, request, *args, **kwargs):
+    authentication_classes = ()
+    permission_classes = (AllowAny,)
+
+    def post(self, request):
         try:
             payload = json.loads(request.body.decode('utf-8'))
             MpesaSettlementEngine.process_payment(payload)
-            return JsonResponse({"ResultCode": "0", "ResultDesc": "Success"})
+            return Response({"ResultCode": "0", "ResultDesc": "Success"})
         except Exception as e:
-            return JsonResponse({"ResultCode": "1", "ResultDesc": str(e)}, status=400)
+            return Response({"ResultCode": "1", "ResultDesc": str(e)}, status=400)
 
 
-class MpesaTransactionListAPIView(View):
+class MpesaTransactionListAPIView(APIView):
     """
     JSON API endpoint matching frontend mpesa.js expectations.
     """
-    def get(self, request, *args, **kwargs):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'payment'
+
+    def get(self, request):
         transactions = MpesaTransaction.objects.all().order_by('-created_at')
         data = [tx.to_json_dict() for tx in transactions]
-        return JsonResponse({"results": data}, safe=False)
+        return Response({"results": data})
 
 
-class MpesaBatchVerifyAPIView(View):
+class MpesaBatchVerifyAPIView(APIView):
     """
     Triggered by 'Confirm Multiple Transactions' button in mpesa.html.
     """
-    def post(self, request, *args, **kwargs):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'payment'
+    role_permission_actions = {'post': 'update'}
+
+    def post(self, request):
         unsettled = MpesaTransaction.objects.filter(is_settled=False)
         count = 0
         for tx in unsettled:
             if MpesaSettlementEngine.reprocess_unsettled_transaction(tx):
                 count += 1
-        return JsonResponse({"status": "success", "reprocessed_count": count})
+        return Response({"status": "success", "reprocessed_count": count})
 
 
-class ManualSettlementAPIView(View):
+class ManualSettlementAPIView(APIView):
     """
     API endpoint to manually reprocess a single transaction.
     """
-    def post(self, request, pk, *args, **kwargs):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'payment'
+    role_permission_actions = {'post': 'update'}
+
+    def post(self, request, pk):
         tx = get_object_or_404(MpesaTransaction, pk=pk)
         if tx.is_settled:
-            return JsonResponse({"status": "warning", "message": f"Transaction {tx.trans_id} is already settled."})
+            return Response({"status": "warning", "message": f"Transaction {tx.trans_id} is already settled."})
         
         settled = MpesaSettlementEngine.reprocess_unsettled_transaction(tx)
         if settled:
-            return JsonResponse({"status": "success", "message": f"Successfully settled transaction {tx.trans_id}."})
+            return Response({"status": "success", "message": f"Successfully settled transaction {tx.trans_id}."})
         else:
-            return JsonResponse({"status": "error", "message": f"Could not match transaction {tx.trans_id} to a tenant."}, status=400)
+            return Response({"status": "error", "message": f"Could not match transaction {tx.trans_id} to a tenant."}, status=400)
 
 
-class RentCollectionListAPIView(View):
+class RentCollectionListAPIView(APIView):
     """
     JSON API endpoint for rent collection records (finance.js).
     """
-    def get(self, request, *args, **kwargs):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'payment'
+
+    def get(self, request):
         settlements = PaymentSettlement.objects.select_related('transaction', 'tenant', 'invoice', 'tenant__unit', 'tenant__unit__property').all().order_by('-settled_at')
         data = []
         for index, s in enumerate(settlements):
@@ -92,9 +110,13 @@ class RentCollectionListAPIView(View):
                 "tenant": s.tenant.name,
                 "property": prop.name if prop else "--",
                 "unit": unit.unit_name if unit else "--",
-                "bank": "Lipa Na M-Pesa",
+                "bank": (
+                    "Credit Bank Paybill"
+                    if s.transaction.source == 'credit_bank'
+                    else "Lipa Na M-Pesa"
+                ),
                 "refCode": s.transaction.trans_id,
-                "type": "mpesa",
+                "type": s.transaction.source,
                 "slipDate": s.settled_at.strftime('%Y-%m-%d'),
                 "entryDate": s.settled_at.strftime('%Y-%m-%d'),
                 "mode": "auto",
@@ -102,14 +124,17 @@ class RentCollectionListAPIView(View):
                 "balance": float(s.invoice.balance) if s.invoice else 0.0,
                 "phone": s.tenant.phone_number
             })
-        return JsonResponse({"results": data}, safe=False)
+        return Response({"results": data})
 
 
-class RentCollectionDetailAPIView(View):
+class RentCollectionDetailAPIView(APIView):
     """
     JSON API endpoint for single payment receipt detail modal.
     """
-    def get(self, request, pk, *args, **kwargs):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'payment'
+
+    def get(self, request, pk):
         s = get_object_or_404(PaymentSettlement, pk=pk)
         unit = getattr(s.tenant, 'unit', None)
         prop = getattr(unit, 'property', None) if unit else None
@@ -126,8 +151,13 @@ class RentCollectionDetailAPIView(View):
             "phone": s.tenant.phone_number,
             "amount": float(s.amount_applied),
             "balance": float(s.invoice.balance) if s.invoice else 0.0,
-            "bank": "Lipa Na M-Pesa",
+            "bank": (
+                "Credit Bank Paybill"
+                if s.transaction.source == 'credit_bank'
+                else "Lipa Na M-pesa"
+            ),
             "ref_no": s.transaction.trans_id,
+            "type": s.transaction.source,
             "slip_date": s.settled_at.strftime('%Y-%m-%d')
         }
-        return JsonResponse(data)
+        return Response(data)

@@ -5,7 +5,14 @@ from billing.models import Invoice
 
 
 class MpesaTransaction(models.Model):
+    SOURCE_CHOICES = [
+        ('mpesa', 'M-Pesa'),
+        ('credit_bank', 'Credit Bank'),
+        ('manual', 'Manual'),
+    ]
+
     trans_id = models.CharField(max_length=100, unique=True)
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default='mpesa')
     trans_time = models.CharField(max_length=50)
     trans_amount = models.DecimalField(max_digits=12, decimal_places=2)
     business_short_code = models.CharField(max_length=20)
@@ -15,6 +22,14 @@ class MpesaTransaction(models.Model):
     last_name = models.CharField(max_length=100, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_settled = models.BooleanField(default=False)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(trans_amount__gt=0),
+                name='mpesa_transaction_amount_positive',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.trans_id} - {self.trans_amount} KES"
@@ -55,6 +70,7 @@ class MpesaTransaction(models.Model):
             "unit": unit.unit_name if unit else "--",
             "payer": f"{self.first_name} {self.last_name}".strip() or "--",
             "amount": float(self.trans_amount),
+            "source": self.source,
             "status": "successful" if self.is_settled else "unsuccessful"
         }
 
@@ -66,6 +82,14 @@ class PaymentSettlement(models.Model):
     receipt_number = models.CharField(max_length=50, unique=True, null=True, blank=True)
     amount_applied = models.DecimalField(max_digits=12, decimal_places=2)
     settled_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(amount_applied__gt=0),
+                name='payment_settlement_amount_positive',
+            ),
+        ]
 
     def __str__(self):
         return f"Settlement: {self.transaction.trans_id} -> {self.tenant.name}"

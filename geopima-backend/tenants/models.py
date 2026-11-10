@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 from properties.models import Unit
-from .utils import normalize_phone_number
+from .utils import build_smart_alias, normalize_phone_number
 
 
 class User(AbstractUser):
@@ -37,6 +37,7 @@ class Tenant(models.Model):
     phone_number = models.CharField(max_length=20)
     email = models.EmailField(blank=True, null=True)
     unit = models.ForeignKey(Unit, on_delete=models.SET_NULL, null=True, blank=True, related_name='tenants')
+    smart_alias = models.CharField(max_length=100, blank=True, default='', db_index=True)
     entry_date = models.DateField(default=timezone.now)
     due_date = models.PositiveIntegerField(default=5)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
@@ -46,6 +47,23 @@ class Tenant(models.Model):
             self.tenant_id = f"PROP-{uuid.uuid4().hex[:8].upper()}"
         if self.phone_number:
             self.phone_number = normalize_phone_number(self.phone_number)
+        update_fields = kwargs.get('update_fields')
+        if update_fields is not None:
+            update_fields = set(update_fields)
+            if self.pk and 'unit' not in update_fields and 'unit_id' not in update_fields:
+                self.unit_id = type(self).objects.values_list(
+                    'unit_id', flat=True
+                ).get(pk=self.pk)
+            kwargs['update_fields'] = set(update_fields) | {'smart_alias'}
+
+        if self.unit_id:
+            unit = Unit.objects.select_related('property').get(pk=self.unit_id)
+            self.smart_alias = build_smart_alias(
+                unit.property.property_id,
+                unit.unit_no,
+            )
+        else:
+            self.smart_alias = ''
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -66,6 +84,24 @@ class LeaseAgreement(models.Model):
     is_active = models.BooleanField(default=True)
     agreement_file = models.FileField(upload_to='lease_agreements/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self._state.adding or self._relationship_changed('tenant_id', 'unit_id'):
+            if not Tenant.objects.filter(
+                tenant_id=self.tenant_id,
+                unit_id=self.unit_id,
+            ).exists():
+                raise ValueError('Lease tenant must be assigned to the lease unit.')
+        super().save(*args, **kwargs)
+
+    def _relationship_changed(self, *field_names):
+        if not self.pk:
+            return True
+        original = type(self).objects.filter(pk=self.pk).values(*field_names).first()
+        return original is not None and any(
+            original[field_name] != getattr(self, field_name)
+            for field_name in field_names
+        )
 
     def __str__(self):
         return f"Lease: {self.tenant.name} -> {self.unit.unit_name}"

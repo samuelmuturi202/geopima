@@ -1,5 +1,24 @@
 // js/script.js
 
+(function loadRoleAccessUi() {
+  const currentScript = document.currentScript;
+  if (!currentScript || window.roleAccessUiLoading || window.roleAccessUiLoaded) {
+    return;
+  }
+  window.roleAccessUiLoading = true;
+  const roleAccessScript = document.createElement('script');
+  roleAccessScript.src = new URL('js/role-access.js', currentScript.src).href;
+  roleAccessScript.onload = () => {
+    window.roleAccessUiLoaded = true;
+    window.roleAccessUiLoading = false;
+  };
+  roleAccessScript.onerror = () => {
+    window.roleAccessUiLoading = false;
+    console.error('Could not load role-aware navigation.');
+  };
+  document.head.appendChild(roleAccessScript);
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
@@ -60,15 +79,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
 
-    // Handle 401 Unauthorized or 403 Forbidden token expiration
-    if (response.status === 401 || response.status === 403) {
+    // A 403 indicates an authorization denial, not an expired token.
+    if (response.status === 401) {
       console.warn(`[${response.status}] Attempting token refresh for ${endpoint}`);
       const newToken = await refreshAccessToken();
 
       if (newToken) {
         headers['Authorization'] = `Bearer ${newToken}`;
         response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
-      } else if (response.status === 401) {
+      } else {
         console.warn('Session expired. Redirecting to login.');
         localStorage.clear();
         window.location.href = 'login.html';
