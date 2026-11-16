@@ -24,7 +24,8 @@ class TenantViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        queryset = Tenant.objects.select_related('unit__property').all().order_by('-id')
+        # Fixed: order by '-tenant_id' instead of '-id' to match string primary key
+        queryset = Tenant.objects.select_related('unit__property').all().order_by('-tenant_id')
         status = self.request.query_params.get('status')
         property_filter = self.request.query_params.get('property')
         cluster = self.request.query_params.get('cluster')
