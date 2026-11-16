@@ -227,17 +227,39 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const editBtn = document.getElementById('btn-edit-user');
     if (editBtn) {
-      editBtn.onclick = () => {
-        alert(`Edit view triggered for ${displayName}`);
+      editBtn.onclick = async () => {
+        const name = prompt('Full name:', displayName);
+        if (name === null) return;
+        const email = prompt('Email address:', user.email || '');
+        if (email === null) return;
+        const username = prompt('Username:', user.username || '');
+        if (username === null) return;
+        try {
+          await fetchAPI(`/users/${user.id}/`, {
+            method: 'PATCH',
+            body: { full_name: name.trim(), email: email.trim(), username: username.trim() }
+          });
+          await loadUsers();
+          alert('User details updated.');
+        } catch (error) {
+          alert(`Failed to update user: ${error.message}`);
+        }
       };
     }
 
     const passBtn = document.getElementById('btn-change-password');
     if (passBtn) {
-      passBtn.onclick = () => {
-        const newPass = prompt(`Enter new password for ${displayName}:`);
-        if (newPass) {
-          alert('Password update request sent.');
+      passBtn.onclick = async () => {
+        const newPass = prompt(`Enter a new password for ${displayName}:`);
+        if (!newPass) return;
+        try {
+          await fetchAPI(`/users/${user.id}/`, {
+            method: 'PATCH',
+            body: { password: newPass }
+          });
+          alert('Password updated.');
+        } catch (error) {
+          alert(`Failed to update password: ${error.message}`);
         }
       };
     }

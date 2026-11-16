@@ -51,21 +51,49 @@ document.addEventListener('DOMContentLoaded', () => {
   const exportExcelBtn = document.getElementById('export-excel-btn');
   const exportPdfBtn = document.getElementById('export-pdf-btn');
 
+  function exportProperties() {
+    if (!currentProperties.length) {
+      alert('There are no properties to export.');
+      return;
+    }
+    const columns = ['Property ID', 'Name', 'Landlord', 'Location', 'Cluster', 'Units', 'Occupied Units', 'Status'];
+    const rows = currentProperties.map(item => [
+      item.property_id || item.propertyId || item.code || item.id || '',
+      item.name || item.propertyName || '',
+      typeof item.landlord === 'object' && item.landlord ? item.landlord.name || '' : item.landlord_name || item.landlord || '',
+      item.location || '',
+      item.cluster || '',
+      item.total_units ?? item.units_count ?? '',
+      item.occupied_units ?? '',
+      item.status || (item.is_active ? 'active' : 'inactive')
+    ]);
+    window.downloadCsv('properties.csv', columns, rows);
+  }
+
   if (exportExcelBtn) {
-    exportExcelBtn.addEventListener('click', () => {
-      window.open(`${API_BASE_URL}/properties/export/?format=excel`, '_blank');
+    exportExcelBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      exportProperties();
     });
   }
 
   if (exportPdfBtn) {
-    exportPdfBtn.addEventListener('click', () => {
-      window.open(`${API_BASE_URL}/properties/export/?format=pdf`, '_blank');
+    exportPdfBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      window.print();
     });
   }
 
   // 2. Fetch and Render Properties Table
   const tableBody = document.querySelector('#properties-table tbody');
   const searchInput = document.getElementById('table-search');
+  const tableInfo = document.getElementById('table-info');
+  const pagination = document.getElementById('properties-pagination');
+  const statusLinks = document.querySelectorAll('.status-link[data-status]');
+  let currentProperties = [];
+  let currentPage = 1;
+  let currentStatusFilter = 'active';
+  const rowsPerPage = 10;
 
   function renderTable(data) {
     if (!tableBody) return;
@@ -81,13 +109,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!Array.isArray(propertiesList)) {
       propertiesList = [];
     }
+    currentProperties = propertiesList;
+    const filteredProperties = propertiesList.filter(item => {
+      const status = String(item.status || (item.is_active ? 'active' : 'inactive')).toLowerCase();
+      return currentStatusFilter === 'active'
+        ? status === 'active'
+        : status === currentStatusFilter;
+    });
 
-    if (propertiesList.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:15px;">No properties found</td></tr>`;
+    if (filteredProperties.length === 0) {
+      currentPage = 1;
+      tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding:15px;">No ${currentStatusFilter} properties found</td></tr>`;
+      if (tableInfo) tableInfo.textContent = 'Showing 0 to 0 of 0 entries';
+      renderPagination(0);
       return;
     }
 
-    propertiesList.forEach((item, index) => {
+    const pageCount = Math.ceil(filteredProperties.length / rowsPerPage);
+    currentPage = Math.min(currentPage, pageCount);
+    const start = (currentPage - 1) * rowsPerPage;
+    const pageProperties = filteredProperties.slice(start, start + rowsPerPage);
+    pageProperties.forEach((item, index) => {
       if (!item || typeof item !== 'object') return;
 
       const row = document.createElement('tr');
@@ -115,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const stringLookupId = item.property_id || item.propertyId || item.code || item.id;
 
       row.innerHTML = `
-        <td>${index + 1}</td>
+        <td>${start + index + 1}</td>
         <td><strong><a href="property_detail.html?id=${stringLookupId}" class="link-dashed">${propId}</a></strong></td>
         <td>${propName}</td>
         <td>${landlordName}</td>
@@ -128,12 +170,64 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       tableBody.appendChild(row);
     });
+    if (tableInfo) {
+      tableInfo.textContent = `Showing ${start + 1} to ${Math.min(start + rowsPerPage, filteredProperties.length)} of ${filteredProperties.length} entries`;
+    }
+    renderPagination(pageCount);
+  }
+
+  function renderPagination(pageCount) {
+    if (!pagination) return;
+    const previousState = document.createElement('li');
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.className = 'page-btn';
+    prev.textContent = 'Previous';
+    prev.disabled = currentPage <= 1 || pageCount === 0;
+    prev.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        renderTable(currentProperties);
+      }
+    });
+    previousState.appendChild(prev);
+    pagination.replaceChildren(previousState);
+
+    for (let page = 1; page <= pageCount; page += 1) {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `page-btn ${page === currentPage ? 'active' : ''}`;
+      button.textContent = String(page);
+      button.addEventListener('click', () => {
+        currentPage = page;
+        renderTable(currentProperties);
+      });
+      item.appendChild(button);
+      pagination.appendChild(item);
+    }
+
+    const nextState = document.createElement('li');
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'page-btn';
+    next.textContent = 'Next';
+    next.disabled = currentPage >= pageCount;
+    next.addEventListener('click', () => {
+      if (currentPage < pageCount) {
+        currentPage += 1;
+        renderTable(currentProperties);
+      }
+    });
+    nextState.appendChild(next);
+    pagination.appendChild(nextState);
   }
 
   async function loadProperties(searchQuery = '') {
     try {
       const queryParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
       const response = await fetchAPI(`/properties/${queryParam}`);
+      currentPage = 1;
       renderTable(response);
     } catch (err) {
       console.error('Failed to load properties:', err);
@@ -141,6 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
         tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:red; padding:15px;">Error loading properties: ${err.message}</td></tr>`;
       }
     }
+  }
+
+  const agreementsBtn = document.getElementById('properties-agreements-btn');
+  if (agreementsBtn) {
+    agreementsBtn.addEventListener('click', () => {
+      window.location.href = 'tenants.html?show=agreements';
+    });
   }
 
   if (searchInput) {
@@ -151,6 +252,16 @@ document.addEventListener('DOMContentLoaded', () => {
       debounceTimer = setTimeout(() => loadProperties(query), 300);
     });
   }
+
+  statusLinks.forEach(link => {
+    link.addEventListener('click', event => {
+      event.preventDefault();
+      currentStatusFilter = link.dataset.status;
+      currentPage = 1;
+      statusLinks.forEach(statusLink => statusLink.classList.toggle('active', statusLink === link));
+      renderTable(currentProperties);
+    });
+  });
 
   // 3. Add Property Modal & Form Handling
   const addPropertyBtn = document.getElementById('add-property-btn');
@@ -221,7 +332,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (!openBtn || !modal) return;
 
-    let availableItems = config.initialItems;
+    let availableItems = config.initialItems.map(name => ({
+      id: null,
+      name,
+      is_active: config.defaultSelected.includes(name)
+    }));
     let selectedItems = new Set(config.defaultSelected);
 
     function renderChips() {
@@ -229,13 +344,13 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
       availableItems.forEach(item => {
         const chip = document.createElement('div');
-        chip.className = `chip-option ${selectedItems.has(item) ? 'selected' : ''}`;
-        chip.textContent = item;
+        chip.className = `chip-option ${selectedItems.has(item.name) ? 'selected' : ''}`;
+        chip.textContent = item.name;
         chip.addEventListener('click', () => {
-          if (selectedItems.has(item)) {
-            selectedItems.delete(item);
+          if (selectedItems.has(item.name)) {
+            selectedItems.delete(item.name);
           } else {
-            selectedItems.add(item);
+            selectedItems.add(item.name);
           }
           renderChips();
         });
@@ -245,9 +360,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const closeModal = () => modal.classList.remove('active');
 
-    openBtn.addEventListener('click', () => {
-      renderChips();
-      modal.classList.add('active');
+    openBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetchAPI(`/properties/unit-options/?kind=${config.kind}`);
+        const savedOptions = response.results || response;
+        if (!Array.isArray(savedOptions)) throw new Error('Unexpected unit option response.');
+        availableItems = config.initialItems.map(name => {
+          const savedOption = savedOptions.find(option => option.name.toLowerCase() === name.toLowerCase());
+          return savedOption || {
+            id: null,
+            name,
+            is_active: config.defaultSelected.includes(name)
+          };
+        });
+        savedOptions.forEach(option => {
+          if (!availableItems.some(item => item.name.toLowerCase() === option.name.toLowerCase())) {
+            availableItems.push(option);
+          }
+        });
+        selectedItems = new Set(availableItems.filter(item => item.is_active).map(item => item.name));
+        renderChips();
+        modal.classList.add('active');
+      } catch (error) {
+        alert(`Failed to load unit options: ${error.message}`);
+      }
     });
 
     if (closeBtn) closeBtn.addEventListener('click', closeModal);
@@ -256,29 +392,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (addBtn && input) {
       addBtn.addEventListener('click', async () => {
         const val = input.value.trim();
-        if (val && !availableItems.includes(val)) {
-          availableItems.push(val);
-          selectedItems.add(val);
-          input.value = '';
-          renderChips();
-
-          if (config.apiEndpoint) {
-            try {
-              await fetchAPI(config.apiEndpoint, {
-                method: 'POST',
-                body: { name: val }
-              });
-            } catch (err) {
-              console.warn('Backend tag sync note:', err.message);
-            }
-          }
-        }
+        if (!val || availableItems.some(item => item.name.toLowerCase() === val.toLowerCase())) return;
+        availableItems.push({ id: null, name: val, is_active: true });
+        selectedItems.add(val);
+        input.value = '';
+        renderChips();
       });
     }
 
     if (applyBtn) {
-      applyBtn.addEventListener('click', () => {
-        closeModal();
+      applyBtn.addEventListener('click', async () => {
+        try {
+          const savedOptions = await fetchAPI('/properties/unit-options/sync/', {
+            method: 'POST',
+            body: {
+              kind: config.kind,
+              options: availableItems.map(item => ({
+                id: item.id,
+                name: item.name,
+                is_active: selectedItems.has(item.name)
+              }))
+            }
+          });
+          availableItems = savedOptions;
+          selectedItems = new Set(savedOptions.filter(item => item.is_active).map(item => item.name));
+          closeModal();
+        } catch (error) {
+          alert(`Failed to save unit options: ${error.message}`);
+        }
       });
     }
 
@@ -298,21 +439,21 @@ document.addEventListener('DOMContentLoaded', () => {
     addBtnId: 'addTypeBtn',
     initialItems: ['Residential', 'Commercial', 'Industrial', 'Mixed Use', 'Bedsitter', 'Single Room'],
     defaultSelected: ['Residential'],
-    apiEndpoint: '/properties/unit-types/'
+    kind: 'type'
   });
 
   setupTagModal({
     openBtnId: 'open-unit-cat-btn',
     modalId: 'unitCatModal',
     closeBtnId: 'closeCatModalBtn',
-    cancelBtnId: 'closeCatModalBtn',
+    cancelBtnId: 'cancelCatModalBtn',
     applyBtnId: 'applyCatModalBtn',
     gridId: 'unitCatGrid',
     inputId: 'newCatName',
     addBtnId: 'addCatBtn',
     initialItems: ['Standard', 'Executive', 'Deluxe', 'Economy', 'Residential'],
     defaultSelected: ['Standard'],
-    apiEndpoint: '/properties/unit-categories/'
+    kind: 'category'
   });
 
   loadProperties();

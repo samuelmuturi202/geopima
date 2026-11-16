@@ -1,6 +1,7 @@
 import uuid
 from django.db import models
 from django.utils import timezone
+from django.core.validators import FileExtensionValidator
 
 
 class Landlord(models.Model):
@@ -74,6 +75,41 @@ class Property(models.Model):
         return self.name
 
 
+class PropertyAgreement(models.Model):
+    property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='agreements')
+    agreement_file = models.FileField(
+        upload_to='property_agreements/',
+        validators=[FileExtensionValidator(['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'])],
+    )
+    description = models.CharField(max_length=255)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-start_date', '-id']
+
+    def save(self, *args, **kwargs):
+        previous_file = None
+        if self.pk:
+            previous_file = type(self).objects.filter(pk=self.pk).values_list(
+                'agreement_file', flat=True
+            ).first()
+        super().save(*args, **kwargs)
+        if previous_file and previous_file != self.agreement_file.name:
+            self.agreement_file.storage.delete(previous_file)
+
+    def delete(self, *args, **kwargs):
+        file_name = self.agreement_file.name
+        result = super().delete(*args, **kwargs)
+        if file_name:
+            self.agreement_file.storage.delete(file_name)
+        return result
+
+    def __str__(self):
+        return f'{self.property.name} - {self.description}'
+
+
 class Unit(models.Model):
     unit_no = models.CharField(max_length=50)
     unit_name = models.CharField(max_length=100)
@@ -114,6 +150,32 @@ class Unit(models.Model):
 
     def __str__(self):
         return f"{self.property.name} - Unit {self.unit_name}"
+
+
+class UnitOption(models.Model):
+    KIND_CHOICES = [
+        ('type', 'Unit type'),
+        ('category', 'Unit category'),
+    ]
+
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES)
+    name = models.CharField(max_length=50)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['kind', 'name']
+        constraints = [
+            models.UniqueConstraint(fields=['kind', 'name'], name='unique_unit_option_kind_name'),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.name = (self.name or '').strip()
+        if not self.name:
+            raise ValueError('Unit option name cannot be blank.')
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.get_kind_display()}: {self.name}"
 
 
 class MpesaTransaction(models.Model):
@@ -169,4 +231,7 @@ class PaymentAllocation(models.Model):
 
 PropertyUnit = Unit
 
-__all__ = ['Landlord', 'Property', 'Unit', 'PropertyUnit', 'MpesaTransaction', 'PaymentAllocation']
+__all__ = [
+    'Landlord', 'Property', 'PropertyAgreement', 'Unit', 'UnitOption',
+    'PropertyUnit', 'MpesaTransaction', 'PaymentAllocation',
+]

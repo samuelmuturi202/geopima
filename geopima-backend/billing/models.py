@@ -50,6 +50,26 @@ class Deposit(models.Model):
         return f"{self.deposit_code} - {self.tenant}"
 
 
+class CoopStatementUpload(models.Model):
+    file_name = models.CharField(max_length=255)
+    content_hash = models.CharField(max_length=64, unique=True)
+    entries = models.JSONField(default=list)
+    uploaded_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='coop_statement_uploads',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.file_name} ({len(self.entries)} entries)"
+
+
 class SmartAliasTransaction(models.Model):
     """Logs incoming webhook payloads from Credit Bank Smart Alias collection."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -111,11 +131,23 @@ class Invoice(models.Model):
 
     @property
     def subtotal(self) -> Decimal:
-        return sum(item.amount for item in self.items.all())
+        return sum(
+            item.amount
+            for item in self.items.all()
+            if not (item.item_type == 'Discount' and item.amount < 0)
+        )
+
+    @property
+    def discount_total(self) -> Decimal:
+        return sum(
+            -item.amount
+            for item in self.items.filter(item_type='Discount')
+            if item.amount < 0
+        )
 
     @property
     def net_total(self) -> Decimal:
-        return self.subtotal
+        return self.subtotal - self.discount_total
 
     @property
     def rent_paid(self) -> Decimal:
@@ -184,8 +216,11 @@ class InvoiceItem(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                condition=models.Q(amount__gte=0),
-                name='invoice_item_amount_nonnegative',
+                condition=(
+                    models.Q(item_type='Discount')
+                    | (~models.Q(item_type='Discount') & models.Q(amount__gte=0))
+                ),
+                name='invoice_item_amount_matches_type',
             ),
         ]
 

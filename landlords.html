@@ -66,12 +66,12 @@
 
         <li><a href="properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
         <li><a href="unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="tenants.html"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="communication.html"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><span class="nav-link" aria-disabled="true" title="Expenditure is not available yet"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></span></li>
+        <li><a href="configuration.html"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><span class="nav-link" aria-disabled="true" title="Closed Reports is not available yet"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></span></li>
+        <li><span class="nav-link" aria-disabled="true" title="Report Center is not available yet"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></span></li>
       </ul>
     </aside>
 
@@ -112,9 +112,9 @@
                   <i class="fa-solid fa-filter"></i> Status <i class="fa-solid fa-caret-down"></i>
                 </button>
                 <div class="dropdown-menu" id="status-dropdown-menu">
-                  <a href="#" class="dropdown-item active">Active</a>
-                  <a href="#" class="dropdown-item">Inactive</a>
-                  <a href="#" class="dropdown-item">All</a>
+                  <a href="#" class="dropdown-item active" data-status="active">Active</a>
+                  <a href="#" class="dropdown-item" data-status="inactive">Inactive</a>
+                  <a href="#" class="dropdown-item" data-status="all">All</a>
                 </div>
               </div>
 
@@ -123,9 +123,9 @@
                   <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i>
                 </button>
                 <div class="dropdown-menu" id="export-dropdown-menu">
-                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-excel"></i> Excel</a>
-                  <a href="#" class="dropdown-item"><i class="fa-solid fa-file-pdf"></i> PDF</a>
-                  <a href="#" class="dropdown-item"><i class="fa-solid fa-print"></i> Print</a>
+                  <a href="#" class="dropdown-item" id="export-landlords-csv"><i class="fa-solid fa-file-excel"></i> Excel-compatible CSV</a>
+                  <a href="#" class="dropdown-item" id="export-landlords-pdf"><i class="fa-solid fa-file-pdf"></i> Print / PDF</a>
+                  <a href="#" class="dropdown-item" id="print-landlords"><i class="fa-solid fa-print"></i> Print</a>
                 </div>
               </div>
             </div>
@@ -174,11 +174,7 @@
             <!-- Table Footer Pagination -->
             <div class="table-footer">
               <div class="table-info" id="table-info">Showing 0 entries</div>
-              <ul class="pagination">
-                <li><button class="page-btn disabled">Previous</button></li>
-                <li><button class="page-btn active">1</button></li>
-                <li><button class="page-btn disabled">Next</button></li>
-              </ul>
+              <ul class="pagination" id="landlords-pagination"></ul>
             </div>
 
           </div>
@@ -208,9 +204,10 @@
             <i class="fa-solid fa-user-plus"></i>
             <span>Create New Landlord</span>
           </div>
-          <button type="button" class="btn btn-import">
+          <button type="button" class="btn btn-import" id="import-landlords-btn">
             <i class="fa-solid fa-file-import"></i> import from csv
           </button>
+          <input type="file" id="landlords-csv-file" accept=".csv,text/csv" hidden>
         </div>
 
         <form id="create-landlord-form" class="modal-card-body">
@@ -294,12 +291,7 @@
               <label for="account_number">Account Number</label>
             </div>
 
-            <!-- Row 6: Image Input -->
-            <div class="form-group file-input-group">
-              <input type="file" id="landlord_image" name="landlord_image" accept="image/*">
-              <label for="landlord_image">Image</label>
-            </div>
-
+            <div class="form-group empty-cell"></div>
             <div class="form-group empty-cell"></div>
             <div class="form-group empty-cell"></div>
 

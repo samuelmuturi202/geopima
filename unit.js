@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('table-search');
   const entriesSelect = document.getElementById('entries-per-page');
   const tableInfo = document.getElementById('table-info');
+  const previousBtn = document.getElementById('btn-prev');
+  const nextBtn = document.getElementById('btn-next');
+  const pageNumbers = document.getElementById('page-numbers');
   const exportBtn = document.getElementById('export-btn');
   const exportMenu = document.getElementById('export-menu');
 
@@ -90,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const response = await fetchAPI(`/properties/units/?${params.toString()}`);
       const units = response.results || response;
-      const totalCount = response.count || units.length;
+      const totalCount = response.count ?? units.length;
 
       renderTable(units, totalCount);
     } catch (err) {
@@ -105,6 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!items || items.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="10" style="text-align:center; padding: 20px;">No units found matching criteria.</td></tr>`;
       if (tableInfo) tableInfo.textContent = 'Showing 0 to 0 of 0 entries';
+      renderPagination(0);
       return;
     }
 
@@ -115,16 +119,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const unitId = row.id;
       const unitNo = row.unitNo || row.unit_number || row.unit_no || '';
       const unitName = row.unitName || row.name || row.unit_name || '';
+      const propertyName = row.property_name || row.property || '-';
+      const landlordName = row.landlord_name || row.landlord || '-';
+      const tenantName = row.tenant_name || row.tenant || 'Vacant';
       
       tr.innerHTML = `
         <td>${start + index + 1}</td>
         <td><a href="unit_detail.html?id=${unitId}" class="link-code">${unitNo}</a></td>
         <td>${unitName}</td>
-        <td><a href="#" class="link-text">${row.property || row.property_name || '-'}</a></td>
-        <td><a href="#" class="link-text">${row.landlord || row.landlord_name || '-'}</a></td>
+        <td>${row.property_id ? `<a href="property_detail.html?id=${encodeURIComponent(row.property_id)}" class="link-text">${propertyName}</a>` : propertyName}</td>
+        <td>${row.landlord_id ? `<a href="landlord-details.html?id=${encodeURIComponent(row.landlord_id)}" class="link-text">${landlordName}</a>` : landlordName}</td>
         <td>${row.unitType || row.unit_type || 'Single Room'}</td>
         <td>${row.unitCategory || row.category || 'Residential'}</td>
-        <td><a href="#" class="link-text">${row.tenant || row.tenant_name || 'Vacant'}</a></td>
+        <td>${row.tenant && tenantName !== 'Vacant' ? `<a href="tenant-detail.html?id=${encodeURIComponent(row.tenant)}" class="link-text">${tenantName}</a>` : tenantName}</td>
         <td class="text-center"><span class="badge-outline-occupied">${row.vacancy || (row.is_occupied ? 'occupied' : 'vacant')}</span></td>
         <td class="text-center"><span class="badge-solid-active">${(row.status || 'Active').toLowerCase()}</span></td>
       `;
@@ -135,6 +142,51 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tableInfo) {
       tableInfo.textContent = `Showing ${start + 1} to ${actualEnd} of ${totalEntries} entries`;
     }
+    renderPagination(totalEntries);
+  }
+
+  function renderPagination(totalEntries) {
+    const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    if (previousBtn) {
+      previousBtn.disabled = currentPage <= 1 || totalPages === 0;
+      previousBtn.classList.toggle('disabled', previousBtn.disabled);
+    }
+    if (nextBtn) {
+      nextBtn.disabled = currentPage >= totalPages || totalPages === 0;
+      nextBtn.classList.toggle('disabled', nextBtn.disabled);
+    }
+    if (!pageNumbers) return;
+
+    pageNumbers.replaceChildren();
+    for (let page = 1; page <= totalPages; page += 1) {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `page-btn${page === currentPage ? ' active' : ''}`;
+      button.textContent = String(page);
+      button.setAttribute('aria-label', `Page ${page}`);
+      button.setAttribute('aria-current', page === currentPage ? 'page' : 'false');
+      button.addEventListener('click', () => {
+        if (page === currentPage) return;
+        currentPage = page;
+        loadUnits();
+      });
+      pageNumbers.appendChild(button);
+    }
+  }
+
+  if (previousBtn) {
+    previousBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        loadUnits();
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      currentPage += 1;
+      loadUnits();
+    });
   }
 
   if (exportBtn && exportMenu) {

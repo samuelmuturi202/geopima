@@ -62,12 +62,12 @@
 
         <li class="active"><a href="properties.html"><i class="fa-solid fa-house"></i> Properties <i class="fa-solid fa-chevron-right chevron"></i></a></li>
         <li><a href="unit.html"><i class="fa-solid fa-sitemap"></i> Units <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></a></li>
-        <li><a href="#"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="tenants.html"><i class="fa-solid fa-users"></i> Tenants <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><a href="communication.html"><i class="fa-solid fa-bullhorn"></i> Communication <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><span class="nav-link" aria-disabled="true" title="Expenditure is not available yet"><i class="fa-solid fa-coins"></i> Expenditure <i class="fa-solid fa-chevron-left chevron"></i></span></li>
+        <li><a href="configuration.html"><i class="fa-solid fa-gear"></i> Configurations <i class="fa-solid fa-chevron-right chevron"></i></a></li>
+        <li><span class="nav-link" aria-disabled="true" title="Closed Reports is not available yet"><i class="fa-solid fa-chart-bar"></i> Closed Reports <i class="fa-solid fa-chevron-left chevron"></i></span></li>
+        <li><span class="nav-link" aria-disabled="true" title="Report Center is not available yet"><i class="fa-solid fa-chart-pie"></i> Report Center <i class="fa-solid fa-chevron-right chevron"></i></span></li>
       </ul>
     </aside>
 
@@ -93,8 +93,8 @@
           </div>
           <div class="title-right">
             <div class="status-links">
-              <a href="#" class="status-link active">active</a> / 
-              <a href="#" class="status-link">suspended</a>
+              <a href="#" class="status-link active" data-status="active">active</a> /
+              <a href="#" class="status-link" data-status="suspended">suspended</a>
             </div>
             <div class="top-action-buttons">
               <button class="btn btn-navy-solid" id="open-unit-type-btn"><i class="fa-solid fa-plus"></i> Unit Type</button>
@@ -113,15 +113,15 @@
               <button class="btn btn-navy-solid" id="add-property-btn">
                 <i class="fa-solid fa-plus"></i> Add Property
               </button>
-              <button class="btn btn-navy-solid">Agreements List</button>
+              <button class="btn btn-navy-solid" id="properties-agreements-btn">Agreements List</button>
               
               <div class="dropdown-container">
                 <button class="btn btn-cyan dropdown-toggle" id="export-btn">
                   <i class="fa-solid fa-download"></i> Export <i class="fa-solid fa-caret-down"></i>
                 </button>
                 <div class="dropdown-menu" id="export-dropdown-menu">
-                  <a href="#" class="dropdown-item" id="export-excel-btn"><i class="fa-solid fa-file-excel"></i> Excel</a>
-                  <a href="#" class="dropdown-item" id="export-pdf-btn"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+                  <a href="#" class="dropdown-item" id="export-excel-btn"><i class="fa-solid fa-file-excel"></i> CSV (Excel-compatible)</a>
+                  <a href="#" class="dropdown-item" id="export-pdf-btn"><i class="fa-solid fa-file-pdf"></i> Print / Save as PDF</a>
                   <a href="#" class="dropdown-item" id="export-print-btn"><i class="fa-solid fa-print"></i> Print</a>
                 </div>
               </div>
@@ -170,10 +170,10 @@
 
             <div class="table-footer">
               <div class="table-info" id="table-info">Showing entries</div>
-              <ul class="pagination">
-                <li><button class="page-btn">Previous</button></li>
+              <ul class="pagination" id="properties-pagination">
+                <li><button class="page-btn" id="properties-prev-btn">Previous</button></li>
                 <li><button class="page-btn active">1</button></li>
-                <li><button class="page-btn">Next</button></li>
+                <li><button class="page-btn" id="properties-next-btn">Next</button></li>
               </ul>
             </div>
 

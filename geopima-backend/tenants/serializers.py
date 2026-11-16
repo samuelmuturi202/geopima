@@ -9,7 +9,10 @@ class TenantSerializer(serializers.ModelSerializer):
     smart_alias = serializers.ReadOnlyField()
     contact = serializers.CharField(source='phone_number', read_only=True)
     property_name = serializers.ReadOnlyField(source='unit.property.name', default=None)
+    property_id = serializers.ReadOnlyField(source='unit.property.property_id', default=None)
     unit_name = serializers.ReadOnlyField(source='unit.unit_name', default=None)
+    unit_id = serializers.ReadOnlyField(default=None)
+    landlord_id = serializers.ReadOnlyField(source='unit.property.landlord_id', default=None)
     landlord_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -25,7 +28,10 @@ class TenantSerializer(serializers.ModelSerializer):
             'contact',
             'unit',
             'property_name',
+            'property_id',
             'unit_name',
+            'unit_id',
+            'landlord_id',
             'landlord_name',
             'entry_date',
             'due_date',

@@ -400,7 +400,7 @@
           </div>
 
           <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-            <button class="badge-status-pill" id="sidebar-status-pill">Property is active</button>
+            <span class="badge-status-pill" id="sidebar-status-pill" style="display:inline-block;padding:6px 12px;border-radius:4px;color:#fff;cursor:default;">Property is active</span>
             <button class="action-btn-block" id="edit-property-btn"><i class="fa-solid fa-pen"></i> Edit Property</button>
             <button class="action-btn-block" id="suspend-property-btn"><i class="fa-solid fa-ban"></i> Suspend Property</button>
             <button class="action-btn-block action-btn-danger" id="delete-property-btn"><i class="fa-solid fa-trash"></i> Delete Property</button>
@@ -458,7 +458,7 @@
                     <th>ACTIONS</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="property-agreements-tbody">
                   <tr><td colspan="7" style="text-align: center; padding: 20px; color: #a0aec0;">No agreements available for this property</td></tr>
                 </tbody>
               </table>
@@ -541,7 +541,7 @@
     <div class="modal-card add-units-modal-card">
       <div class="add-units-header-row">
         <span id="modal-add-unit-title">ADD UNITS TO &gt;&gt; --</span>
-        <span style="font-size: 12px; font-weight: normal; color: #718096;"><a href="#" id="close-add-unit-modal-top" style="color: #4a5568; text-decoration: none;">Home / Properties</a></span>
+        <button type="button" id="close-add-unit-modal-top" class="btn-modal-close">Close</button>
       </div>
 
       <form id="add-unit-form">
@@ -623,6 +623,40 @@
     </div>
   </div>
 
+  <div class="modal-overlay" id="property-agreement-modal">
+    <div class="modal-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 id="property-agreement-modal-title">Add Property Agreement</h3>
+        <button type="button" class="btn-modal-cancel" id="close-property-agreement-modal" aria-label="Close agreement form">&times;</button>
+      </div>
+      <form id="property-agreement-form" style="display:flex;flex-direction:column;gap:12px;">
+        <input type="hidden" id="property-agreement-id">
+        <div class="form-group">
+          <label for="property-agreement-description">Description</label>
+          <input type="text" id="property-agreement-description" maxlength="255" required>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <div class="form-group">
+            <label for="property-agreement-start">Start date</label>
+            <input type="date" id="property-agreement-start" required>
+          </div>
+          <div class="form-group">
+            <label for="property-agreement-end">End date</label>
+            <input type="date" id="property-agreement-end" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="property-agreement-file">Agreement file (PDF, DOC, DOCX, JPG or PNG; max 10 MB)</label>
+          <input type="file" id="property-agreement-file" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn-modal-cancel" id="cancel-property-agreement">Cancel</button>
+          <button type="submit" class="btn-modal-save">Save Agreement</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- JavaScript Implementation -->
   <script src="js/api.js"></script>
   <script>
@@ -641,7 +675,7 @@
       async function fetchAPI(endpoint, options = {}) {
         const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
         const headers = {
-          'Content-Type': 'application/json',
+          ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),
           ...(token && { 'Authorization': `Bearer ${token}` }),
           ...options.headers
         };
@@ -693,9 +727,185 @@
 
       let currentPropertyData = {};
       let existingUnitsCount = 0;
+      const propertyAgreementsBody = document.getElementById('property-agreements-tbody');
+      const agreementModal = document.getElementById('property-agreement-modal');
+      const agreementForm = document.getElementById('property-agreement-form');
+      const agreementFileInput = document.getElementById('property-agreement-file');
+      const agreementIdInput = document.getElementById('property-agreement-id');
+      const agreementDescriptionInput = document.getElementById('property-agreement-description');
+      const agreementStartInput = document.getElementById('property-agreement-start');
+      const agreementEndInput = document.getElementById('property-agreement-end');
+      const agreementModalTitle = document.getElementById('property-agreement-modal-title');
+
+      function closeAgreementModal() {
+        agreementModal.classList.remove('active');
+      }
+
+      function renderPropertyAgreements(agreements) {
+        if (!propertyAgreementsBody) return;
+        propertyAgreementsBody.replaceChildren();
+
+        if (!agreements.length) {
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 7;
+          cell.textContent = 'No agreements available for this property';
+          cell.style.cssText = 'text-align:center;padding:20px;color:#a0aec0;';
+          row.appendChild(cell);
+          propertyAgreementsBody.appendChild(row);
+          return;
+        }
+
+        agreements.forEach((agreement, index) => {
+          const row = document.createElement('tr');
+          const numberCell = document.createElement('td');
+          numberCell.textContent = String(index + 1);
+          row.appendChild(numberCell);
+
+          const fileCell = document.createElement('td');
+          if (agreement.file_url) {
+            const downloadButton = document.createElement('button');
+            downloadButton.type = 'button';
+            downloadButton.className = 'btn btn-cyan';
+            downloadButton.textContent = agreement.file_name || 'Download';
+            downloadButton.addEventListener('click', async () => {
+              const token = localStorage.getItem('access_token')
+                || localStorage.getItem('token')
+                || localStorage.getItem('access');
+              try {
+                const response = await fetch(agreement.file_url, {
+                  headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+                });
+                if (!response.ok) throw new Error(response.statusText || 'Download failed.');
+                const fileUrl = URL.createObjectURL(await response.blob());
+                const link = document.createElement('a');
+                link.href = fileUrl;
+                link.download = agreement.file_name || `agreement-${agreement.id}`;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(fileUrl), 60000);
+              } catch (error) {
+                alert(`Failed to download agreement: ${error.message}`);
+              }
+            });
+            fileCell.appendChild(downloadButton);
+          } else {
+            fileCell.textContent = 'No file';
+          }
+          row.appendChild(fileCell);
+
+          [agreement.description, agreement.start_date, agreement.end_date, agreement.status]
+            .forEach(value => {
+              const cell = document.createElement('td');
+              cell.textContent = value || '-';
+              row.appendChild(cell);
+            });
+
+          const actionsCell = document.createElement('td');
+          const editButton = document.createElement('button');
+          editButton.type = 'button';
+          editButton.className = 'btn btn-cyan';
+          editButton.textContent = 'Edit';
+          editButton.addEventListener('click', () => {
+            agreementForm.reset();
+            agreementIdInput.value = agreement.id;
+            agreementDescriptionInput.value = agreement.description || '';
+            agreementStartInput.value = agreement.start_date || '';
+            agreementEndInput.value = agreement.end_date || '';
+            agreementFileInput.required = false;
+            agreementModalTitle.textContent = 'Edit Property Agreement';
+            agreementModal.classList.add('active');
+          });
+          actionsCell.appendChild(editButton);
+
+          const deleteButton = document.createElement('button');
+          deleteButton.type = 'button';
+          deleteButton.className = 'btn';
+          deleteButton.textContent = 'Delete';
+          deleteButton.style.cssText = 'margin-left:6px;background:#dc3545;color:#fff;';
+          deleteButton.addEventListener('click', async () => {
+            if (!confirm(`Delete the agreement "${agreement.description}"?`)) return;
+            try {
+              await fetchAPI(`/properties/property-agreements/${agreement.id}/`, { method: 'DELETE' });
+              await loadPropertyAgreements();
+            } catch (error) {
+              alert(`Failed to delete agreement: ${error.message}`);
+            }
+          });
+          actionsCell.appendChild(deleteButton);
+          row.appendChild(actionsCell);
+          propertyAgreementsBody.appendChild(row);
+        });
+      }
+
+      async function loadPropertyAgreements() {
+        const response = await fetchAPI(
+          `/properties/property-agreements/?property=${encodeURIComponent(currentPropertyData.id)}`
+        );
+        const agreements = response.results || response;
+        if (!Array.isArray(agreements)) {
+          throw new Error('Unexpected property agreements response.');
+        }
+        renderPropertyAgreements(agreements);
+      }
+
+      const addAgreementBtn = document.getElementById('add-agreement-btn');
+      const closeAgreementBtn = document.getElementById('close-property-agreement-modal');
+      const cancelAgreementBtn = document.getElementById('cancel-property-agreement');
+
+      if (addAgreementBtn) {
+        addAgreementBtn.disabled = true;
+        addAgreementBtn.addEventListener('click', () => {
+          agreementForm.reset();
+          agreementIdInput.value = '';
+          agreementFileInput.required = true;
+          agreementModalTitle.textContent = 'Add Property Agreement';
+          agreementModal.classList.add('active');
+        });
+      }
+      if (closeAgreementBtn) closeAgreementBtn.addEventListener('click', closeAgreementModal);
+      if (cancelAgreementBtn) cancelAgreementBtn.addEventListener('click', closeAgreementModal);
+      if (agreementModal) {
+        agreementModal.addEventListener('click', event => {
+          if (event.target === agreementModal) closeAgreementModal();
+        });
+      }
+      if (agreementForm) {
+        agreementForm.addEventListener('submit', async event => {
+          event.preventDefault();
+          const agreementId = agreementIdInput.value;
+          const formData = new FormData();
+          formData.append('property', currentPropertyData.id);
+          formData.append('description', agreementDescriptionInput.value.trim());
+          formData.append('start_date', agreementStartInput.value);
+          formData.append('end_date', agreementEndInput.value);
+          if (agreementFileInput.files[0]) {
+            formData.append('agreement_file', agreementFileInput.files[0]);
+          }
+
+          const submitButton = agreementForm.querySelector('button[type="submit"]');
+          submitButton.disabled = true;
+          try {
+            await fetchAPI(
+              agreementId
+                ? `/properties/property-agreements/${agreementId}/`
+                : '/properties/property-agreements/',
+              { method: agreementId ? 'PATCH' : 'POST', body: formData }
+            );
+            closeAgreementModal();
+            await loadPropertyAgreements();
+          } catch (error) {
+            alert(`Failed to save agreement: ${error.message}`);
+          } finally {
+            submitButton.disabled = false;
+          }
+        });
+      }
 
       try {
         currentPropertyData = await fetchAPI(`/properties/${propertyId}/`);
+        if (addAgreementBtn) addAgreementBtn.disabled = false;
         
         const propertyNoText = currentPropertyData.property_id || currentPropertyData.code || `WP0${currentPropertyData.id}`;
         document.getElementById('sidebar-prop-no').textContent = propertyNoText;
@@ -778,6 +988,18 @@
             `;
             unitsTbody.appendChild(tr);
           });
+        }
+
+        try {
+          await loadPropertyAgreements();
+        } catch (error) {
+          const row = document.createElement('tr');
+          const cell = document.createElement('td');
+          cell.colSpan = 7;
+          cell.textContent = `Failed to load agreements: ${error.message}`;
+          cell.style.cssText = 'text-align:center;padding:20px;color:#dc3545;';
+          row.appendChild(cell);
+          propertyAgreementsBody.replaceChildren(row);
         }
 
       } catch (err) {

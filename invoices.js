@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const API_BASE_URL = 'https://geopima.onrender.com/api/v1'; // Update to http://127.0.0.1:8000/api/v1 if testing locally
+  const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
   async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('access_token');
@@ -14,11 +14,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   const tbody = document.getElementById('invoice-tbody');
+  const entriesSelect = document.getElementById('entries-select');
+  const pageInfo = document.getElementById('invoice-page-info');
+  const previousBtn = document.getElementById('invoice-prev-btn');
+  const nextBtn = document.getElementById('invoice-next-btn');
   let currentInvoices = [];
   let currentFilterStatus = 'ALL';
   let currentFilterProperty = 'ALL';
   let currentFilterCluster = 'ALL';
   let currentFilterPeriod = 'ALL';
+  let rowsPerPage = Number(entriesSelect?.value || 25);
+  let currentPage = 1;
 
   // Automated Scrollable Period Generator (From August 2025 onwards)
   function populatePeriodDropdown() {
@@ -77,45 +83,58 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!tbody) return;
     tbody.innerHTML = '';
 
-    if (!data || data.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="15" style="text-align:center; padding:15px;">No invoices found</td></tr>`;
-      return;
-    }
-
-    data.forEach((item, index) => {
+    const filteredData = (data || []).filter(item => {
       const balance = Number(item.balance || 0);
       const paid = Number(item.paid || item.rent_paid || 0);
-      const expected = Number(item.expected || item.net_total || 0);
       const arrears = Number(item.arrears || 0);
-
       const isCleared = balance <= 0 || item.status === 'paid';
       const isOverpaid = balance < 0;
       const hasBalances = balance > 0;
       const hasArrears = arrears > 0;
       const isNotPaid = paid === 0;
 
-      // Filter Logic Evaluation
-      if (currentFilterProperty !== 'ALL' && item.property !== currentFilterProperty) return;
-      if (currentFilterCluster !== 'ALL' && item.cluster !== currentFilterCluster) return;
-      if (currentFilterPeriod !== 'ALL' && item.period !== currentFilterPeriod) return;
+      return (currentFilterProperty === 'ALL' || item.property === currentFilterProperty)
+        && (currentFilterCluster === 'ALL' || item.cluster === currentFilterCluster)
+        && (currentFilterPeriod === 'ALL' || item.period === currentFilterPeriod)
+        && (currentFilterStatus !== 'cleared' || isCleared)
+        && (currentFilterStatus !== 'overpaid' || isOverpaid)
+        && (currentFilterStatus !== 'with-balances' || hasBalances)
+        && (currentFilterStatus !== 'with-arrears' || hasArrears)
+        && (currentFilterStatus !== 'not-paid' || isNotPaid);
+    });
 
-      if (currentFilterStatus === 'cleared' && !isCleared) return;
-      if (currentFilterStatus === 'overpaid' && !isOverpaid) return;
-      if (currentFilterStatus === 'with-balances' && !hasBalances) return;
-      if (currentFilterStatus === 'with-arrears' && !hasArrears) return;
-      if (currentFilterStatus === 'not-paid' && !isNotPaid) return;
+    if (!filteredData.length) {
+      currentPage = 1;
+      tbody.innerHTML = `<tr><td colspan="15" style="text-align:center; padding:15px;">No invoices found</td></tr>`;
+      if (pageInfo) pageInfo.textContent = 'Showing 0 to 0 of 0 entries';
+      updatePagination(0);
+      return;
+    }
+
+    const pageCount = Math.ceil(filteredData.length / rowsPerPage);
+    currentPage = Math.min(currentPage, pageCount);
+    const start = (currentPage - 1) * rowsPerPage;
+    const pageData = filteredData.slice(start, start + rowsPerPage);
+    pageData.forEach((item, index) => {
+      const balance = Number(item.balance || 0);
+      const paid = Number(item.paid || item.rent_paid || 0);
+      const expected = Number(item.expected || item.net_total || 0);
+      const arrears = Number(item.arrears || 0);
+
+      const isCleared = balance <= 0 || item.status === 'paid';
 
       const statusLabel = isCleared ? 'cleared' : 'not-cleared';
       const statusText = isCleared ? 'cleared' : 'not cleared';
 
       const invoiceNo = item.invoice_no || item.invoice_number || 'INV000001';
-      const invoiceId = item.id || index + 1;
+      const invoiceId = item.id || start + index + 1;
+      const tenantId = item.tnt || item.tenant_number;
 
       const tr = document.createElement('tr');
       tr.innerHTML = `
-        <td>${index + 1}</td>
+        <td>${start + index + 1}</td>
         <td><a href="invoice.html?id=${invoiceId}">${invoiceNo}</a></td>
-        <td><a href="#">${item.tnt || item.tenant_number || ''}</a></td>
+        <td>${tenantId ? `<a href="tenant-detail.html?id=${encodeURIComponent(tenantId)}">${tenantId}</a>` : ''}</td>
         <td>${item.tenant || item.tenant_name || ''}</td>
         <td>${item.property || item.property_name || ''}</td>
         <td>${item.unit || item.unit_name || ''}</td>
@@ -131,6 +150,21 @@ document.addEventListener('DOMContentLoaded', () => {
       `;
       tbody.appendChild(tr);
     });
+    if (pageInfo) {
+      pageInfo.textContent = `Showing ${start + 1} to ${Math.min(start + rowsPerPage, filteredData.length)} of ${filteredData.length} entries`;
+    }
+    updatePagination(pageCount);
+  }
+
+  function updatePagination(pageCount) {
+    if (previousBtn) {
+      previousBtn.disabled = currentPage <= 1 || pageCount === 0;
+      previousBtn.classList.toggle('disabled', previousBtn.disabled);
+    }
+    if (nextBtn) {
+      nextBtn.disabled = currentPage >= pageCount;
+      nextBtn.classList.toggle('disabled', nextBtn.disabled);
+    }
   }
 
   async function loadInvoices(searchQuery = '') {
@@ -138,6 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const queryParam = searchQuery ? `?search=${encodeURIComponent(searchQuery)}` : '';
       const response = await fetchAPI(`/billing/invoices/${queryParam}`);
       currentInvoices = response.results || response;
+      currentPage = 1;
       renderRows(currentInvoices);
     } catch (err) {
       console.error('Failed to fetch invoices from server:', err);
@@ -199,42 +234,79 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (entriesSelect) {
+    entriesSelect.addEventListener('change', () => {
+      rowsPerPage = Number(entriesSelect.value);
+      currentPage = 1;
+      renderRows(currentInvoices);
+    });
+  }
+  if (previousBtn) {
+    previousBtn.addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage -= 1;
+        renderRows(currentInvoices);
+      }
+    });
+  }
+  if (nextBtn) {
+    nextBtn.addEventListener('click', () => {
+      if (currentPage < Math.ceil(currentInvoices.length / rowsPerPage)) {
+        currentPage += 1;
+        renderRows(currentInvoices);
+      }
+    });
+  }
+
   const tenantsWithoutInvoicesBtn = document.getElementById('btn-tenants-without-invoices');
   if (tenantsWithoutInvoicesBtn) {
-    tenantsWithoutInvoicesBtn.addEventListener('click', () => {
-      alert('Fetching tenants who have not been invoiced for this period...');
+    tenantsWithoutInvoicesBtn.addEventListener('click', async () => {
+      try {
+        const period = currentFilterPeriod === 'ALL'
+          ? 'ALL'
+          : currentFilterPeriod.charAt(0) + currentFilterPeriod.slice(1).toLowerCase();
+        const tenants = await fetchAPI(
+          `/billing/invoices/tenants-without-invoices/?period=${encodeURIComponent(period)}`
+        );
+        const names = tenants.map(tenant =>
+          `${tenant.tenant_id} — ${tenant.tenant_name} (${tenant.property_name}, ${tenant.unit_name})`
+        );
+        alert(names.length
+          ? `Tenants without an invoice for ${tenants[0].billing_period}:\n\n${names.join('\n')}`
+          : 'All active tenants have an invoice for the selected period.');
+      } catch (error) {
+        alert(`Could not load tenants without invoices: ${error.message}`);
+      }
     });
   }
 
   // CSV Export with Agency Profile Details
-  document.getElementById('export-csv').addEventListener('click', (e) => {
+  const exportCsvBtn = document.getElementById('export-csv');
+  if (exportCsvBtn) exportCsvBtn.addEventListener('click', (e) => {
     e.preventDefault();
     if (!currentInvoices.length) {
       alert('No data available to export.');
       return;
     }
 
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += `"PEMWA AGENCY"\n`;
-    csvContent += `"1254-00200, GPO Nairobi | Email: pemwaagency@yahoo.com"\n`;
-    csvContent += `"Contact: 0725768616 | 0101768816"\n\n`;
-    csvContent += `Invoice No,Tenant,Property,Unit,Expected,Paid,Balance,Status\n`;
-
-    currentInvoices.forEach(inv => {
-      csvContent += `"${inv.invoice_number || inv.invoice_no || ''}","${inv.tenant || ''}","${inv.property || ''}","${inv.unit || ''}",${inv.expected || 0},${inv.paid || 0},${inv.balance || 0},"${inv.status || ''}"\n`;
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "pemwa_agency_invoices.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    window.downloadCsv('invoices.csv',
+      ['Invoice No', 'Tenant', 'Property', 'Unit', 'Expected', 'Paid', 'Balance', 'Status'],
+      currentInvoices.map(inv => [
+        inv.invoice_number || inv.invoice_no,
+        inv.tenant,
+        inv.property,
+        inv.unit,
+        inv.expected || 0,
+        inv.paid || 0,
+        inv.balance || 0,
+        inv.status
+      ])
+    );
   });
 
   // Print / PDF Export Handler
-  document.getElementById('export-print').addEventListener('click', (e) => {
+  const exportPrintBtn = document.getElementById('export-print');
+  if (exportPrintBtn) exportPrintBtn.addEventListener('click', (e) => {
     e.preventDefault();
     window.print();
   });

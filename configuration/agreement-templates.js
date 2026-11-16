@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const cancelBtn = document.getElementById('btn-cancel');
   const templateForm = document.getElementById('template-form');
   const tbody = document.getElementById('templates-tbody');
+  let editingTemplateId = null;
 
   async function loadTemplates() {
     try {
@@ -28,6 +29,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   function closeModal() {
     if (modal) modal.classList.remove('active');
     if (templateForm) templateForm.reset();
+    editingTemplateId = null;
+    const title = modal?.querySelector('.modal-title');
+    if (title) title.textContent = 'New Agreement Template';
   }
 
   if (closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
@@ -54,7 +58,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (!name || !agreement_type) return;
 
-      const newTemplate = {
+      const template = {
         name,
         agreement_type,
         is_default,
@@ -63,11 +67,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       };
 
       try {
-        await fetchAPI('/agreement-templates/', {
-          method: 'POST',
-          body: newTemplate
+        await fetchAPI(editingTemplateId
+          ? `/agreement-templates/${editingTemplateId}/`
+          : '/agreement-templates/', {
+          method: editingTemplateId ? 'PATCH' : 'POST',
+          body: template
         });
-        loadTemplates();
+        await loadTemplates();
         closeModal();
       } catch (err) {
         alert('Failed to create agreement template: ' + err.message);
@@ -90,19 +96,41 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     tbody.innerHTML = templates.map(tpl => `
-      <tr>
+      <tr data-id="${tpl.id}">
         <td>${escapeHtml(tpl.name)}</td>
         <td>${escapeHtml(tpl.agreement_type)}</td>
         <td>${tpl.is_default ? '<span class="badge badge-success">Yes</span>' : '<span class="badge badge-secondary">No</span>'}</td>
         <td>${tpl.is_active ? '<span class="badge badge-success">Active</span>' : '<span class="badge badge-secondary">Inactive</span>'}</td>
         <td style="text-align: center;">
           <div class="action-btn-group">
-            <button class="btn-action-icon" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button class="btn-action-icon delete" onclick="deleteTemplate(${tpl.id})" title="Delete"><i class="fa-solid fa-trash"></i></button>
+            <button class="btn-action-icon edit-template" type="button" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button class="btn-action-icon delete delete-template" type="button" title="Delete"><i class="fa-solid fa-trash"></i></button>
           </div>
         </td>
       </tr>
     `).join('');
+
+    tbody.querySelectorAll('.edit-template').forEach(button => {
+      button.addEventListener('click', () => {
+        const template = templates.find(item => String(item.id) === button.closest('tr').dataset.id);
+        if (!template || !templateForm) return;
+        editingTemplateId = template.id;
+        document.getElementById('template-name').value = template.name || '';
+        document.getElementById('template-type').value = template.agreement_type || '';
+        document.getElementById('template-default').checked = Boolean(template.is_default);
+        document.getElementById('template-active').checked = Boolean(template.is_active);
+        document.getElementById('template-content').value = template.content || '';
+        const title = modal?.querySelector('.modal-title');
+        if (title) title.textContent = 'Edit Agreement Template';
+        modal?.classList.add('active');
+      });
+    });
+    tbody.querySelectorAll('.delete-template').forEach(button => {
+      button.addEventListener('click', () => {
+        const template = templates.find(item => String(item.id) === button.closest('tr').dataset.id);
+        if (template) deleteTemplate(template.id);
+      });
+    });
   }
 
   window.deleteTemplate = async function(id) {

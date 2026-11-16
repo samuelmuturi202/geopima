@@ -105,7 +105,8 @@ aside.collapsed:not(:hover) .brand span {
 }
 
 .nav-menu li a,
-.nav-menu li .dropdown-btn {
+.nav-menu li .dropdown-btn,
+.nav-menu li > .nav-link {
   display: flex;
   align-items: center;
   width: 100%;
@@ -123,8 +124,14 @@ aside.collapsed:not(:hover) .brand span {
 }
 
 .nav-menu li a:hover,
-.nav-menu li .dropdown-btn:hover {
+.nav-menu li .dropdown-btn:hover,
+.nav-menu li > .nav-link:not([aria-disabled="true"]):hover {
   background-color: var(--sidebar-hover);
+}
+
+.nav-menu li > .nav-link[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 .nav-menu li.active > a {
@@ -133,7 +140,8 @@ aside.collapsed:not(:hover) .brand span {
 }
 
 .nav-menu li a i:not(.chevron),
-.nav-menu li .dropdown-btn i:not(.chevron) {
+.nav-menu li .dropdown-btn i:not(.chevron),
+.nav-menu li > .nav-link i:not(.chevron) {
   font-size: 1.1rem;
   min-width: 24px;
   margin-right: 18px;
@@ -323,6 +331,11 @@ body.dark-mode .theme-toggle-btn:hover {
   color: #ffffff;
   border: none;
   cursor: pointer;
+}
+
+.badge-summary {
+  display: inline-block;
+  cursor: default;
 }
 
 .badge-yellow { background-color: var(--badge-yellow); color: #222; }

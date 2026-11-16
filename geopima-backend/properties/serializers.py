@@ -1,6 +1,9 @@
 import uuid
 from rest_framework import serializers
-from properties.models import Landlord, Property, Unit
+from django.core.validators import FileExtensionValidator
+from django.utils import timezone
+from django.urls import reverse
+from properties.models import Landlord, Property, PropertyAgreement, Unit, UnitOption
 
 
 class LandlordSerializer(serializers.ModelSerializer):
@@ -169,6 +172,7 @@ class PropertySerializer(serializers.ModelSerializer):
 
         return super().to_internal_value(data)
 
+
     def create(self, validated_data):
         validated_data.pop('landlord_name', None)
 
@@ -219,9 +223,58 @@ class PropertySerializer(serializers.ModelSerializer):
         return current_status in ['active', 'occupied', 'available']
 
 
+class PropertyAgreementSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField(read_only=True)
+    agreement_file = serializers.FileField(
+        write_only=True,
+        required=True,
+        validators=[FileExtensionValidator(['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'])],
+    )
+    file_url = serializers.SerializerMethodField(read_only=True)
+    file_name = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = PropertyAgreement
+        fields = [
+            'id', 'property', 'agreement_file', 'file_url', 'file_name', 'description',
+            'start_date', 'end_date', 'status', 'created_at',
+        ]
+        read_only_fields = ['id', 'status', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        path = reverse('properties:property-agreement-file', kwargs={'pk': obj.pk})
+        return request.build_absolute_uri(path) if request else path
+
+    def get_file_name(self, obj):
+        return obj.agreement_file.name.rsplit('/', 1)[-1]
+
+    def get_status(self, obj):
+        today = timezone.localdate()
+        if obj.start_date > today:
+            return 'Upcoming'
+        if obj.end_date < today:
+            return 'Expired'
+        return 'Active'
+
+    def validate_agreement_file(self, value):
+        if value.size > 10 * 1024 * 1024:
+            raise serializers.ValidationError('The agreement file must be 10 MB or smaller.')
+        return value
+
+    def validate(self, attrs):
+        start_date = attrs.get('start_date', getattr(self.instance, 'start_date', None))
+        end_date = attrs.get('end_date', getattr(self.instance, 'end_date', None))
+        if start_date and end_date and end_date < start_date:
+            raise serializers.ValidationError({'end_date': 'End date must be on or after the start date.'})
+        return attrs
+
+
 class UnitSerializer(serializers.ModelSerializer):
     property_name = serializers.ReadOnlyField(source='property.name', default='')
     propertyName = serializers.ReadOnlyField(source='property.name', default='')
+    property_id = serializers.ReadOnlyField(source='property.property_id', default=None)
+    landlord_id = serializers.ReadOnlyField(source='property.landlord_id', default=None)
     
     property = serializers.PrimaryKeyRelatedField(
         queryset=Property.objects.all(),
@@ -256,6 +309,8 @@ class UnitSerializer(serializers.ModelSerializer):
             'property', 
             'property_name', 
             'propertyName',
+            'property_id',
+            'landlord_id',
             'landlord_name', 
             'rent_amount',
             'deposit',
@@ -342,3 +397,19 @@ class UnitSerializer(serializers.ModelSerializer):
     def get_is_active(self, obj):
         current_status = str(self.get_status(obj)).lower()
         return current_status not in ['suspended', 'inactive', 'maintenance']
+
+
+class UnitOptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UnitOption
+        fields = ['id', 'kind', 'name', 'is_active']
+
+    def validate_name(self, value):
+        normalized = value.strip()
+        kind = self.initial_data.get('kind') or getattr(self.instance, 'kind', None)
+        queryset = UnitOption.objects.filter(kind=kind)
+        if self.instance:
+            queryset = queryset.exclude(pk=self.instance.pk)
+        if queryset.filter(name__iexact=normalized).exists():
+            raise serializers.ValidationError('This option already exists for the selected kind.')
+        return normalized

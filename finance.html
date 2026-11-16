@@ -316,10 +316,10 @@
             </button>
             <div class="export-menu" id="export-menu">
               <button class="export-option" id="export-excel-btn">
-                <i class="fa-solid fa-file-excel excel-icon"></i> Export as Excel (.xlsx)
+                <i class="fa-solid fa-file-excel excel-icon"></i> Export as CSV (Excel-compatible)
               </button>
               <button class="export-option" id="export-pdf-btn">
-                <i class="fa-solid fa-file-pdf pdf-icon"></i> Export as PDF (.pdf)
+                <i class="fa-solid fa-file-pdf pdf-icon"></i> Print / Save as PDF
               </button>
             </div>
           </div>
@@ -360,11 +360,11 @@
 
         <!-- Table Pagination -->
         <div class="pagination-row">
-          <span class="page-info">Page 1 of 1</span>
-          <div class="page-btn-group">
-            <button class="page-btn disabled" disabled><i class="fa-solid fa-chevron-left"></i> Prev</button>
-            <button class="page-btn active">1</button>
-            <button class="page-btn disabled" disabled>Next <i class="fa-solid fa-chevron-right"></i></button>
+          <span class="page-info" id="rent-page-info">Page 1 of 1</span>
+          <div class="page-btn-group" id="rent-pagination">
+            <button type="button" class="page-btn" id="rent-prev-btn"><i class="fa-solid fa-chevron-left"></i> Prev</button>
+            <span id="rent-page-buttons"></span>
+            <button type="button" class="page-btn" id="rent-next-btn">Next <i class="fa-solid fa-chevron-right"></i></button>
           </div>
         </div>
       </div>
@@ -385,13 +385,13 @@
       </div>
 
       <div class="modal-action-bar">
-        <button class="btn" style="background:#ffc107; color:#333; font-weight:700;">OCTOBER-2026</button>
+        <span class="btn" id="modal-invoice-period" style="background:#ffc107; color:#333; font-weight:700;">Invoice period unavailable</span>
         <div class="right-btn-group">
-          <button class="btn" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;"><i class="fa-solid fa-paper-plane"></i> resend notification</button>
-          <button class="btn" style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb;"><i class="fa-solid fa-trash"></i> delete</button>
-          <button class="btn" style="background:#d4edda; color:#155724; border:1px solid #c3e6cb;"><i class="fa-solid fa-pen"></i> edit</button>
-          <button class="btn" style="background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb;"><i class="fa-solid fa-credit-card"></i> collect payment</button>
-          <button class="btn" style="background:#e2e3e5; color:#383d41; border:1px solid #d6d8db;"><i class="fa-solid fa-file-invoice"></i> invoice</button>
+          <button class="btn" id="resend-notification-btn" style="background:#fff3cd; color:#856404; border:1px solid #ffeeba;"><i class="fa-solid fa-paper-plane"></i> create reminder draft</button>
+          <button class="btn" id="delete-settlement-btn" disabled title="Settled payment records are immutable; use an adjustment workflow." style="background:#f8d7da; color:#721c24; border:1px solid #f5c6cb;"><i class="fa-solid fa-trash"></i> delete</button>
+          <button class="btn" id="edit-settlement-btn" disabled title="Settled payment records are immutable; use an adjustment workflow." style="background:#d4edda; color:#155724; border:1px solid #c3e6cb;"><i class="fa-solid fa-pen"></i> edit</button>
+          <button class="btn" id="collect-payment-btn" style="background:#d1ecf1; color:#0c5460; border:1px solid #bee5eb;"><i class="fa-solid fa-credit-card"></i> collect payment</button>
+          <button class="btn" id="view-invoice-btn" style="background:#e2e3e5; color:#383d41; border:1px solid #d6d8db;"><i class="fa-solid fa-file-invoice"></i> invoice</button>
           <button class="btn btn-primary" id="modal-print-btn"><i class="fa-solid fa-print"></i> print receipt</button>
         </div>
       </div>

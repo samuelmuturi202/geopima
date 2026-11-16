@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${idx + 1}</td>
-        <td><a href="property-details.html?id=${prop.id}" class="link-dashed"><strong>${prop.property_id || prop.title || 'pro' + prop.id}</strong></a></td>
+        <td><a href="property_detail.html?id=${encodeURIComponent(prop.property_id || prop.id)}" class="link-dashed"><strong>${prop.property_id || prop.title || 'pro' + prop.id}</strong></a></td>
         <td>${prop.cluster || 'a'}</td>
         <td>${prop.name || '-'}</td>
         <td>${prop.description || '-'}</td>

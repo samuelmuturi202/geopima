@@ -7,6 +7,8 @@ from .views import (
     CommunicationDraftViewSet,
     DashboardMetricsView,
     PaymentSummariesView,
+    CoopStatementAPIView,
+    DiscountListAPIView,
     CreditBankSmartAliasWebhookView
 )
 from mpesa.views import RentCollectionListAPIView, RentCollectionDetailAPIView
@@ -25,5 +27,8 @@ urlpatterns = [
     path('dashboard/payment-summaries/', PaymentSummariesView.as_view(), name='dashboard-payment-summaries'),
     path('rent-collections/', RentCollectionListAPIView.as_view(), name='rent_collection_list'),
     path('rent-collections/<int:pk>/', RentCollectionDetailAPIView.as_view(), name='rent_collection_detail'),
+    path('coop-statements/', CoopStatementAPIView.as_view(), name='coop_statement_list'),
+    path('coop-statements/upload/', CoopStatementAPIView.as_view(), name='coop_statement_upload'),
+    path('discounts/', DiscountListAPIView.as_view(), name='discount_list'),
     path('', include(router.urls)),
 ]

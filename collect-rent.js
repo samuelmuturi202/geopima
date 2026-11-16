@@ -36,11 +36,105 @@ document.addEventListener('DOMContentLoaded', () => {
     return response.json();
   }
 
+  async function fetchAllPages(endpoint) {
+    const results = [];
+    const apiUrl = new URL(API_BASE_URL);
+    let nextEndpoint = endpoint;
+
+    while (nextEndpoint) {
+      const response = await fetchAPI(nextEndpoint);
+      if (Array.isArray(response)) return results.concat(response);
+      results.push(...(response.results || []));
+      if (!response.next) break;
+
+      const nextUrl = new URL(response.next, apiUrl);
+      if (nextUrl.origin !== apiUrl.origin || !nextUrl.pathname.startsWith(`${apiUrl.pathname}/`)) {
+        throw new Error('The tenants API returned an invalid pagination URL.');
+      }
+      nextEndpoint = `${nextUrl.pathname.slice(apiUrl.pathname.length)}${nextUrl.search}`;
+    }
+
+    return results;
+  }
+
   // DOM Elements
   const landlordSelect = document.getElementById('select-landlord');
   const propertySelect = document.getElementById('select-property');
   const unitSelect = document.getElementById('select-unit');
   const directTenantSelect = document.getElementById('select-tenant-direct');
+  const cascadeForm = document.getElementById('cascade-form');
+  const directTenantForm = document.getElementById('direct-tenant-form');
+  let activeTenants = [];
+  let selectedUnits = [];
+
+  function getTenantUnitId(tenant) {
+    const rawUnit = tenant.unit;
+    return typeof rawUnit === 'object' && rawUnit !== null ? rawUnit.id : rawUnit;
+  }
+
+  async function openTenantInvoice(tenantId) {
+    if (!tenantId) {
+      alert('Select a tenant before continuing.');
+      return;
+    }
+    try {
+      const tenant = activeTenants.find(item => String(item.id || item.tenant_id) === String(tenantId));
+      const search = tenant?.tenant_id || tenantId;
+      const response = await fetchAPI(`/billing/invoices/?search=${encodeURIComponent(search)}`);
+      const invoices = response.results || response;
+      const openInvoices = invoices.filter(invoice =>
+        String(invoice.tnt || invoice.tenant_id || '') === String(search)
+        && Number(invoice.balance || 0) > 0
+      );
+      if (!openInvoices.length) {
+        alert('This tenant has no outstanding invoices. Generate an invoice before collecting rent.');
+        return;
+      }
+
+      let invoice = openInvoices[0];
+      if (openInvoices.length > 1) {
+        const choices = openInvoices.map((item, index) =>
+          `${index + 1}. ${item.invoice_no || item.invoice_number} — ${item.period} — KES ${Number(item.balance).toLocaleString()}`
+        );
+        const selected = prompt(`Choose an invoice number to collect:\n${choices.join('\n')}`, '1');
+        if (selected === null) return;
+        const choice = Number(selected);
+        if (!Number.isInteger(choice) || choice < 1 || choice > openInvoices.length) {
+          alert('Enter a valid invoice number from the list.');
+          return;
+        }
+        invoice = openInvoices[choice - 1];
+      }
+      window.location.href = `invoice.html?id=${encodeURIComponent(invoice.id)}&action=payment`;
+    } catch (error) {
+      alert(`Could not load this tenant's outstanding invoices: ${error.message}`);
+    }
+  }
+
+  if (cascadeForm) {
+    cascadeForm.addEventListener('submit', event => {
+      event.preventDefault();
+      const selectedUnit = selectedUnits.find(unit => String(unit.id) === String(unitSelect.value));
+      const tenantId = typeof selectedUnit?.tenant === 'object'
+        ? selectedUnit.tenant.id
+        : selectedUnit?.tenant;
+      if (!tenantId) {
+        alert('The selected unit has no active tenant. Choose an occupied unit or select the tenant directly.');
+        return;
+      }
+      const tenant = activeTenants.find(item =>
+        String(item.id || item.tenant_id) === String(tenantId)
+      );
+      openTenantInvoice(tenant?.id || tenantId);
+    });
+  }
+
+  if (directTenantForm) {
+    directTenantForm.addEventListener('submit', event => {
+      event.preventDefault();
+      openTenantInvoice(directTenantSelect.value);
+    });
+  }
 
   /**
    * Load Initial Dropdown Data from Backend
@@ -73,18 +167,19 @@ document.addEventListener('DOMContentLoaded', () => {
       // 2. Populate Direct Tenants Dropdown
       if (directTenantSelect) {
         try {
-          const tenantsData = await fetchAPI('/tenants/active-list/');
-          const tenantList = Array.isArray(tenantsData) ? tenantsData : (tenantsData.results || []);
+          const tenantList = await fetchAllPages('/tenants/tenants/?status=active&page_size=100');
+          activeTenants = tenantList;
           
           directTenantSelect.innerHTML = '<option value="">--Select Tenant--</option>';
           tenantList.forEach(tenant => {
             const opt = document.createElement('option');
             opt.value = tenant.id;
-            opt.textContent = tenant.display_label || `${tenant.name} (${tenant.unit_name || 'Unit'})`;
+            opt.textContent = `${tenant.name} (${tenant.unit_name || 'Unit'})`;
             directTenantSelect.appendChild(opt);
           });
         } catch (tenantErr) {
-          console.warn('Could not load direct tenants list:', tenantErr);
+          directTenantSelect.innerHTML = '<option value="">Error loading tenants</option>';
+          throw tenantErr;
         }
       }
     } catch (err) {
@@ -153,10 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const unitsData = await fetchAPI(`/properties/units/?property=${propertyId}`);
           const unitList = Array.isArray(unitsData) ? unitsData : (unitsData.results || []);
+          selectedUnits = unitList;
 
           unitSelect.innerHTML = '<option value="">--Select Unit/Tenant--</option>';
           
-          if (unitList.length === `0`) {
+          if (unitList.length === 0) {
             unitSelect.innerHTML = '<option value="">No units found in this property</option>';
             return;
           }

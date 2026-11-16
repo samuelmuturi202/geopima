@@ -4,6 +4,8 @@ from .models import (
     VoteHead, Deposit, Invoice, InvoiceItem, Agency, SmartAliasTransaction,
     CommunicationDraft,
 )
+from tenants.models import Tenant
+from properties.models import Unit
 
 
 class VoteHeadSerializer(serializers.ModelSerializer):
@@ -14,12 +16,30 @@ class VoteHeadSerializer(serializers.ModelSerializer):
 
 class DepositSerializer(serializers.ModelSerializer):
     tenant_name = serializers.ReadOnlyField(source='tenant.name', default='-')
+    tenant_id = serializers.ReadOnlyField(source='tenant.tenant_id')
     property_name = serializers.ReadOnlyField(source='unit.property.name', default='-')
     unit_name = serializers.ReadOnlyField(source='unit.unit_name', default='-')
+    tenant = serializers.PrimaryKeyRelatedField(queryset=Tenant.objects.all())
+    unit = serializers.PrimaryKeyRelatedField(queryset=Unit.objects.all())
 
     class Meta:
         model = Deposit
-        fields = ['id', 'deposit_code', 'reference_no', 'tenant_name', 'property_name', 'unit_name', 'amount', 'status']
+        fields = [
+            'id', 'deposit_code', 'reference_no', 'tenant', 'tenant_id',
+            'tenant_name', 'unit', 'property_name', 'unit_name', 'amount', 'status',
+        ]
+
+    def validate(self, attrs):
+        tenant = attrs.get('tenant', self.instance.tenant if self.instance else None)
+        unit = attrs.get('unit', self.instance.unit if self.instance else None)
+        amount = attrs.get('amount', self.instance.amount if self.instance else None)
+        if tenant and unit and tenant.unit_id != unit.pk:
+            raise serializers.ValidationError(
+                {'unit': "The deposit unit must be the tenant's currently assigned unit."}
+            )
+        if amount is not None and amount <= 0:
+            raise serializers.ValidationError({'amount': 'Deposit amount must be greater than zero.'})
+        return attrs
 
 
 class SmartAliasTransactionSerializer(serializers.ModelSerializer):
@@ -100,7 +120,7 @@ class InvoiceDetailSerializer(serializers.ModelSerializer):
     
     expected = serializers.DecimalField(source='net_total', max_digits=12, decimal_places=2, read_only=True)
     prepaid = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
-    discount = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
+    discount = serializers.DecimalField(source='discount_total', max_digits=12, decimal_places=2, read_only=True)
     arrears = serializers.DecimalField(default=0.00, max_digits=12, decimal_places=2, read_only=True)
     current = serializers.DecimalField(source='net_total', max_digits=12, decimal_places=2, read_only=True)
     paid = serializers.DecimalField(source='rent_paid', max_digits=12, decimal_places=2, read_only=True)

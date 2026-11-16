@@ -103,9 +103,13 @@ class TenantSmartAliasTests(TestCase):
             phone_number='0712345678',
             unit=self.unit,
         )
+        tenant.refresh_from_db()
 
         serializer = TenantSerializer(tenant)
         self.assertEqual(serializer.data['id'], 'TNT-ALIAS')
         self.assertEqual(serializer.data['smart_alias'], 'PROP-ALIAS-H-01')
+        self.assertEqual(serializer.data['property_id'], 'PROP-ALIAS')
+        self.assertEqual(serializer.data['unit_id'], self.unit.pk)
+        self.assertEqual(serializer.data['landlord_id'], self.property.landlord_id)
         self.assertIn('smart_alias', serializer.fields)
-        self.assertFalse(serializer.fields['smart_alias'].writable)
+        self.assertTrue(serializer.fields['smart_alias'].read_only)

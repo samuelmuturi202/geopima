@@ -58,6 +58,17 @@
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
+.config-card[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.config-card[aria-disabled="true"]:hover {
+  background-color: #17a2b8;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
 .card-icon {
   font-size: 2.8rem;
   margin-bottom: 16px;

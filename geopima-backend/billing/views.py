@@ -1,7 +1,9 @@
 import hmac
 import hashlib
+import csv
+import io
 import os
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from rest_framework import viewsets, filters, status, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -10,13 +12,16 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from django.core.management import call_command
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from django.db.models import Sum, Count, Q
-from django.db import transaction
+from django.db.models import Sum, Count, Q, Exists, OuterRef
+from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from .communication import generate_communication_drafts
-from .models import VoteHead, Deposit, Invoice, SmartAliasTransaction, CommunicationDraft
+from .models import (
+    VoteHead, Deposit, Invoice, SmartAliasTransaction, CommunicationDraft,
+    CoopStatementUpload, InvoiceItem,
+)
 from config_core.models import CreditBankConfig, MessengerConfig, SMSTemplate
 from config_core.sms_gateway import (
     SMSDeliveryRejected,
@@ -28,6 +33,7 @@ from .serializers import (
     VoteHeadSerializer, 
     DepositSerializer, 
     InvoiceDetailSerializer,
+    InvoiceItemSerializer,
     SmartAliasTransactionSerializer,
     CommunicationDraftSerializer,
 )
@@ -111,6 +117,152 @@ class PaymentSummariesView(APIView):
             return Response(payment_summaries, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": f"Failed to retrieve payment summaries: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class CoopStatementAPIView(APIView):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'payment'
+    max_upload_bytes = 5 * 1024 * 1024
+    max_rows = 10000
+    field_aliases = {
+        'date': {'date', 'transaction_date', 'paid_on'},
+        'code': {'code', 'transaction_code', 'transaction_id'},
+        'tenantNo': {'tenant_no', 'tenant_number', 'account_number', 'account_alias'},
+        'tenant': {'tenant', 'tenant_name', 'customer_name'},
+        'phone': {'phone', 'phone_number', 'mobile'},
+        'paidBy': {'paid_by', 'payer_name', 'sender_name'},
+        'paymentRef': {'payment_ref', 'payment_reference', 'reference', 'receipt', 'receipt_number'},
+        'narration': {'narration', 'description', 'remarks'},
+        'amount': {'amount', 'transaction_amount', 'credit'},
+    }
+
+    def get(self, request):
+        search = request.query_params.get('search', '').strip().casefold()
+        entries = []
+        for upload in CoopStatementUpload.objects.all():
+            for entry in upload.entries:
+                row = {**entry, 'file_name': upload.file_name, 'uploaded_at': upload.created_at}
+                if not search or search in ' '.join(str(value) for value in row.values()).casefold():
+                    entries.append(row)
+        return Response(entries)
+
+    def post(self, request):
+        uploaded_file = request.FILES.get('statement')
+        if not uploaded_file:
+            return Response({'statement': 'Choose a CSV statement file.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not uploaded_file.name.lower().endswith('.csv'):
+            return Response({'statement': 'Only CSV statement files are supported.'}, status=status.HTTP_400_BAD_REQUEST)
+        if uploaded_file.size > self.max_upload_bytes:
+            return Response({'statement': 'CSV files must be 5 MB or smaller.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        content = uploaded_file.read()
+        if len(content) > self.max_upload_bytes:
+            return Response({'statement': 'CSV files must be 5 MB or smaller.'}, status=status.HTTP_400_BAD_REQUEST)
+        content_hash = hashlib.sha256(content).hexdigest()
+        if CoopStatementUpload.objects.filter(content_hash=content_hash).exists():
+            return Response({'statement': 'This statement file has already been imported.'}, status=status.HTTP_409_CONFLICT)
+        try:
+            decoded = content.decode('utf-8-sig')
+            reader = csv.DictReader(io.StringIO(decoded))
+            if not reader.fieldnames:
+                raise ValueError('The CSV must include a header row.')
+            normalized_headers = {
+                header.strip().lower().replace(' ', '_'): header
+                for header in reader.fieldnames
+                if header
+            }
+            canonical_headers = {}
+            for canonical, aliases in self.field_aliases.items():
+                source_header = next(
+                    (normalized_headers[name] for name in aliases if name in normalized_headers),
+                    None,
+                )
+                if source_header:
+                    canonical_headers[canonical] = source_header
+            if 'amount' not in canonical_headers:
+                raise ValueError('Include an amount column (amount, transaction_amount, or credit).')
+
+            entries = []
+            for row_number, raw_row in enumerate(reader, start=2):
+                if len(entries) >= self.max_rows:
+                    raise ValueError(f'CSV files may contain at most {self.max_rows} rows.')
+                if not any((value or '').strip() for value in raw_row.values()):
+                    continue
+                entry = {
+                    field: (raw_row.get(source) or '').strip()
+                    for field, source in canonical_headers.items()
+                }
+                try:
+                    amount = Decimal(entry['amount'].replace(',', '').replace('KES', '').strip())
+                    entry['amount'] = str(amount.quantize(Decimal('0.01')))
+                except (InvalidOperation, TypeError, ValueError):
+                    raise ValueError(f'Row {row_number} has an invalid amount.')
+                if not amount.is_finite() or amount <= 0:
+                    raise ValueError(f'Row {row_number} amount must be greater than zero.')
+                entries.append(entry)
+            if not entries:
+                raise ValueError('The CSV contains no transaction rows.')
+        except (UnicodeDecodeError, csv.Error, ValueError) as error:
+            return Response({'statement': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            upload = CoopStatementUpload.objects.create(
+                file_name=os.path.basename(uploaded_file.name.replace('\\', '/')),
+                content_hash=content_hash,
+                entries=entries,
+                uploaded_by=request.user,
+            )
+        except IntegrityError:
+            return Response(
+                {'statement': 'This statement file has already been imported.'},
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(
+            {'id': upload.pk, 'file_name': upload.file_name, 'row_count': len(entries)},
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class DiscountListAPIView(APIView):
+    permission_classes = (RolePermission,)
+    role_permission_module = 'fee'
+
+    def get(self, request):
+        items = InvoiceItem.objects.filter(
+            Q(item_type__icontains='discount')
+            | Q(description__icontains='discount')
+        ).select_related(
+            'invoice__tenant',
+            'invoice__unit__property',
+            'invoice__unit__property__landlord',
+        ).order_by('-invoice__billing_period')
+        search = request.query_params.get('search', '').strip()
+        if search:
+            items = items.filter(
+                Q(invoice__invoice_number__icontains=search)
+                | Q(invoice__tenant__tenant_id__icontains=search)
+                | Q(invoice__tenant__name__icontains=search)
+                | Q(invoice__unit__unit_name__icontains=search)
+                | Q(invoice__unit__property__name__icontains=search)
+                | Q(item_type__icontains=search)
+                | Q(description__icontains=search)
+            )
+        return Response([
+            {
+                'invoice': item.invoice.invoice_number,
+                'landlordName': item.invoice.unit.property.landlord.name,
+                'propertyName': item.invoice.unit.property.name,
+                'cluster': item.invoice.unit.property.cluster,
+                'unitName': item.invoice.unit.unit_name,
+                'tenantId': item.invoice.tenant.tenant_id,
+                'tenantName': item.invoice.tenant.name,
+                'discountName': item.item_type,
+                'description': item.description,
+                'discount': str(abs(item.amount)),
+                'details': item.invoice.billing_period.strftime('%B-%Y'),
+            }
+            for item in items
+        ])
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -281,10 +433,17 @@ class InvoiceViewSet(viewsets.ModelViewSet):
     role_permission_module = 'fee'
     role_permission_actions = {
         'add_payment': 'create',
+        'add_item': 'create',
+        'request_payment': 'create',
+        'offer_discount': 'update',
+        'change_month': 'update',
         'generate_monthly': 'create',
+        'tenants_without_invoices': 'access',
     }
     role_permission_action_modules = {
         'add_payment': 'payment',
+        'request_payment': 'message',
+        'tenants_without_invoices': 'tenant',
     }
     filter_backends = [filters.SearchFilter]
     search_fields = [
@@ -320,6 +479,263 @@ class InvoiceViewSet(viewsets.ModelViewSet):
                 qs = qs.filter(unit__property__cluster__iexact=cluster)
 
         return qs
+
+    @action(detail=False, methods=['get'], url_path='tenants-without-invoices')
+    def tenants_without_invoices(self, request):
+        from datetime import datetime
+
+        period = request.query_params.get('period', '').strip()
+        try:
+            if period and period.upper() != 'ALL':
+                month_name, year = period.split('-', 1)
+                billing_period = datetime.strptime(
+                    f'1-{month_name}-{year}', '%d-%B-%Y'
+                ).date()
+            else:
+                billing_period = timezone.localdate().replace(day=1)
+        except (ValueError, TypeError):
+            return Response(
+                {'period': 'Use a month and year, for example August-2025.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        existing_invoice = Invoice.objects.filter(
+            tenant_id=OuterRef('tenant_id'),
+            unit_id=OuterRef('unit_id'),
+            billing_period__year=billing_period.year,
+            billing_period__month=billing_period.month,
+        )
+        tenants = Tenant.objects.filter(
+            status='active',
+            unit__isnull=False,
+        ).annotate(
+            has_invoice=Exists(existing_invoice),
+        ).filter(
+            has_invoice=False,
+        ).select_related('unit__property').order_by('name')
+        return Response([
+            {
+                'tenant_id': tenant.tenant_id,
+                'tenant_name': tenant.name,
+                'property_name': tenant.unit.property.name,
+                'unit_name': tenant.unit.unit_name,
+                'billing_period': billing_period.strftime('%B-%Y').upper(),
+            }
+            for tenant in tenants
+        ])
+
+    @action(detail=True, methods=['post'], url_path='add-item')
+    def add_item(self, request, pk=None):
+        invoice = self.get_object()
+        item_type = str(request.data.get('item_type') or '').strip()
+        description = str(request.data.get('description') or '').strip()
+        try:
+            amount = Decimal(str(request.data.get('amount')))
+        except (InvalidOperation, TypeError, ValueError):
+            return Response({'amount': 'Enter a valid amount.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not item_type or len(item_type) > 50:
+            return Response({'item_type': 'Enter an item type of 1 to 50 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+        if 'discount' in item_type.casefold():
+            return Response(
+                {'item_type': 'Discounts cannot be added as positive invoice charges.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not description or len(description) > 255:
+            return Response({'description': 'Enter a description of 1 to 255 characters.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not amount.is_finite() or amount <= 0 or amount > Decimal('9999999999.99'):
+            return Response({'amount': 'Amount must be greater than zero and within the supported range.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            quantized_amount = amount.quantize(Decimal('0.01'))
+        except InvalidOperation:
+            return Response({'amount': 'Amount may have no more than two decimal places.'}, status=status.HTTP_400_BAD_REQUEST)
+        if quantized_amount != amount:
+            return Response({'amount': 'Amount may have no more than two decimal places.'}, status=status.HTTP_400_BAD_REQUEST)
+        amount = quantized_amount
+
+        with transaction.atomic():
+            item = InvoiceItem.objects.create(
+                invoice=invoice,
+                item_type=item_type,
+                description=description,
+                amount=amount,
+            )
+            invoice.save(update_fields=['status'])
+        return Response(InvoiceItemSerializer(item).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], url_path='offer-discount')
+    def offer_discount(self, request, pk=None):
+        try:
+            percentage = Decimal(str(request.data.get('percentage')))
+        except (InvalidOperation, TypeError, ValueError):
+            return Response({'percentage': 'Enter a valid discount percentage.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not percentage.is_finite() or percentage <= 0 or percentage > 100:
+            return Response(
+                {'percentage': 'Discount percentage must be greater than 0 and no more than 100.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        invoice_id = self.get_object().pk
+        with transaction.atomic():
+            invoice = Invoice.objects.select_for_update().get(pk=invoice_id)
+            if invoice.rent_paid > 0 or invoice.status in {'paid', 'partially_paid'}:
+                return Response(
+                    {'invoice': 'A discount cannot be applied after a payment has been recorded.'},
+                    status=status.HTTP_409_CONFLICT,
+                )
+            if invoice.items.filter(item_type='Discount').exists():
+                return Response(
+                    {'invoice': 'A percentage discount has already been applied to this invoice.'},
+                    status=status.HTTP_409_CONFLICT,
+                )
+            subtotal = invoice.subtotal
+            if subtotal <= 0:
+                return Response(
+                    {'invoice': 'A discount requires a positive invoice subtotal.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            discount_amount = (subtotal * percentage / Decimal('100')).quantize(
+                Decimal('0.01'),
+                rounding=ROUND_HALF_UP,
+            )
+            if discount_amount <= 0:
+                return Response(
+                    {'percentage': 'This percentage is too small to produce a one-cent discount.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if discount_amount > Decimal('9999999999.99'):
+                return Response(
+                    {'percentage': 'The discount exceeds the supported invoice item amount.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            if discount_amount > invoice.net_total:
+                return Response(
+                    {'percentage': 'The discount cannot exceed the remaining invoice total.'},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+            item = InvoiceItem.objects.create(
+                invoice=invoice,
+                item_type='Discount',
+                description=f'{format(percentage.normalize(), "f")}% invoice discount',
+                amount=-discount_amount,
+            )
+            invoice.save(update_fields=['status'])
+        return Response(InvoiceItemSerializer(item).data, status=status.HTTP_201_CREATED)
+
+    @action(detail=True, methods=['post'], url_path='change-month')
+    def change_month(self, request, pk=None):
+        from calendar import monthrange
+        from datetime import datetime
+
+        period = str(request.data.get('period') or '').strip()
+        if (
+            len(period) != 7
+            or period[4] != '-'
+            or not period[:4].isdigit()
+            or not period[5:].isdigit()
+        ):
+            return Response(
+                {'period': 'Use YYYY-MM format, for example 2026-08.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        try:
+            target_period = datetime.strptime(f'{period}-01', '%Y-%m-%d').date()
+        except ValueError:
+            return Response(
+                {'period': 'Enter a valid month in YYYY-MM format.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        invoice_id = self.get_object().pk
+        try:
+            with transaction.atomic():
+                invoice = Invoice.objects.select_for_update().get(pk=invoice_id)
+                if invoice.rent_paid > 0 or invoice.status in {'paid', 'partially_paid'}:
+                    return Response(
+                        {'invoice': 'The month cannot be changed after a payment has been recorded.'},
+                        status=status.HTTP_409_CONFLICT,
+                    )
+                if Invoice.objects.filter(
+                    tenant_id=invoice.tenant_id,
+                    unit_id=invoice.unit_id,
+                    billing_period__year=target_period.year,
+                    billing_period__month=target_period.month,
+                ).exclude(pk=invoice.pk).exists():
+                    return Response(
+                        {'period': 'An invoice already exists for this tenant and unit in the selected month.'},
+                        status=status.HTTP_409_CONFLICT,
+                    )
+
+                month_offset = (
+                    (target_period.year - invoice.billing_period.year) * 12
+                    + target_period.month
+                    - invoice.billing_period.month
+                )
+                due_month_index = invoice.due_date.year * 12 + invoice.due_date.month - 1 + month_offset
+                due_year, due_month_index = divmod(due_month_index, 12)
+                due_month = due_month_index + 1
+                due_day = min(invoice.due_date.day, monthrange(due_year, due_month)[1])
+                invoice.billing_period = target_period
+                invoice.due_date = invoice.due_date.replace(
+                    year=due_year,
+                    month=due_month,
+                    day=due_day,
+                )
+                invoice.save(update_fields=['billing_period', 'due_date', 'status'])
+        except IntegrityError as error:
+            diagnostics = getattr(error.__cause__, 'diag', None)
+            if getattr(diagnostics, 'constraint_name', None) != 'unique_invoice_tenant_unit_period':
+                raise
+            return Response(
+                {'period': 'An invoice already exists for this tenant and unit in the selected month.'},
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(InvoiceDetailSerializer(invoice).data)
+
+    @action(detail=True, methods=['post'], url_path='request-payment')
+    def request_payment(self, request, pk=None):
+        invoice = self.get_object()
+        tenant = invoice.tenant
+        if not tenant.phone_number:
+            return Response(
+                {'phone_number': 'Add a phone number to the tenant before creating a payment request.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if invoice.balance <= 0:
+            return Response(
+                {'invoice': 'A payment request is only available when the invoice has a balance.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        bank_config = CreditBankConfig.objects.filter(pk=1).first()
+        paybill = bank_config.paybill_number if bank_config else '6775'
+        message = (
+            f"Payment reminder for invoice {invoice.invoice_number}: "
+            f"KES {invoice.balance:.2f} is due. Pay via Paybill {paybill}, "
+            f"account {tenant.smart_alias or tenant.tenant_id}."
+        )
+        draft, created = CommunicationDraft.objects.get_or_create(
+            invoice=invoice,
+            reminder_type='rent_due',
+            defaults={
+                'recipient_type': 'tenant',
+                'recipient_name': tenant.name,
+                'phone_number': tenant.phone_number,
+                'message': message,
+                'status': 'pending',
+                'period': invoice.billing_period,
+                'created_by': request.user,
+            },
+        )
+        if not created and draft.status != 'pending':
+            return Response(
+                {'draft': 'A payment reminder for this invoice already exists and is no longer pending.'},
+                status=status.HTTP_409_CONFLICT,
+            )
+        return Response(
+            CommunicationDraftSerializer(draft).data,
+            status=status.HTTP_201_CREATED if created else status.HTTP_200_OK,
+        )
 
     @action(detail=True, methods=['post'], url_path='add-payment')
     def add_payment(self, request, pk=None):

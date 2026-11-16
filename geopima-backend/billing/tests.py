@@ -8,10 +8,11 @@ from unittest.mock import patch
 from django.contrib.auth import get_user_model
 from django.db import DatabaseError, IntegrityError, transaction
 from django.test import TestCase
-from rest_framework.test import APIClient, APIRequestFactory
+from django.core.files.uploadedfile import SimpleUploadedFile
+from rest_framework.test import APIClient, APIRequestFactory, force_authenticate
 
 from billing.communication import generate_communication_drafts
-from billing.models import CommunicationDraft, Invoice, InvoiceItem
+from billing.models import CommunicationDraft, CoopStatementUpload, Invoice, InvoiceItem
 from config_core.models import CreditBankConfig, MessengerConfig, SMSTemplate
 from config_core.sms_gateway import (
     SMSDelivery,
@@ -22,7 +23,135 @@ from config_core.sms_gateway import (
 from mpesa.models import MpesaTransaction as PaymentTransaction, PaymentSettlement
 from properties.models import Landlord, MpesaTransaction, PaymentAllocation, Property, Unit
 from tenants.models import Tenant
-from billing.views import CreditBankSmartAliasWebhookView, InvoiceViewSet
+from billing.views import CreditBankSmartAliasWebhookView, CoopStatementAPIView, InvoiceViewSet
+
+
+class CoopStatementImportTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(
+            username='coop-import-admin',
+            email='coop-import-admin@example.test',
+            password='test-pass',
+        )
+        self.factory = APIRequestFactory()
+        self.upload_view = CoopStatementAPIView.as_view()
+
+    def upload(self, content):
+        request = self.factory.post(
+            '/api/v1/billing/coop-statements/upload/',
+            {'statement': SimpleUploadedFile('statement.csv', content.encode('utf-8'), content_type='text/csv')},
+            format='multipart',
+        )
+        force_authenticate(request, user=self.user)
+        return self.upload_view(request)
+
+    def test_import_persists_csv_rows_for_review(self):
+        response = self.upload(
+            'transaction_date,account_alias,receipt_number,amount\n'
+            '2026-11-01,PR-01,ABC123,1250.50\n'
+        )
+
+        self.assertEqual(response.status_code, 201)
+        upload = CoopStatementUpload.objects.get()
+        self.assertEqual(upload.entries[0]['tenantNo'], 'PR-01')
+        self.assertEqual(upload.entries[0]['paymentRef'], 'ABC123')
+        self.assertEqual(upload.entries[0]['amount'], '1250.50')
+
+    def test_duplicate_and_invalid_files_are_rejected(self):
+        content = 'amount\n100.00\n'
+        self.assertEqual(self.upload(content).status_code, 201)
+        self.assertEqual(self.upload(content).status_code, 409)
+        self.assertEqual(self.upload('amount\nnot-a-number\n').status_code, 400)
+
+
+class InvoiceActionTests(TestCase):
+    def setUp(self):
+        self.user = get_user_model().objects.create_superuser(
+            username='invoice-action-admin',
+            email='invoice-action-admin@example.test',
+            password='test-pass',
+        )
+        self.landlord = Landlord.objects.create(
+            landlord_id='LL-INVOICE-ACTION',
+            name='Invoice Action Landlord',
+        )
+        self.property = Property.objects.create(
+            property_id='PROP-INVOICE-ACTION',
+            name='Invoice Action Property',
+            landlord=self.landlord,
+        )
+        self.unit = Unit.objects.create(
+            unit_no='1',
+            unit_name='A1',
+            property=self.property,
+        )
+        self.tenant = Tenant.objects.create(
+            tenant_id='TNT-INVOICE-ACTION',
+            name='Invoice Action Tenant',
+            phone_number='0712345678',
+            unit=self.unit,
+        )
+        self.invoice = Invoice.objects.create(
+            tenant=self.tenant,
+            unit=self.unit,
+            billing_period=date(2026, 11, 1),
+            due_date=date(2026, 11, 5),
+        )
+        InvoiceItem.objects.create(
+            invoice=self.invoice,
+            item_type='Rent',
+            description='Monthly rent',
+            amount=Decimal('1000.00'),
+        )
+        self.factory = APIRequestFactory()
+
+    def call_action(self, action, data=None):
+        request = self.factory.post(
+            f'/api/v1/billing/invoices/{self.invoice.pk}/{action}/',
+            data or {},
+            format='json',
+        )
+        force_authenticate(request, user=self.user)
+        return InvoiceViewSet.as_view({'post': action.replace('-', '_')})(
+            request,
+            pk=str(self.invoice.pk),
+        )
+
+    def test_add_item_persists_and_refreshes_invoice_total(self):
+        response = self.call_action('add-item', {
+            'item_type': 'Water',
+            'description': 'Monthly water',
+            'amount': '250.00',
+        })
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(self.invoice.items.count(), 2)
+        self.assertEqual(self.invoice.net_total, Decimal('1250.00'))
+
+    def test_percentage_discount_reduces_invoice_total(self):
+        response = self.call_action('offer-discount', {'percentage': '10'})
+
+        self.assertEqual(response.status_code, 201)
+        discount = self.invoice.items.get(item_type='Discount')
+        self.assertEqual(discount.amount, Decimal('-100.00'))
+        self.assertEqual(self.invoice.subtotal, Decimal('1000.00'))
+        self.assertEqual(self.invoice.net_total, Decimal('900.00'))
+
+    def test_change_month_moves_due_date_by_the_same_offset(self):
+        response = self.call_action('change-month', {'period': '2026-12'})
+
+        self.assertEqual(response.status_code, 200)
+        self.invoice.refresh_from_db()
+        self.assertEqual(self.invoice.billing_period, date(2026, 12, 1))
+        self.assertEqual(self.invoice.due_date, date(2026, 12, 5))
+
+    def test_request_payment_creates_pending_draft_without_sending_sms(self):
+        response = self.call_action('request-payment')
+
+        self.assertEqual(response.status_code, 201)
+        draft = CommunicationDraft.objects.get(invoice=self.invoice)
+        self.assertEqual(draft.status, 'pending')
+        self.assertEqual(draft.phone_number, self.tenant.phone_number)
 
 
 class CommunicationDraftGenerationTests(TestCase):

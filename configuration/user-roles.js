@@ -128,9 +128,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.querySelectorAll('.btn-edit').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const id = e.target.getAttribute('data-id');
-        alert(`Open edit modal for Role ID: ${id}`);
+      btn.addEventListener('click', async (e) => {
+        const id = e.currentTarget.getAttribute('data-id');
+        const role = allRoles.find(item => String(item.id) === String(id));
+        if (!role) return;
+        const name = prompt('Role name:', role.name);
+        if (name === null || !name.trim()) return;
+        try {
+          await fetchAPI(`/user-roles/${id}/`, {
+            method: 'PATCH',
+            body: JSON.stringify({ name: name.trim() })
+          });
+          await loadRoles();
+        } catch (error) {
+          alert(`Failed to update role: ${error.message}`);
+        }
       });
     });
   }

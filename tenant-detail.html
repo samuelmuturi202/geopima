@@ -404,15 +404,15 @@
       <ul class="profile-details">
         <li>
           <span class="label"><i class="fa-solid fa-house"></i> Property</span>
-          <a href="#" id="tenantProperty">-</a>
+          <a id="tenantProperty">-</a>
         </li>
         <li>
           <span class="label"><i class="fa-solid fa-door-open"></i> Unit</span>
-          <a href="#" id="tenantUnit">-</a>
+          <a id="tenantUnit">-</a>
         </li>
         <li>
           <span class="label"><i class="fa-solid fa-user-tie"></i> Landlord</span>
-          <a href="#" id="tenantLandlord">-</a>
+          <a id="tenantLandlord">-</a>
         </li>
         <li>
           <span class="label"><i class="fa-solid fa-venus-mars"></i> Gender</span>
@@ -552,6 +552,15 @@
         const tenant = await fetchAPI(`/tenants/tenants/${tenantId}/`);
         if (tenant) {
           const name = tenant.name || `${tenant.first_name || ''} ${tenant.last_name || ''}`;
+          const setRelatedLink = (element, href) => {
+            if (href) {
+              element.href = href;
+              element.removeAttribute('aria-disabled');
+            } else {
+              element.removeAttribute('href');
+              element.setAttribute('aria-disabled', 'true');
+            }
+          };
           
           document.getElementById('topTenantName').textContent = name;
           document.getElementById('breadcrumbName').textContent = name;
@@ -561,6 +570,15 @@
           document.getElementById('tenantProperty').textContent = tenant.property_name || tenant.property || '-';
           document.getElementById('tenantUnit').textContent = tenant.unit_name || tenant.unit || '-';
           document.getElementById('tenantLandlord').textContent = tenant.landlord_name || tenant.landlord || '-';
+          setRelatedLink(document.getElementById('tenantProperty'), tenant.property_id
+            ? `property_detail.html?id=${encodeURIComponent(tenant.property_id)}`
+            : '');
+          setRelatedLink(document.getElementById('tenantUnit'), tenant.unit_id
+            ? `unit_detail.html?id=${encodeURIComponent(tenant.unit_id)}`
+            : '');
+          setRelatedLink(document.getElementById('tenantLandlord'), tenant.landlord_id
+            ? `landlord-details.html?id=${encodeURIComponent(tenant.landlord_id)}`
+            : '');
           document.getElementById('tenantGender').textContent = tenant.gender || '-';
           document.getElementById('tenantIdNumber').textContent = tenant.id_number || '-';
           document.getElementById('tenantCountry').textContent = tenant.country || 'Kenya';
@@ -593,9 +611,11 @@
         } else {
           invoices.forEach((inv, index) => {
             const tr = document.createElement('tr');
+            const invoiceId = inv.id || inv.invoice_id;
+            const invoiceNumber = inv.invoice_number || inv.invoiceNumber || '-';
             tr.innerHTML = `
               <td>${index + 1}</td>
-              <td><a href="#">${inv.invoice_number || inv.invoiceNumber || '-'}</a><br><small style="color:var(--text-muted)">${(inv.period || '').toUpperCase()}</small></td>
+              <td>${invoiceId ? `<a href="invoice.html?id=${encodeURIComponent(invoiceId)}">${invoiceNumber}</a>` : invoiceNumber}<br><small style="color:var(--text-muted)">${(inv.period || '').toUpperCase()}</small></td>
               <td>${inv.unit_name || inv.unit || '-'}</td>
               <td>${Number(inv.expected || inv.amount || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>
               <td>${Number(inv.prepaid || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</td>

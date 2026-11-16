@@ -258,9 +258,59 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // ================= AGREEMENTS LIST BUTTON =================
   if (agreementsBtn) {
-    agreementsBtn.addEventListener('click', () => {
-      alert('Opening Tenant Agreements Master List...');
+    agreementsBtn.addEventListener('click', async () => {
+      try {
+        const response = await fetchAPI('/tenants/agreements/?page_size=100');
+        const agreements = response.results || response;
+        if (!Array.isArray(agreements)) throw new Error('Unexpected agreements response.');
+        showAgreements(agreements);
+      } catch (error) {
+        alert(`Failed to load tenant agreements: ${error.message}`);
+      }
     });
+  }
+
+  function showAgreements(agreements) {
+    let dialog = document.getElementById('tenant-agreements-dialog');
+    if (!dialog) {
+      dialog = document.createElement('dialog');
+      dialog.id = 'tenant-agreements-dialog';
+      dialog.innerHTML = `
+        <form method="dialog" style="min-width:min(900px,90vw);max-height:80vh;overflow:auto">
+          <h2>Tenant Agreements</h2>
+          <button type="submit" aria-label="Close">Close</button>
+          <table style="width:100%;border-collapse:collapse">
+            <thead><tr><th>Tenant</th><th>Property</th><th>Unit</th><th>Start</th><th>End</th><th>Rent</th><th>Status</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </form>`;
+      document.body.appendChild(dialog);
+    }
+
+    const body = dialog.querySelector('tbody');
+    body.replaceChildren();
+    agreements.forEach(agreement => {
+      const row = document.createElement('tr');
+      [
+        agreement.tenant_name,
+        agreement.property_name,
+        agreement.unit_number,
+        agreement.start_date,
+        agreement.end_date,
+        agreement.rent_amount,
+        agreement.is_active ? 'Active' : 'Inactive'
+      ].forEach(value => {
+        const cell = document.createElement('td');
+        cell.textContent = value == null ? '' : String(value);
+        row.appendChild(cell);
+      });
+      body.appendChild(row);
+    });
+    if (!dialog.open) dialog.showModal();
+  }
+
+  if (new URLSearchParams(window.location.search).get('show') === 'agreements' && agreementsBtn) {
+    agreementsBtn.click();
   }
 
   // ================= NEW TENANT WORKFLOW LOGIC =================

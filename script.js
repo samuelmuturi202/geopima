@@ -19,6 +19,22 @@
   document.head.appendChild(roleAccessScript);
 })();
 
+window.downloadCsv = function(filename, headers, rows) {
+  const contents = [headers, ...rows].map(row =>
+    row.map(value => {
+      const text = String(value ?? '');
+      const safeText = typeof value === 'string' && /^[\s]*[=+\-@]/.test(text) ? `'${text}` : text;
+      return `"${safeText.replace(/"/g, '""')}"`;
+    }).join(',')
+  ).join('\r\n');
+  const url = URL.createObjectURL(new Blob([contents], { type: 'text/csv;charset=utf-8' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(url);
+};
+
 document.addEventListener('DOMContentLoaded', () => {
   const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 

@@ -8,15 +8,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   const bankForm = document.getElementById('bankForm');
   const modalTitle = document.getElementById('modalTitle');
   const entriesInfo = document.getElementById('entriesInfo');
+  const entriesSelect = document.getElementById('entriesSelect');
+  const pagination = document.getElementById('banks-pagination');
 
   let banksData = [];
+  let filteredBanks = [];
+  let rowsPerPage = Number(entriesSelect?.value || 10);
+  let currentPage = 1;
 
   async function loadPaymentBanks() {
     try {
       const response = await fetchAPI('/payment-banks/');
       // Handles both plain arrays and paginated result sets safely
       banksData = Array.isArray(response) ? response : (response.results || []);
-      renderTable(banksData);
+      applySearch();
     } catch (error) {
       console.error('Failed to load payment banks:', error);
       if (tableBody) {
@@ -32,10 +37,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!banks || banks.length === 0) {
       tableBody.innerHTML = `<tr><td colspan="10" style="text-align: center;">No payment banks or channels found.</td></tr>`;
       if (entriesInfo) entriesInfo.textContent = 'Showing 0 entries';
+      currentPage = 1;
+      renderPagination(0);
       return;
     }
 
-    banks.forEach(bank => {
+    const pageCount = Math.ceil(banks.length / rowsPerPage);
+    currentPage = Math.min(currentPage, pageCount);
+    const start = (currentPage - 1) * rowsPerPage;
+    banks.slice(start, start + rowsPerPage).forEach(bank => {
       const row = document.createElement('tr');
       row.innerHTML = `
         <td>${bank.short_name || ''}</td>
@@ -56,10 +66,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     if (entriesInfo) {
-      entriesInfo.textContent = `Showing 1 to ${banks.length} of ${banks.length} entries`;
+      entriesInfo.textContent = `Showing ${start + 1} to ${Math.min(start + rowsPerPage, banks.length)} of ${banks.length} entries`;
     }
 
+    renderPagination(pageCount);
     attachActionListeners();
+  }
+
+  function renderPagination(pageCount) {
+    if (!pagination) return;
+    pagination.replaceChildren();
+    const addButton = (label, page, disabled = false, active = false) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = `page-btn${disabled ? ' disabled' : ''}${active ? ' active' : ''}`;
+      button.textContent = label;
+      button.disabled = disabled;
+      button.addEventListener('click', () => {
+        currentPage = page;
+        renderTable(filteredBanks);
+      });
+      pagination.appendChild(button);
+    };
+    addButton('Previous', Math.max(1, currentPage - 1), currentPage <= 1);
+    for (let page = 1; page <= pageCount; page += 1) addButton(String(page), page, false, page === currentPage);
+    addButton('Next', Math.min(pageCount, currentPage + 1), pageCount === 0 || currentPage >= pageCount);
+  }
+
+  function applySearch() {
+    const term = (searchInput?.value || '').trim().toLowerCase();
+    filteredBanks = banksData.filter(bank =>
+      Object.values(bank).some(value => String(value ?? '').toLowerCase().includes(term))
+    );
+    currentPage = 1;
+    renderTable(filteredBanks);
   }
 
   function attachActionListeners() {
@@ -158,12 +198,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   if (searchInput) {
-    searchInput.addEventListener('keyup', (e) => {
-      const term = e.target.value.toLowerCase();
-      const filtered = banksData.filter(b => 
-        Object.values(b).some(val => String(val).toLowerCase().includes(term))
-      );
-      renderTable(filtered);
+    searchInput.addEventListener('input', applySearch);
+  }
+  if (entriesSelect) {
+    entriesSelect.addEventListener('change', () => {
+      rowsPerPage = Number(entriesSelect.value);
+      currentPage = 1;
+      renderTable(filteredBanks);
     });
   }
 

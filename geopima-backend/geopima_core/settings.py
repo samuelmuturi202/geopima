@@ -151,7 +151,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'config_core.permissions.RolePermission',
     ),
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_PAGINATION_CLASS': 'config_core.pagination.StandardResultsSetPagination',
     'PAGE_SIZE': 50,
 }
 
