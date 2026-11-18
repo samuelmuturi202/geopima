@@ -3,6 +3,7 @@ from rest_framework import serializers
 from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 from django.urls import reverse
+from django.db.models import Q
 from properties.models import Landlord, Property, PropertyAgreement, Unit, UnitOption
 
 
@@ -172,7 +173,6 @@ class PropertySerializer(serializers.ModelSerializer):
 
         return super().to_internal_value(data)
 
-
     def create(self, validated_data):
         validated_data.pop('landlord_name', None)
 
@@ -270,13 +270,32 @@ class PropertyAgreementSerializer(serializers.ModelSerializer):
         return attrs
 
 
+class FlexiblePropertyRelatedField(serializers.PrimaryKeyRelatedField):
+    """
+    Allows UnitSerializer to accept either an integer PK (e.g. 1) 
+    or a string identifier/name (e.g. 'PRO5') from requests seamlessly.
+    """
+    def to_internal_value(self, data):
+        if data is None:
+            return None
+        try:
+            val_str = str(data).strip()
+            if val_str.isdigit():
+                return Property.objects.get(pk=int(val_str))
+            return Property.objects.get(
+                Q(property_id__iexact=val_str) | Q(name__iexact=val_str)
+            )
+        except Property.DoesNotExist:
+            raise serializers.ValidationError(f"Property with identifier '{data}' does not exist.")
+
+
 class UnitSerializer(serializers.ModelSerializer):
     property_name = serializers.ReadOnlyField(source='property.name', default='')
     propertyName = serializers.ReadOnlyField(source='property.name', default='')
     property_id = serializers.ReadOnlyField(source='property.property_id', default=None)
     landlord_id = serializers.ReadOnlyField(source='property.landlord_id', default=None)
     
-    property = serializers.PrimaryKeyRelatedField(
+    property = FlexiblePropertyRelatedField(
         queryset=Property.objects.all(),
         required=False,
         allow_null=True
@@ -343,6 +362,8 @@ class UnitSerializer(serializers.ModelSerializer):
             'garbage_fee': {'required': False, 'allow_null': True},
             'is_occupied': {'required': False},
         }
+        # Explicitly clear out DRF auto-generated unique-together validators to prevent field collision crashes
+        validators = []
 
     def validate_unit_no(self, value):
         value = (value or '').strip().upper()
