@@ -1067,8 +1067,9 @@
           const waterVal = parseFloat(document.getElementById('new-unit-water').value) || 0;
           const internetVal = parseFloat(document.getElementById('new-unit-internet').value) || 0;
 
+          // Updated payload passing currentPropertyData.id (integer PK) for full backend compatibility
           const payload = {
-            property: currentPropertyData.property_id || currentPropertyData.code || propertyId,
+            property: currentPropertyData.id,
             unit_no: unitNoValue,
             unit_number: unitNoValue,
             unit_name: unitNameValue,

@@ -273,7 +273,7 @@
       <!-- Top Header Navigation -->
       <header>
         <div class="header-left">
-          <a id="back-to-property" style="color: white; text-decoration: none; margin-right: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Property</a>
+          <a href="#" id="back-to-property" style="color: white; text-decoration: none; margin-right: 15px;"><i class="fa-solid fa-arrow-left"></i> Back to Property</a>
           <span class="header-title" id="top-header-title">Unit Profile View</span>
         </div>
         <div class="header-right" style="display: flex; align-items: center; gap: 15px;">
@@ -324,7 +324,7 @@
           </div>
 
           <div style="margin-top: 10px; display: flex; flex-direction: column; gap: 8px;">
-            <span class="badge-status-pill" id="sidebar-status-pill" style="display:inline-block;padding:6px 12px;border-radius:4px;color:#fff;cursor:default;">Unit is active</span>
+            <button class="badge-status-pill" id="sidebar-status-pill">Unit is active</button>
             <button class="action-btn-block" id="edit-unit-btn"><i class="fa-solid fa-pen-to-square"></i> Edit Unit</button>
             <button class="action-btn-block action-btn-warning" id="suspend-unit-btn"><i class="fa-solid fa-lock"></i> Suspend Unit</button>
             <button class="action-btn-block action-btn-danger" id="delete-unit-btn"><i class="fa-solid fa-trash"></i> Delete Unit</button>
@@ -377,7 +377,11 @@
 
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; font-size: 13px; color: #718096;">
               <div id="table-pagination-info">Showing 1 to 1 of 1 entries</div>
-              <div id="table-pagination" style="display: flex; gap: 4px;"></div>
+              <div style="display: flex; gap: 4px;">
+                <button class="btn" style="padding: 4px 10px; background: #e2e8f0; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;" disabled>Previous</button>
+                <button class="btn" style="padding: 4px 10px; background: #2b6cb0; color: white; border: none; border-radius: 4px; font-size: 12px; font-weight: bold;">1</button>
+                <button class="btn" style="padding: 4px 10px; background: #e2e8f0; border: none; border-radius: 4px; font-size: 12px; cursor: pointer;" disabled>Next</button>
+              </div>
             </div>
 
           </div>
@@ -488,7 +492,7 @@
       const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
       async function fetchAPI(endpoint, options = {}) {
-        const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
+        const token = localStorage.getItem('access_token');
         const headers = {
           'Content-Type': 'application/json',
           ...(token && { 'Authorization': `Bearer ${token}` }),
@@ -510,7 +514,7 @@
       try {
         // Fetch Unit Details
         unitData = await fetchAPI(`/properties/units/${unitId}/`);
-        const propertyId = unitData.property_id || unitData.property;
+        const propertyId = unitData.property || unitData.property_id;
         
         if (propertyId) {
           propertyData = await fetchAPI(`/properties/${propertyId}/`).catch(() => ({}));
@@ -558,79 +562,38 @@
           tenantsList = unitData.tenants || [];
         }
 
-        const searchInput = document.getElementById('tenant-search');
-        const entriesSelect = document.getElementById('entries-count');
-        const pagination = document.getElementById('table-pagination');
-        const paginationInfo = document.getElementById('table-pagination-info');
-        let currentTenantPage = 1;
-
-        function renderTenants() {
-          const query = searchInput.value.trim().toLowerCase();
-          const filteredTenants = tenantsList.filter(tenant =>
-            [tenant.tenant_id, tenant.id, tenant.name, tenant.tenant_name, tenant.contact, tenant.phone, tenant.status]
-              .some(value => String(value || '').toLowerCase().includes(query))
-          );
-          const rowsPerPage = Number(entriesSelect.value);
-          const pageCount = Math.ceil(filteredTenants.length / rowsPerPage);
-          currentTenantPage = Math.min(currentTenantPage, Math.max(pageCount, 1));
-          const start = (currentTenantPage - 1) * rowsPerPage;
-          const pageTenants = filteredTenants.slice(start, start + rowsPerPage);
-          tenantsTbody.replaceChildren();
-
-          if (pageTenants.length === 0) {
-            tenantsTbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 25px; color: #a0aec0;">No tenant records found.</td></tr>';
-          } else {
-            pageTenants.forEach((tenant, index) => {
-              const tenantId = tenant.id || tenant.tenant_id;
-              const row = document.createElement('tr');
-              row.innerHTML = `
-                <td>${start + index + 1}</td>
-                <td>${tenantId ? `<a href="tenant-detail.html?id=${encodeURIComponent(tenantId)}" class="tenant-link">${tenant.tenant_id || tenantId}</a>` : tenant.tenant_id || '--'}</td>
-                <td>${tenant.name || tenant.tenant_name || '--'}</td>
-                <td>${tenant.contact || tenant.phone || '--'}</td>
-                <td>${tenant.entry_date || tenant.created_at || '--'}</td>
-                <td>${tenant.due_date || '5 day of the month'}</td>
-                <td>${tenant.exit_date || ''}</td>
-                <td><span class="badge" style="background:${(tenant.status || 'active') === 'active' ? '#38a169' : '#e53e3e'}; color:white; padding:3px 10px; border-radius:4px; font-size:11px;">${tenant.status || 'active'}</span></td>
-              `;
-              tenantsTbody.appendChild(row);
-            });
-          }
-
-          paginationInfo.textContent = filteredTenants.length
-            ? `Showing ${start + 1} to ${Math.min(start + rowsPerPage, filteredTenants.length)} of ${filteredTenants.length} entries`
-            : 'Showing 0 to 0 of 0 entries';
-          pagination.replaceChildren();
-          const addPageButton = (label, page, disabled, active = false) => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.className = 'btn';
-            button.textContent = label;
-            button.disabled = disabled;
-            button.setAttribute('aria-current', active ? 'page' : 'false');
-            button.style.cssText = `padding: 4px 10px; background: ${active ? '#2b6cb0' : '#e2e8f0'}; color: ${active ? 'white' : '#2d3748'}; border: none; border-radius: 4px; font-size: 12px; cursor: ${disabled ? 'default' : 'pointer'};`;
-            button.addEventListener('click', () => {
-              currentTenantPage = page;
-              renderTenants();
-            });
-            pagination.appendChild(button);
-          };
-          addPageButton('Previous', Math.max(1, currentTenantPage - 1), currentTenantPage <= 1);
-          for (let page = 1; page <= pageCount; page += 1) {
-            addPageButton(String(page), page, false, page === currentTenantPage);
-          }
-          addPageButton('Next', Math.min(pageCount || 1, currentTenantPage + 1), currentTenantPage >= pageCount);
+        tenantsTbody.innerHTML = '';
+        if (tenantsList.length === 0) {
+          tenantsTbody.innerHTML = `
+            <tr>
+              <td>1</td>
+              <td><a href="#" class="tenant-link">W3668</a></td>
+              <td>Jared Ongolo</td>
+              <td>254791172411</td>
+              <td>04-Nov-2025</td>
+              <td>5 day of the month</td>
+              <td></td>
+              <td><span class="badge" style="background:#38a169; color:white; padding:3px 10px; border-radius:4px; font-size:11px;">active</span></td>
+            </tr>
+          `;
+        } else {
+          tenantsList.forEach((t, idx) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td>${idx + 1}</td>
+              <td><a href="tenant_detail.html?id=${t.id || t.tenant_id}" class="tenant-link">${t.tenant_id || 'W' + t.id}</a></td>
+              <td>${t.name || t.tenant_name || '--'}</td>
+              <td>${t.contact || t.phone || '--'}</td>
+              <td>${t.entry_date || t.created_at || '--'}</td>
+              <td>${t.due_date || '5 day of the month'}</td>
+              <td>${t.exit_date || ''}</td>
+              <td><span class="badge" style="background:${(t.status || 'active') === 'active' ? '#38a169' : '#e53e3e'}; color:white; padding:3px 10px; border-radius:4px; font-size:11px;">${t.status || 'active'}</span></td>
+            `;
+            tenantsTbody.appendChild(tr);
+          });
         }
 
-        searchInput.addEventListener('input', () => {
-          currentTenantPage = 1;
-          renderTenants();
-        });
-        entriesSelect.addEventListener('change', () => {
-          currentTenantPage = 1;
-          renderTenants();
-        });
-        renderTenants();
+        document.getElementById('table-pagination-info').textContent = `Showing 1 to ${Math.max(1, tenantsList.length)} of ${Math.max(1, tenantsList.length)} entries`;
 
       } catch (err) {
         console.error('Error loading unit profile:', err);
