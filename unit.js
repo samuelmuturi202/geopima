@@ -1,16 +1,61 @@
 document.addEventListener('DOMContentLoaded', () => {
   const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
+  function getAuthToken() {
+    return (
+      localStorage.getItem('access_token') ||
+      localStorage.getItem('token') ||
+      localStorage.getItem('access')
+    );
+  }
+
   async function fetchAPI(endpoint, options = {}) {
-    const token = localStorage.getItem('access_token');
+    const token = getAuthToken();
     const headers = {
-      'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` }),
-      ...options.headers
+      ...(!(options.body instanceof FormData) && { 'Content-Type': 'application/json' }),
+      ...(token && { Authorization: `Bearer ${token}` }),
+      ...options.headers,
     };
-    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers });
-    if (!response.ok) throw new Error(`API Error: ${response.statusText}`);
+
+    let body = options.body;
+    if (body && typeof body === 'object' && !(body instanceof FormData)) {
+      body = JSON.stringify(body);
+    }
+
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, { ...options, headers, body });
+    if (response.status === 204) return null;
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `API Error: ${response.statusText}`);
+    }
     return response.json();
+  }
+
+  function normalizeAliasPart(value) {
+    return String(value || '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  function buildSmartAlias(row, fallbackUnitNo = '') {
+    const rawAlias = row.smart_alias || row.alias || row.unitNo || row.unit_number || row.unit_no || fallbackUnitNo || '';
+    const propCode = normalizeAliasPart(
+      row.property_id || row.propertyId || row.property_code || (typeof row.property === 'object' && row.property ? row.property.property_id : '')
+    );
+    const houseName = normalizeAliasPart(
+      row.unitName || row.unit_name || row.house_name || row.name || ''
+    );
+
+    if (propCode && houseName) {
+      if (normalizeAliasPart(rawAlias).startsWith(`${propCode}-`)) {
+        return normalizeAliasPart(rawAlias);
+      }
+      return `${propCode}-${houseName}`;
+    }
+
+    return rawAlias || '-';
   }
 
   const tableBody = document.getElementById('table-body');
@@ -29,13 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const statusFilter = document.getElementById('filter-status');
 
   let currentPage = 1;
-  let rowsPerPage = parseInt(entriesSelect ? entriesSelect.value : 50);
+  let rowsPerPage = parseInt(entriesSelect ? entriesSelect.value : 50, 10) || 50;
 
   async function loadPropertiesFilter() {
     if (!propertyFilter) return;
     try {
       const response = await fetchAPI('/properties/');
-      const properties = response.results || response;
+      const properties = Array.isArray(response) ? response : (response.results || []);
       propertyFilter.innerHTML = '<option value="All">Property: All</option>';
       properties.forEach(prop => {
         const propName = prop.name || prop.property_name;
@@ -55,10 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!landlordFilter) return;
     try {
       const response = await fetchAPI('/properties/landlords/');
-      const landlords = response.results || response;
+      const landlords = Array.isArray(response) ? response : (response.results || []);
       landlordFilter.innerHTML = '<option value="All">Landlord: All</option>';
       landlords.forEach(landlord => {
-        const name = landlord.name || landlord.full_name || `${landlord.first_name || ''} ${landlord.last_name || ''}`.trim();
+        const name =
+          landlord.name ||
+          landlord.full_name ||
+          `${landlord.first_name || ''} ${landlord.last_name || ''}`.trim();
         if (name) {
           const option = document.createElement('option');
           option.value = name;
@@ -92,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (selectedStatus !== 'All') params.append('status', selectedStatus);
 
       const response = await fetchAPI(`/properties/units/?${params.toString()}`);
-      const units = response.results || response;
+      const units = Array.isArray(response) ? response : (response.results || []);
       const totalCount = response.count ?? units.length;
 
       renderTable(units, totalCount);
@@ -117,21 +165,38 @@ document.addEventListener('DOMContentLoaded', () => {
     items.forEach((row, index) => {
       const tr = document.createElement('tr');
       const unitId = row.id;
-      const unitNo = row.unitNo || row.unit_number || row.unit_no || '';
-      const unitName = row.unitName || row.name || row.unit_name || '';
-      const propertyName = row.property_name || row.property || '-';
-      const landlordName = row.landlord_name || row.landlord || '-';
-      const tenantName = row.tenant_name || row.tenant || 'Vacant';
-      
+      const smartAlias = buildSmartAlias(row, `U-${start + index + 1}`);
+      const unitName = row.unitName || row.unit_name || row.house_name || row.name || '-';
+      const propertyName =
+        typeof row.property === 'object' && row.property !== null
+          ? (row.property.name || row.property.property_name || '-')
+          : (row.property_name || row.property || '-');
+      const landlordName =
+        typeof row.landlord === 'object' && row.landlord !== null
+          ? (row.landlord.name || row.landlord.full_name || '-')
+          : (row.landlord_name || row.landlord || '-');
+      const tenantName =
+        typeof row.tenant === 'object' && row.tenant !== null
+          ? (row.tenant.name || row.tenant.full_name || 'Vacant')
+          : (row.tenant_name || row.tenant || 'Vacant');
+      const propLinkId =
+        row.property_id ||
+        (typeof row.property === 'object' && row.property ? (row.property.property_id || row.property.id) : null);
+      const landlordLinkId =
+        row.landlord_id ||
+        (typeof row.landlord === 'object' && row.landlord ? row.landlord.id : null);
+      const tenantLinkId =
+        typeof row.tenant === 'object' && row.tenant ? row.tenant.id : row.tenant;
+
       tr.innerHTML = `
         <td>${start + index + 1}</td>
-        <td><a href="unit_detail.html?id=${unitId}" class="link-code">${unitNo}</a></td>
-        <td>${unitName}</td>
-        <td>${row.property_id ? `<a href="property_detail.html?id=${encodeURIComponent(row.property_id)}" class="link-text">${propertyName}</a>` : propertyName}</td>
-        <td>${row.landlord_id ? `<a href="landlord-details.html?id=${encodeURIComponent(row.landlord_id)}" class="link-text">${landlordName}</a>` : landlordName}</td>
+        <td><a href="unit_detail.html?id=${encodeURIComponent(unitId)}" class="link-code" title="Smart Alias: ${smartAlias}">${smartAlias}</a></td>
+        <td><strong>${unitName}</strong></td>
+        <td>${propLinkId ? `<a href="property_detail.html?id=${encodeURIComponent(propLinkId)}" class="link-text">${propertyName}</a>` : propertyName}</td>
+        <td>${landlordLinkId ? `<a href="landlord-details.html?id=${encodeURIComponent(landlordLinkId)}" class="link-text">${landlordName}</a>` : landlordName}</td>
         <td>${row.unitType || row.unit_type || 'Single Room'}</td>
         <td>${row.unitCategory || row.category || 'Residential'}</td>
-        <td>${row.tenant && tenantName !== 'Vacant' ? `<a href="tenant-detail.html?id=${encodeURIComponent(row.tenant)}" class="link-text">${tenantName}</a>` : tenantName}</td>
+        <td>${tenantLinkId && tenantName !== 'Vacant' ? `<a href="tenant-detail.html?id=${encodeURIComponent(tenantLinkId)}" class="link-text">${tenantName}</a>` : tenantName}</td>
         <td class="text-center"><span class="badge-outline-occupied">${row.vacancy || (row.is_occupied ? 'occupied' : 'vacant')}</span></td>
         <td class="text-center"><span class="badge-solid-active">${(row.status || 'Active').toLowerCase()}</span></td>
       `;
@@ -147,6 +212,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPagination(totalEntries) {
     const totalPages = Math.ceil(totalEntries / rowsPerPage);
+    if (currentPage > totalPages && totalPages > 0) {
+      currentPage = totalPages;
+    }
+
     if (previousBtn) {
       previousBtn.disabled = currentPage <= 1 || totalPages === 0;
       previousBtn.classList.toggle('disabled', previousBtn.disabled);
@@ -202,22 +271,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getExportData() {
     const rows = Array.from(tableBody.querySelectorAll('tr'));
-    return rows.map(tr => {
-      const cols = tr.querySelectorAll('td');
-      if (cols.length < 10) return null;
-      return {
-        index: cols[0].innerText,
-        unitNo: cols[1].innerText,
-        unitName: cols[2].innerText,
-        property: cols[3].innerText,
-        landlord: cols[4].innerText,
-        unitType: cols[5].innerText,
-        unitCategory: cols[6].innerText,
-        tenant: cols[7].innerText,
-        vacancy: cols[8].innerText,
-        status: cols[9].innerText
-      };
-    }).filter(Boolean);
+    return rows
+      .map(tr => {
+        const cols = tr.querySelectorAll('td');
+        if (cols.length < 10) return null;
+        return {
+          index: cols[0].innerText,
+          smartAlias: cols[1].innerText,
+          unitName: cols[2].innerText,
+          property: cols[3].innerText,
+          landlord: cols[4].innerText,
+          unitType: cols[5].innerText,
+          unitCategory: cols[6].innerText,
+          tenant: cols[7].innerText,
+          vacancy: cols[8].innerText,
+          status: cols[9].innerText,
+        };
+      })
+      .filter(Boolean);
   }
 
   const exportCsvBtn = document.getElementById('export-csv');
@@ -227,13 +298,13 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = getExportData();
       if (data.length === 0) return alert('No data available to export.');
 
-      const headers = ['#', 'Unit No', 'Unit Name', 'Property', 'Landlord', 'Unit Type', 'Unit Category', 'Tenant', 'Vacancy', 'Status'];
+      const headers = ['#', 'Smart Alias', 'Unit Name', 'Property', 'Landlord', 'Unit Type', 'Unit Category', 'Tenant', 'Vacancy', 'Status'];
       const csvRows = [headers.join(',')];
 
       data.forEach(row => {
         const values = [
           `"${row.index}"`,
-          `"${row.unitNo}"`,
+          `"${row.smartAlias}"`,
           `"${row.unitName}"`,
           `"${row.property}"`,
           `"${row.landlord}"`,
@@ -241,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
           `"${row.unitCategory}"`,
           `"${row.tenant}"`,
           `"${row.vacancy}"`,
-          `"${row.status}"`
+          `"${row.status}"`,
         ];
         csvRows.push(values.join(','));
       });
@@ -262,9 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = getExportData();
       if (data.length === 0) return alert('No data available to export.');
 
-      let html = '<table><tr><th>#</th><th>Unit No</th><th>Unit Name</th><th>Property</th><th>Landlord</th><th>Unit Type</th><th>Unit Category</th><th>Tenant</th><th>Vacancy</th><th>Status</th></tr>';
+      let html = '<table><tr><th>#</th><th>Smart Alias</th><th>Unit Name</th><th>Property</th><th>Landlord</th><th>Unit Type</th><th>Unit Category</th><th>Tenant</th><th>Vacancy</th><th>Status</th></tr>';
       data.forEach(row => {
-        html += `<tr><td>${row.index}</td><td>${row.unitNo}</td><td>${row.unitName}</td><td>${row.property}</td><td>${row.landlord}</td><td>${row.unitType}</td><td>${row.unitCategory}</td><td>${row.tenant}</td><td>${row.vacancy}</td><td>${row.status}</td></tr>`;
+        html += `<tr><td>${row.index}</td><td>${row.smartAlias}</td><td>${row.unitName}</td><td>${row.property}</td><td>${row.landlord}</td><td>${row.unitType}</td><td>${row.unitCategory}</td><td>${row.tenant}</td><td>${row.vacancy}</td><td>${row.status}</td></tr>`;
       });
       html += '</table>';
 
@@ -303,7 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (entriesSelect) {
     entriesSelect.addEventListener('change', () => {
-      rowsPerPage = parseInt(entriesSelect.value);
+      rowsPerPage = parseInt(entriesSelect.value, 10) || 50;
       currentPage = 1;
       loadUnits();
     });

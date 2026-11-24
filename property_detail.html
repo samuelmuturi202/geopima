@@ -548,12 +548,12 @@
         <div class="add-units-body-box">
           <div class="unit-grid-row-1">
             <div class="form-group">
-              <input type="text" id="new-unit-no" readonly style="background-color: #edf2f7; cursor: not-allowed;" placeholder="Auto-generated">
-              <span class="field-hint">Unit No. <span style="color: #2b6cb0;">(Auto-generated)</span></span>
+              <input type="text" id="new-unit-no" readonly style="background-color: #edf2f7; cursor: not-allowed;" placeholder="property_id-house_name">
+              <span class="field-hint">Smart Alias <span style="color: #2b6cb0;">(property_id-house_name)</span></span>
             </div>
             <div class="form-group">
               <input type="text" id="new-unit-name" required placeholder="e.g. H1, Shop A, 101">
-              <span class="field-hint">Unit Name <span class="required">required</span></span>
+              <span class="field-hint">Unit / House Name <span class="required">required</span></span>
             </div>
             <div class="form-group">
               <select id="new-unit-category">
@@ -672,6 +672,23 @@
 
       const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
+      function normalizeAliasSegment(value) {
+        return String(value || '')
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^A-Za-z0-9_-]/g, '')
+          .toUpperCase();
+      }
+
+      function buildSmartAlias(propCode, houseName) {
+        const cleanPropId = normalizeAliasSegment(propCode);
+        const cleanHouseName = normalizeAliasSegment(houseName);
+        if (!cleanPropId && !cleanHouseName) return '';
+        if (!cleanHouseName) return `${cleanPropId}-`;
+        if (!cleanPropId) return cleanHouseName;
+        return `${cleanPropId}-${cleanHouseName}`;
+      }
+
       async function fetchAPI(endpoint, options = {}) {
         const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
         const headers = {
@@ -726,7 +743,6 @@
       }
 
       let currentPropertyData = {};
-      let existingUnitsCount = 0;
       const propertyAgreementsBody = document.getElementById('property-agreements-tbody');
       const agreementModal = document.getElementById('property-agreement-modal');
       const agreementForm = document.getElementById('property-agreement-form');
@@ -941,7 +957,6 @@
 
         const unitsResponse = await fetchAPI(`/properties/units/?property_id=${propertyId}`);
         const unitsList = Array.isArray(unitsResponse) ? unitsResponse : (unitsResponse?.results || []);
-        existingUnitsCount = unitsList.length;
         
         const unitsTbody = document.getElementById('property-units-tbody');
         unitsTbody.innerHTML = '';
@@ -953,8 +968,8 @@
             const tr = document.createElement('tr');
             const unitStatus = unit.status || 'active';
             const vacancyStatus = unit.is_vacant !== undefined ? (unit.is_vacant ? 'vacant' : 'occupied') : (unit.vacancy || 'vacant');
-            const unitNoVal = unit.unit_no || unit.unit_number || `U-${idx + 1}`;
             const unitNameVal = unit.unit_name || unit.name || unit.unit || '--';
+            const unitNoVal = unit.unit_no || unit.unit_number || buildSmartAlias(propertyNoText, unitNameVal) || `U-${idx + 1}`;
             const unitId = unit.id;
             
             const rentVal = parseFloat(unit.rent_amount ?? unit.monthly_rent ?? unit.rent ?? 0) || 0;
@@ -1007,24 +1022,34 @@
         document.querySelector('.detail-layout').innerHTML = `<div style="padding: 40px; color: red; text-align: center; width: 100%;"><h3>Error loading property details</h3><p>${err.message}</p></div>`;
       }
 
-      // Add Unit Modal Interactivity
+      // Add Unit Modal Interactivity & Smart Alias Sync
       const addUnitModal = document.getElementById('add-unit-modal');
       const openAddUnitBtn = document.getElementById('open-add-unit-modal');
       const closeAddUnitTop = document.getElementById('close-add-unit-modal-top');
       const addUnitForm = document.getElementById('add-unit-form');
+      const newUnitNoInput = document.getElementById('new-unit-no');
+      const newUnitNameInput = document.getElementById('new-unit-name');
 
-      function generatePropertyUnitNo() {
-        const propCode = currentPropertyData.property_id || currentPropertyData.code || `WP0${currentPropertyData.id}`;
-        const nextDigit = existingUnitsCount + 1;
-        return `${propCode}-U${nextDigit}`;
+      function getActivePropertyCode() {
+        return currentPropertyData.property_id || currentPropertyData.code || `WP0${currentPropertyData.id}`;
+      }
+
+      function syncSmartAliasPreview() {
+        if (!newUnitNoInput || !newUnitNameInput) return;
+        const propCode = getActivePropertyCode();
+        newUnitNoInput.value = buildSmartAlias(propCode, newUnitNameInput.value);
+      }
+
+      if (newUnitNameInput) {
+        newUnitNameInput.addEventListener('input', syncSmartAliasPreview);
       }
 
       if (openAddUnitBtn) {
         openAddUnitBtn.addEventListener('click', () => {
           const propName = currentPropertyData.name || 'PROPERTY';
           document.getElementById('modal-add-unit-title').textContent = `ADD UNITS TO >> ${propName.toUpperCase()}`;
-          document.getElementById('new-unit-no').value = generatePropertyUnitNo();
-          document.getElementById('new-unit-name').value = '';
+          newUnitNameInput.value = '';
+          newUnitNoInput.value = `${normalizeAliasSegment(getActivePropertyCode())}-`;
           
           document.getElementById('new-unit-rent').value = currentPropertyData.default_rent || '';
           document.getElementById('new-unit-deposit').value = currentPropertyData.default_deposit || '';
@@ -1056,8 +1081,14 @@
       if (addUnitForm) {
         addUnitForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const unitNoValue = document.getElementById('new-unit-no').value.trim();
-          const unitNameValue = document.getElementById('new-unit-name').value.trim();
+          const unitNameValue = newUnitNameInput.value.trim();
+          if (!unitNameValue) {
+            alert('Please enter a Unit / House Name.');
+            return;
+          }
+
+          const computedAlias = buildSmartAlias(getActivePropertyCode(), unitNameValue);
+          newUnitNoInput.value = computedAlias;
           
           const rentVal = parseFloat(document.getElementById('new-unit-rent').value) || 0;
           const depositVal = parseFloat(document.getElementById('new-unit-deposit').value) || 0;
@@ -1067,11 +1098,11 @@
           const waterVal = parseFloat(document.getElementById('new-unit-water').value) || 0;
           const internetVal = parseFloat(document.getElementById('new-unit-internet').value) || 0;
 
-          // Updated payload passing currentPropertyData.id (integer PK) for full backend compatibility
           const payload = {
-            property: currentPropertyData.id,
-            unit_no: unitNoValue,
-            unit_number: unitNoValue,
+            property: currentPropertyData.property_id || currentPropertyData.code || propertyId,
+            unit_no: computedAlias,
+            unit_number: computedAlias,
+            unitNo: computedAlias,
             unit_name: unitNameValue,
             name: unitNameValue,
             category: document.getElementById('new-unit-category').value,
@@ -1094,7 +1125,7 @@
               method: 'POST',
               body: JSON.stringify(payload)
             });
-            alert('Unit created successfully!');
+            alert(`Unit created with Smart Alias: ${computedAlias}`);
             window.location.reload();
           } catch (err) {
             alert(`Failed to create unit: ${err.message}`);

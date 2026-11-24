@@ -4,7 +4,9 @@ from django.core.validators import FileExtensionValidator
 from django.utils import timezone
 from django.urls import reverse
 from django.db.models import Q
-from properties.models import Landlord, Property, PropertyAgreement, Unit, UnitOption
+from properties.models import (
+    Landlord, Property, PropertyAgreement, Unit, UnitOption, build_unit_smart_alias,
+)
 
 
 class LandlordSerializer(serializers.ModelSerializer):
@@ -365,11 +367,40 @@ class UnitSerializer(serializers.ModelSerializer):
         # Explicitly clear out DRF auto-generated unique-together validators to prevent field collision crashes
         validators = []
 
+    def validate_unit_name(self, value):
+        cleaned = (value or '').strip()
+        if not cleaned and self.instance is None:
+            raise serializers.ValidationError('Unit name / house name cannot be blank.')
+        return cleaned
+
     def validate_unit_no(self, value):
-        value = (value or '').strip().upper()
-        if not value:
-            raise serializers.ValidationError('Unit number cannot be blank.')
-        return value
+        return (value or '').strip().upper()
+
+    def validate(self, attrs):
+        prop = attrs.get('property', getattr(self.instance, 'property', None))
+        if prop is None:
+            raise serializers.ValidationError({'property': 'Property is required to generate the unit smart alias.'})
+
+        raw_unit_name = attrs.get('unit_name')
+        if raw_unit_name is None:
+            raw_unit_name = getattr(self.instance, 'unit_name', '')
+        unit_name_clean = (raw_unit_name or '').strip()
+        if not unit_name_clean:
+            raise serializers.ValidationError({'unit_name': 'Unit name / house name is required.'})
+
+        attrs['unit_name'] = unit_name_clean
+        smart_alias = build_unit_smart_alias(prop.property_id, unit_name_clean)
+        attrs['unit_no'] = smart_alias
+
+        duplicate_qs = Unit.objects.filter(property=prop, unit_no__iexact=smart_alias)
+        if self.instance is not None:
+            duplicate_qs = duplicate_qs.exclude(pk=self.instance.pk)
+        if duplicate_qs.exists():
+            raise serializers.ValidationError({
+                'unit_name': f"A unit with alias '{smart_alias}' already exists in {prop.name}."
+            })
+
+        return attrs
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)

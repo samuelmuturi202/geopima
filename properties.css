@@ -208,6 +208,17 @@
   border-bottom: 1px dashed #2b6cb0;
 }
 
+.smart-alias-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #edf2f7;
+  color: #0b2238;
+  font-family: monospace;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 .occ-count {
   color: #38a169;
   font-weight: bold;

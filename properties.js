@@ -1,6 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
   const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
+  function normalizeAliasSegment(value) {
+    return String(value || '')
+      .trim()
+      .toUpperCase()
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-');
+  }
+
+  function buildUnitSmartAlias(propertyCode, houseName, fallback = '') {
+    const propPart = normalizeAliasSegment(propertyCode);
+    const housePart = normalizeAliasSegment(houseName);
+    if (propPart && housePart) {
+      return `${propPart}-${housePart}`;
+    }
+    return normalizeAliasSegment(fallback) || '';
+  }
+
   async function fetchAPI(endpoint, options = {}) {
     const token = localStorage.getItem('access_token') || localStorage.getItem('token') || localStorage.getItem('access');
     
@@ -158,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       row.innerHTML = `
         <td>${start + index + 1}</td>
-        <td><strong><a href="property_detail.html?id=${stringLookupId}" class="link-dashed">${propId}</a></strong></td>
+        <td><strong><a href="property_detail.html?id=${encodeURIComponent(stringLookupId)}" class="link-dashed">${propId}</a></strong></td>
         <td>${propName}</td>
         <td>${landlordName}</td>
         <td>${description}</td>
@@ -293,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const payload = {
-        property_id: document.getElementById('property-id')?.value || '',
+        property_id: normalizeAliasSegment(document.getElementById('property-id')?.value || ''),
         name: document.getElementById('property-name')?.value || '',
         landlord: landlordValue,
         cluster: document.getElementById('property-cluster')?.value || '',
@@ -456,5 +473,6 @@ document.addEventListener('DOMContentLoaded', () => {
     kind: 'category'
   });
 
+  window.buildUnitSmartAlias = buildUnitSmartAlias;
   loadProperties();
 });

@@ -1,3 +1,4 @@
+import re
 import uuid
 from django.db import models
 from django.utils import timezone
@@ -110,6 +111,17 @@ class PropertyAgreement(models.Model):
         return f'{self.property.name} - {self.description}'
 
 
+def build_unit_smart_alias(property_code, house_name):
+    prop_part = re.sub(r'\s+', '-', (property_code or '').strip()).upper()
+    house_part = re.sub(r'\s+', '-', (house_name or '').strip()).upper()
+    if prop_part and house_part:
+        prefix = f"{prop_part}-"
+        if house_part.startswith(prefix):
+            house_part = house_part[len(prefix):]
+        return f"{prop_part}-{house_part}"[:50]
+    return (house_part or prop_part)[:50]
+
+
 class Unit(models.Model):
     unit_no = models.CharField(max_length=50)
     unit_name = models.CharField(max_length=100)
@@ -143,13 +155,30 @@ class Unit(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        self.unit_no = (self.unit_no or '').strip().upper()
+        self.unit_name = (self.unit_name or '').strip()
+        prop_code = ''
+        if self.property_id:
+            prop_obj = getattr(self, '_property_cache', None)
+            if prop_obj is None or prop_obj.pk != self.property_id:
+                prop_obj = Property.objects.filter(pk=self.property_id).only('property_id').first()
+            if prop_obj:
+                prop_code = prop_obj.property_id
+
+        if self.unit_name and prop_code:
+            self.unit_no = build_unit_smart_alias(prop_code, self.unit_name)
+        elif self.unit_no:
+            self.unit_no = re.sub(r'\s+', '-', str(self.unit_no).strip()).upper()[:50]
+        elif self.unit_name:
+            self.unit_no = re.sub(r'\s+', '-', self.unit_name).upper()[:50]
+        else:
+            self.unit_no = ''
+
         if not self.unit_no:
-            raise ValueError('Unit number cannot be blank.')
+            raise ValueError('Unit number / smart alias cannot be blank.')
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{self.property.name} - Unit {self.unit_name}"
+        return f"{self.property.name} - Unit {self.unit_name} ({self.unit_no})"
 
 
 class UnitOption(models.Model):

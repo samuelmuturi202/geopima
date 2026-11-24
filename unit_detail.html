@@ -307,11 +307,11 @@
             <div class="meta-val" id="sidebar-property-name">--</div>
           </div>
           <div class="meta-field">
-            <label>Unit No</label>
+            <label>Unit No (Smart Alias)</label>
             <div class="meta-val" id="sidebar-unit-no">--</div>
           </div>
           <div class="meta-field">
-            <label>Unit Name</label>
+            <label>Unit / House Name</label>
             <div class="meta-val" id="sidebar-unit-name">--</div>
           </div>
           <div class="meta-field">
@@ -405,8 +405,8 @@
           <!-- Row 1: Name, Category, Unit Type -->
           <div class="unit-grid-row-1">
             <div class="form-group">
-              <input type="text" id="edit-unit-name-input" required placeholder="Name">
-              <span class="field-hint">Name <span class="required">required</span></span>
+              <input type="text" id="edit-unit-name-input" required placeholder="Unit / House Name">
+              <span class="field-hint">Unit / House Name <span class="required">required</span> (updates smart alias)</span>
             </div>
             <div class="form-group">
               <select id="edit-unit-category-input" required>
@@ -491,6 +491,23 @@
 
       const API_BASE_URL = 'https://geopima.onrender.com/api/v1';
 
+      function normalizeAliasSegment(value) {
+        return String(value || '')
+          .trim()
+          .replace(/\s+/g, '-')
+          .replace(/[^A-Za-z0-9_-]/g, '')
+          .toUpperCase();
+      }
+
+      function buildSmartAlias(propCode, houseName) {
+        const cleanPropId = normalizeAliasSegment(propCode);
+        const cleanHouseName = normalizeAliasSegment(houseName);
+        if (!cleanPropId && !cleanHouseName) return '';
+        if (!cleanHouseName) return `${cleanPropId}-`;
+        if (!cleanPropId) return cleanHouseName;
+        return `${cleanPropId}-${cleanHouseName}`;
+      }
+
       async function fetchAPI(endpoint, options = {}) {
         const token = localStorage.getItem('access_token');
         const headers = {
@@ -510,6 +527,7 @@
 
       let unitData = {};
       let propertyData = {};
+      let resolvedPropertyNo = '';
 
       try {
         // Fetch Unit Details
@@ -526,15 +544,16 @@
         document.getElementById('sidebar-landlord-no').textContent = landlordObj.landlord_id || landlordObj.code || propertyData.landlord_no || 'PL061';
         document.getElementById('sidebar-landlord-name').textContent = (landlordObj.name || propertyData.landlord_name || 'AGNES NJAMBI').toUpperCase();
         
-        document.getElementById('sidebar-property-no').textContent = propertyData.property_id || propertyData.code || `WP0${propertyId || '68'}`;
-        document.getElementById('sidebar-property-name').textContent = (propertyData.name || 'AGNES NJAMBI').toUpperCase();
-        
-        const unitNoVal = unitData.unit_no || unitData.unit_number || `WU${unitData.id}`;
-        document.getElementById('sidebar-unit-no').textContent = unitNoVal;
+        resolvedPropertyNo = unitData.property_id || propertyData.property_id || propertyData.code || `WP0${propertyId || '68'}`;
+        document.getElementById('sidebar-property-no').textContent = resolvedPropertyNo;
+        document.getElementById('sidebar-property-name').textContent = (unitData.property_name || propertyData.name || 'AGNES NJAMBI').toUpperCase();
         
         const unitNameVal = unitData.unit_name || unitData.name || 'H1';
         document.getElementById('sidebar-unit-name').textContent = unitNameVal;
         document.getElementById('top-header-title').textContent = `${unitNameVal} — Unit Profile`;
+
+        const unitNoVal = unitData.unit_no || unitData.unit_number || buildSmartAlias(resolvedPropertyNo, unitNameVal) || `WU${unitData.id}`;
+        document.getElementById('sidebar-unit-no').textContent = unitNoVal;
 
         document.getElementById('sidebar-unit-type').textContent = (unitData.unit_type || 'SINGLE ROOM').toUpperCase();
         document.getElementById('sidebar-unit-category').textContent = (unitData.category || 'RESIDENTIAL').toUpperCase();
@@ -641,7 +660,8 @@
       if (editForm) {
         editForm.addEventListener('submit', async (e) => {
           e.preventDefault();
-          const nameVal = document.getElementById('edit-unit-name-input').value;
+          const nameVal = document.getElementById('edit-unit-name-input').value.trim();
+          const updatedAlias = buildSmartAlias(resolvedPropertyNo, nameVal);
           const rentVal = parseFloat(document.getElementById('edit-rent-input').value) || 0;
           const depositVal = parseFloat(document.getElementById('edit-deposit-input').value) || 0;
           const garbageVal = parseFloat(document.getElementById('edit-garbage-input').value) || 0;
@@ -651,6 +671,9 @@
           const internetVal = parseFloat(document.getElementById('edit-internet-input').value) || 0;
 
           const payload = {
+            unit_no: updatedAlias,
+            unit_number: updatedAlias,
+            unitNo: updatedAlias,
             unit_name: nameVal,
             name: nameVal,
             category: document.getElementById('edit-unit-category-input').value,
@@ -671,7 +694,7 @@
               method: 'PATCH',
               body: JSON.stringify(payload)
             });
-            alert('Unit updated successfully!');
+            alert(`Unit updated successfully! Smart Alias: ${updatedAlias}`);
             window.location.reload();
           } catch (err) {
             alert(`Failed to update unit: ${err.message}`);
